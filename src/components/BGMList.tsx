@@ -53,9 +53,9 @@ const bgm = tracks.map(_track => {
          * @param index the index which reprensents the original track index from tracks array
          */
         function PlayTrack(index: number) {
-            trackName = tracks[index];
-            trackPath = path.concat(trackName);
-            setCurrentUrl(trackPath);
+            trackName = tracks[index]; // will give the name of the track of the given original index, ex: test.mp3
+            trackPath = path.concat(trackName); // will combine the path of the file with the track name, ex: E:/BGM/test.mp3
+            setCurrentUrl(trackPath); // will update the state and put the next track path
         }
         
         /**
