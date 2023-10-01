@@ -1,20 +1,25 @@
 import { useState } from "react";
 import ReactPlayer from "react-player/file";
 import fs from 'fs'
-
-var jsmediatags = require("jsmediatags");
+import BGMShuffle from "./BGMShuffle";
+import TrackSkip from "./TrackSkip";
+import BGMLoadQueue from "./BGMLoadQueue";
+import TrackThumbnail from "./TrackThumbnail";
+import BGMSaveQueue from "./BGMSaveQueue";
+import BGMCurrentQueue from "./BGMCurrentQueue";
 
 let path = "E:/BGM/"
 let trackPath: string;
 let trackName: string;
 let bgmIndex = -1;
-let originaltrackIndex = 0;
+let originaltrackIndex = 0; 
 let saveQueueTimer = 0;
-const tracks = fs.readdirSync(path).map(item => item);
+let selectedBGMIndex = -1;
+const tracks = fs.readdirSync(path).map(item => item); // read all the tracks from directory declared in the path
 const bgm = tracks.map(_track => {
     return Object.assign(
-        {index: originaltrackIndex++},
-        {played: false}
+        {index: originaltrackIndex++}, // original index of the track
+        {played: false} // has been played in current queue
         )
     })
     
@@ -25,10 +30,11 @@ const bgm = tracks.map(_track => {
     
     function BGMList() {
         // console.log(bgm.length);
+        // const { playing, setPlaying } = props;
         const [currentUrl, setCurrentUrl] = useState<string>(trackPath);
         const [playing, setPlaying] = useState<boolean>(true);
-        const [selectedBGMIndex, setSelectedBGMIndex] = useState(-1);
-        const [thumbnail, setThumbnail] = useState<string>(currentUrl);
+        // console.log("test")
+        // const [selectedBGMIndex, setSelectedBGMIndex] = useState(-1);
         
         /**
          * Will find the next track that is still unplayed in the current queue and since every track
@@ -47,6 +53,16 @@ const bgm = tracks.map(_track => {
         }
 
         /**
+         * Shuffle by doing Fisher-Yates
+         */
+        function Shuffle() {
+            for (let index = bgm.length - 1; index > 0; index--) {
+                let j = Math.floor(Math.random() * (index + 1));
+                [bgm[index], bgm[j]] = [bgm[j], bgm[index]];
+            }
+            console.log(bgm);
+        }
+        /**
          * Will play the track by putting the name of the original track index and adding it the
          * correct file path, then set the file path as the current url which will automatically
          * play the track.
@@ -55,7 +71,45 @@ const bgm = tracks.map(_track => {
         function PlayTrack(index: number) {
             trackName = tracks[index]; // will give the name of the track of the given original index, ex: test.mp3
             trackPath = path.concat(trackName); // will combine the path of the file with the track name, ex: E:/BGM/test.mp3
+            // if (ReactPlayer.canPlay(trackPath) == false) { <- doesnt work with FILE:ERR_NOT_FOUND
+            //     console.error(trackName + " cant be played");
+            //     bgm[bgmIndex].played = true;
+            //     return;
+            // }
             setCurrentUrl(trackPath); // will update the state and put the track path
+        }
+
+        function CurrentQueue() {
+            SetBGMJson(); // CANT DO THIS WHEN FIRST SELECTING QUEUE OR WILL OVERWRITE QUEUE
+            GetBGMJson();
+            const bgmQueue = []; // the array of tracks of the next 10 tracks if possible
+            var tempIndex = 0; // times the for loop occured [min=1, max=10], 0 if none
+            let currentQueue = 0; // how many tracks have played in the current queue
+            let finalTrackIndex = 0; // named liked that because when for loop finishes will get the final index of the following 10 tracks
+            let tracksIndex = 0;
+            var queueTracks: any; // declared as var for organization for find index and find
+            for (let index = 0; index < 10; index++) {
+                queueTracks = bgm.findIndex((bgm: { played: boolean; }) => bgm.played === false); // get index of queue of the track in current queue
+                if (bgm.length - queueTracks < 0 || queueTracks == -1 ) {
+                    break;
+                }
+                finalTrackIndex = queueTracks; // when for loop finishes get the final track index
+                currentQueue = queueTracks; // index of current queue
+                queueTracks = bgm.find((bgm: { played: boolean; }) => bgm.played === false); // find the next track in the current queue
+                if (queueTracks === undefined) { // since it is possible to give undefined when all tracks have been played break from the loop
+                    break;
+                }
+                bgm[finalTrackIndex].played = true; // mark the bgm to played true to find next track
+                bgmQueue.push(tracks[queueTracks.index]); // put the name of the tracks into the queue
+                tempIndex = index+1; // add 1 into the times it ocurred for real life numbers [min=1, max=10] as for loop starts at 0 and ends on 9
+            }
+            // Since the tracks were marked true revert the process and mark it false the amount of tracks were marked true
+            for (let index = tempIndex; index > 0; index--) {
+                tracksIndex = finalTrackIndex - index; 
+                bgm[tracksIndex+1].played = false; 
+            }
+            console.log(bgmQueue);
+            console.log(tempIndex + " / " + (bgm.length - currentQueue) + " result(s) displayed");
         }
         
         /**
@@ -73,96 +127,46 @@ const bgm = tracks.map(_track => {
          * Will convert data from the json into the current bgm queue
          * @param message of the current action
          */
-        function GetBGMJson(message: string) {
-            const data = fs.readFileSync('BGMQUEUE.txt', 'utf8')
-            let jsonBGM = JSON.parse(data);
+        function GetBGMJson() {
+            const data = fs.readFileSync('BGMQUEUE.txt', 'utf8') // read the file and put it in data
+            let jsonBGM = JSON.parse(data); // parse the data into the json bgm variable
             // for every track in the json change the current bgm into the one in the json
             for (let index = 0; index < bgm.length; index++) {
                 bgm[index] = jsonBGM[index];
             }
-            console.log(message);
         }
     
         /**
          * Will set stringify current bgm into the json
          * @param message of current action
          */
-        function SetBGMJson(message: string) {
+        function SetBGMJson() {
             let jsonBGM = JSON.stringify(bgm);
             fs.writeFileSync('BGMQUEUE.txt', jsonBGM, 'utf8');
-            console.log(message);
         }
     
     return (
         <>
+            <BGMShuffle shuffle={Shuffle}/>
+            <TrackSkip skip={SkipTrack}/>
+            {/* <BGMLoadQueue load={GetBGMJson} play={PlayNextInQueue}/> */}
+            {/* <BGMSaveQueue save={SetBGMJson}/> */}
+            <BGMCurrentQueue queue={CurrentQueue}/>
+            {/* <TrackThumbnail url={currentUrl}/> */}
             <p onClick={() => {
-                SetBGMJson("saved queue");
+                SetBGMJson()
+                console.log("queue saved");
             }}>Save Queue</p>
 
             <p onClick={() => {
-                SetBGMJson("Current"); // CANT DO THIS WHEN FIRST SELECTING QUEUE OR WILL OVERWRITE QUEUE
-                GetBGMJson("Queue");
-                const bgmQueue = []; // the array of tracks of the next 10 tracks if possible
-                var tempIndex = 0; // times the for loop occured [min=1, max=10], 0 if none
-                let currentQueue = 0; // how many tracks have played in the current queue
-                let finalTrackIndex = 0; // named liked that because when for loop finishes will get the final index of the following 10 tracks
-                let tracksIndex = 0;
-                var queueTracks: any; // declared as var for organization for find index and find
-                for (let index = 0; index < 10; index++) {
-                    queueTracks = bgm.findIndex((bgm: { played: boolean; }) => bgm.played === false); // get index of queue of the track in current queue
-                    if (bgm.length - queueTracks < 0 || queueTracks == -1 ) {
-                        break;
-                    }
-                    finalTrackIndex = queueTracks; // when for loop finishes get the final track index
-                    currentQueue = queueTracks; // index of current queue
-                    queueTracks = bgm.find((bgm: { played: boolean; }) => bgm.played === false); // find the next track in the current queue
-                    if (queueTracks === undefined) { // since it is possible to give undefined when all tracks have been played break from the loop
-                        break;
-                    }
-                    bgm[finalTrackIndex].played = true; // mark the bgm to played true to find next track
-                    bgmQueue.push(tracks[queueTracks.index]); // put the name of the tracks into the queue
-                    tempIndex = index+1; // add 1 into the times it ocurred for real life numbers [min=1, max=10] as for loop starts at 0 and ends on 9
-                }
-                // Since the tracks were marked true revert the process and mark it false how many tracks were marked true
-                for (let index = tempIndex; index > 0; index--) {
-                    tracksIndex = finalTrackIndex - index; 
-                    bgm[tracksIndex+1].played = false; 
-                }
-                console.log(bgmQueue);
-                console.log(tempIndex + " / " + (bgm.length - currentQueue) + " result(s) displayed");
-            }}>Current Queue</p>
-
-            <p onClick={() => {
-                SkipTrack();
-            }}>Skip</p>
-
-            <p onClick={() => {
-                // setPlaying(!playing)
-                if (playing == false) {
-                    setPlaying(true);
-                    console.log("Resumed")
-                } else {
-                    setPlaying(false);
-                    console.log("Paused")
-                }
+                setPlaying(!playing) // if paused play, if playing pause
+                console.log(playing) // Paused: true | false
             }}>Pause</p>
 
             <p onClick={() => {
-                GetBGMJson("read"); // get bgm from json
+                GetBGMJson(); // get bgm from json
                 PlayNextInQueue(); // play the next unplayed track from the json
             }}>Load Queue</p>
-
-            <p onClick={() => {
-                // Shuffle by doing Fisher-Yates
-                for (let index = bgm.length - 1; index > 0; index--) {
-                    let j = Math.floor(Math.random() * (index + 1));
-                    [bgm[index], bgm[j]] = [bgm[j], bgm[index]];
-                }
-                console.log(bgm);
-                SetBGMJson("saved"); // save it in the json
-            }}>ShuffleBGM</p>
-
-            <img src={thumbnail}></img>
 
             <ReactPlayer playing={playing} url={currentUrl}
             onStart={() => {
@@ -171,21 +175,6 @@ const bgm = tracks.map(_track => {
                     EndOfQueue()
                     return;
                 }
-                // works but gives deprecationWarning: buffer() is deprecated <- dont know how to fix
-                // new jsmediatags.Reader(currentUrl).setTagsToRead(["picture"]).read({
-                //     onSuccess: function(tag: any) {
-                //         var image = tag.tags.picture;
-                //         var base64String = "";
-                //         for (var index = 0; index < image.data.length; index++) {
-                //             base64String += String.fromCharCode(image.data[index]);
-                //         }
-                //         var base64 = "data:" + image.format + ";base64," + window.btoa(base64String);
-                //         setThumbnail(base64);
-                //     },
-                //     onError: function(error: any) {
-                //         console.log(':(', error.type, error.info);
-                //     }
-                // })
                 console.log(currentTrack);
                 bgmIndex = currentTrack;
                 bgm[bgmIndex].played = true; // set the current track as played
@@ -194,7 +183,8 @@ const bgm = tracks.map(_track => {
                 // if already played 5 tracks auto save the queue and set the timer back to 0
                 if (saveQueueTimer == 5) {
                     saveQueueTimer = 0;
-                    SetBGMJson("auto save activated"); // save it into the json
+                    SetBGMJson(); // save it into the json
+                    console.log("auto saved")
                 }
                 console.log(currentUrl); // url of the current playing track
 
@@ -211,8 +201,10 @@ const bgm = tracks.map(_track => {
                     <li className={selectedBGMIndex === index ? 'list-group-item active' : 'list-group-item'} // <- el html no sirve en electron
                     key={item} onClick={() => { 
                         // Un bug donde escoge el no el proximo sino el despues de ese
-                        GetBGMJson("clicked");
-                        setSelectedBGMIndex(index); 
+                        console.log("clicked");
+                        GetBGMJson();
+                        // setSelectedBGMIndex(index); 
+                        selectedBGMIndex = index;
                         bgmIndex = index;
                         var nextTrack = bgm.findIndex(bgm => bgm.played === false); // Will find next queue index
                         PlayTrack(bgmIndex)

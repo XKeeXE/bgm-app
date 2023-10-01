@@ -1,13 +1,9 @@
 import fs from 'fs';
 
 const BGMSaveQueue = (props: any) => {
+    console.log("queue saved")
     return (
-        <button onClick={() => {
-            let jsonBGM = JSON.stringify(props.bgm);
-            fs.writeFileSync('BGMQUEUE.txt', jsonBGM, 'utf8');
-            console.log(props.message);
-        }
-        }>Save Queue</button>
+        <button onClick={props.save}>Save Queue</button>
     );
 }
 
