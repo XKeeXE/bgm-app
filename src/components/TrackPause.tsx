@@ -1,12 +1,10 @@
-import { useState } from "react";
-
-function TrackPause() {
-    const [playing, setPlaying] = useState<boolean>(true);
+function TrackPause(props: any) {
+    const { playing, setPlaying } = props;
 
     return (
         <button onClick={() => {
-            setPlaying(!playing)
-            console.log(playing);
+            setPlaying(!playing); // if paused play, if playing pause
+            console.log(playing); // Paused: true | false
         }}>Pause</button>
     );
 }

@@ -31,11 +31,11 @@ import TrackPause from './components/TrackPause'
 function App() {
     // const [currentUrl, setCurrentUrl] = useState<string>(trackPath);
     // const [selectedBGMIndex, setSelectedBGMIndex] = useState(-1);
-    
+    // const [playing, setPlaying] = useState<boolean>(true);
     
     return (
         <>
-            <TrackPause/>
+            {/* <TrackPause playing={playing} setPlaying={setPlaying}/> */}
             <BGMList/>
             {/* <TrackThumbnail url={currentUrl}/> */}
             {/* <BGMLoadQueue bgm={bgm} message="Queue Loaded"/> // bgmload, save, pause, 

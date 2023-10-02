@@ -7,6 +7,11 @@ import BGMLoadQueue from "./BGMLoadQueue";
 import TrackThumbnail from "./TrackThumbnail";
 import BGMSaveQueue from "./BGMSaveQueue";
 import BGMCurrentQueue from "./BGMCurrentQueue";
+import TrackPause from "./TrackPause";
+// import { DataGrid } from '@mui/x-data-grid';
+// import styled from "@emotion/styled";
+
+let { getAudioDurationInSeconds } = require('get-audio-duration');
 
 let path = "E:/BGM/"
 let trackPath: string;
@@ -52,16 +57,37 @@ const bgm = tracks.map(_track => {
             PlayTrack(bgmIndex);
         }
 
+        // function Tracklength(track: any, index: number) {
+        //     let trackDir = path.concat(track[index])
+        //     let durationString = "";
+        //     getAudioDurationInSeconds(trackDir).then((duration: any) => { // esto sirve pero da un local blah blah blah
+        //         let dateObj = new Date(duration * 1000);
+        //         let minutes = dateObj.getUTCMinutes();
+        //         let seconds = dateObj.getSeconds();
+                
+        //         durationString = minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+        //     })
+        //     return durationString;
+        // }
+        
         /**
          * Shuffle by doing Fisher-Yates
-         */
-        function Shuffle() {
-            for (let index = bgm.length - 1; index > 0; index--) {
-                let j = Math.floor(Math.random() * (index + 1));
-                [bgm[index], bgm[j]] = [bgm[j], bgm[index]];
+        */
+       function Shuffle() {
+           for (let index = bgm.length - 1; index > 0; index--) {
+               let j = Math.floor(Math.random() * (index + 1));
+               [bgm[index], bgm[j]] = [bgm[j], bgm[index]];
             }
             console.log(bgm);
         }
+
+        function LoadQueue() {
+            console.log("Queue Loaded")
+            GetBGMJson(); // get bgm from json
+            PlayNextInQueue(); // play the next unplayed track from the json
+
+        }
+
         /**
          * Will play the track by putting the name of the original track index and adding it the
          * correct file path, then set the file path as the current url which will automatically
@@ -77,6 +103,15 @@ const bgm = tracks.map(_track => {
             //     return;
             // }
             setCurrentUrl(trackPath); // will update the state and put the track path
+            getAudioDurationInSeconds(trackPath).then((duration: any) => {
+                let dateObj = new Date(duration * 1000);
+                let minutes = dateObj.getUTCMinutes();
+                let seconds = dateObj.getSeconds();
+                
+                let timeString = minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+                console.log(timeString);
+            })
+
         }
 
         function CurrentQueue() {
@@ -147,26 +182,13 @@ const bgm = tracks.map(_track => {
     
     return (
         <>
+            <TrackPause playing={playing} setPlaying={setPlaying}/>
             <BGMShuffle shuffle={Shuffle}/>
             <TrackSkip skip={SkipTrack}/>
-            {/* <BGMLoadQueue load={GetBGMJson} play={PlayNextInQueue}/> */}
-            {/* <BGMSaveQueue save={SetBGMJson}/> */}
+            <BGMSaveQueue bgm={bgm}/>
+            <BGMLoadQueue load={LoadQueue}/>
             <BGMCurrentQueue queue={CurrentQueue}/>
             {/* <TrackThumbnail url={currentUrl}/> */}
-            <p onClick={() => {
-                SetBGMJson()
-                console.log("queue saved");
-            }}>Save Queue</p>
-
-            <p onClick={() => {
-                setPlaying(!playing) // if paused play, if playing pause
-                console.log(playing) // Paused: true | false
-            }}>Pause</p>
-
-            <p onClick={() => {
-                GetBGMJson(); // get bgm from json
-                PlayNextInQueue(); // play the next unplayed track from the json
-            }}>Load Queue</p>
 
             <ReactPlayer playing={playing} url={currentUrl}
             onStart={() => {
@@ -194,6 +216,40 @@ const bgm = tracks.map(_track => {
                 PlayNextInQueue();
                 }
             }/>
+            {/* <DataGrid columns={[]} rows={[]}/> */}
+            {/* <table>
+                <tbody>
+                    {tracks.map((item, index) => 
+                    <tr className="track-list" key={item}>
+                    <td className={selectedBGMIndex === index ? 'list-group-item active' : 'list-group-item'}
+                    key={item} onClick={() => {
+                        console.log("clicked");
+                        GetBGMJson();
+                        setSelectedBGMIndex(index); 
+                        // selectedBGMIndex = index;
+                        bgmIndex = index;
+                        var nextTrack = bgm.findIndex(bgm => bgm.played === false); // Will find next queue index
+                        PlayTrack(bgmIndex)
+                        console.log(nextTrack);
+                    }}>{item}
+                    </td>
+                    <td>
+                        {/* {Fest(item, index)} */}
+                    {/* </td>
+                    </tr>)}
+                    <tr>
+                        <th>test3
+                            teas2
+                            twas
+                            w2
+                        </th>
+                        <td>test4
+                            Test5
+                            test6
+                        </td>
+                    </tr>
+                </tbody> */}
+            {/* /</table> */} 
             <h1>List</h1>
                 {tracks.length === 0 && <p>No BGM found</p>}
                 <ul className="list-group">

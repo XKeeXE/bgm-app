@@ -9,6 +9,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/material": "^5.14.11",
+    "@mui/x-data-grid": "^6.16.0",
+    "get-audio-duration": "^4.0.1",
     "jsmediatags": "^3.9.7",
     "list-react-files": "^0.2.0",
     "lodash": "^4.17.21",
