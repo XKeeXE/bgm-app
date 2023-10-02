@@ -1,4 +1,4 @@
-#root {
+/* #root {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
@@ -16,6 +16,31 @@
 }
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
+} */
+
+.left-side {
+  width: 50%;
+  object-fit: fill;
+  text-wrap: nowrap;
+  
+}
+
+.current-track-name {
+  font-size: medium;
+  mask-border-outset: 1;
+}
+
+.current-track-duration {
+  font-size: medium;
+}
+
+.bgm-queue {
+  list-style-type:decimal-leading-zero;
+  font-size: small;
+}
+
+.bgm-results {
+  font-style:italic;
 }
 
 @keyframes logo-spin {
@@ -33,9 +58,9 @@
   }
 }
 
-.card {
+/* .card {
   padding: 2em;
-}
+} */
 
 .read-the-docs {
   color: #888;

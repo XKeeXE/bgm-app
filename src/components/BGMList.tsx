@@ -15,18 +15,20 @@ let { getAudioDurationInSeconds } = require('get-audio-duration');
 
 let path = "E:/BGM/"
 let trackPath: string;
-let trackName: string;
+let trackName = '';
 let bgmIndex = -1;
 let originaltrackIndex = 0; 
 let saveQueueTimer = 0;
 let selectedBGMIndex = -1;
+let queue: string[] = [];
+let trackDuration = '';
 const tracks = fs.readdirSync(path).map(item => item); // read all the tracks from directory declared in the path
 const bgm = tracks.map(_track => {
     return Object.assign(
         {index: originaltrackIndex++}, // original index of the track
         {played: false} // has been played in current queue
         )
-    })
+    });
     
     function EndOfQueue() {
         console.log("WOO END OF QUEUE");
@@ -34,37 +36,36 @@ const bgm = tracks.map(_track => {
     }
     
     function BGMList() {
-        // console.log(bgm.length);
         // const { playing, setPlaying } = props;
         const [currentUrl, setCurrentUrl] = useState<string>(trackPath);
         const [playing, setPlaying] = useState<boolean>(true);
-        // console.log("test")
+        const [results, setResults] = useState<string>("None");
         // const [selectedBGMIndex, setSelectedBGMIndex] = useState(-1);
         
         /**
          * Will find the next track that is still unplayed in the current queue and since every track
          * has the original track index inside it get it and play the track.
          * @returns if next track gives undefined which means end of queue as all track has been played
-         */
-        function PlayNextInQueue() {
-            var nextTrack = bgm.find((bgm: { played: boolean; }) => bgm.played === false); // find track
-            console.log(nextTrack);
-            if (nextTrack === undefined) {
-                EndOfQueue();
-                return;
+        */
+       function PlayNextInQueue() {
+           var nextTrack = bgm.find((bgm: { played: boolean; }) => bgm.played === false); // find track
+           console.log(nextTrack);
+           if (nextTrack === undefined) {
+               EndOfQueue();
+               return;
             }
             bgmIndex = nextTrack?.index as number;
             PlayTrack(bgmIndex);
         }
-
+        
         // function Tracklength(track: any, index: number) {
-        //     let trackDir = path.concat(track[index])
-        //     let durationString = "";
-        //     getAudioDurationInSeconds(trackDir).then((duration: any) => { // esto sirve pero da un local blah blah blah
-        //         let dateObj = new Date(duration * 1000);
-        //         let minutes = dateObj.getUTCMinutes();
-        //         let seconds = dateObj.getSeconds();
-                
+            //     let trackDir = path.concat(track[index])
+            //     let durationString = "";
+            //     getAudioDurationInSeconds(trackDir).then((duration: any) => { // esto sirve pero da un local blah blah blah
+            //         let dateObj = new Date(duration * 1000);
+            //         let minutes = dateObj.getUTCMinutes();
+            //         let seconds = dateObj.getSeconds();
+            
         //         durationString = minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
         //     })
         //     return durationString;
@@ -80,12 +81,12 @@ const bgm = tracks.map(_track => {
             }
             console.log(bgm);
         }
-
+        
         function LoadQueue() {
             console.log("Queue Loaded")
             GetBGMJson(); // get bgm from json
             PlayNextInQueue(); // play the next unplayed track from the json
-
+            
         }
 
         /**
@@ -93,29 +94,28 @@ const bgm = tracks.map(_track => {
          * correct file path, then set the file path as the current url which will automatically
          * play the track.
          * @param index the index which reprensents the original track index from tracks array
-         */
-        function PlayTrack(index: number) {
-            trackName = tracks[index]; // will give the name of the track of the given original index, ex: test.mp3
-            trackPath = path.concat(trackName); // will combine the path of the file with the track name, ex: E:/BGM/test.mp3
-            // if (ReactPlayer.canPlay(trackPath) == false) { <- doesnt work with FILE:ERR_NOT_FOUND
-            //     console.error(trackName + " cant be played");
-            //     bgm[bgmIndex].played = true;
-            //     return;
-            // }
-            setCurrentUrl(trackPath); // will update the state and put the track path
-            getAudioDurationInSeconds(trackPath).then((duration: any) => {
-                let dateObj = new Date(duration * 1000);
-                let minutes = dateObj.getUTCMinutes();
-                let seconds = dateObj.getSeconds();
-                
-                let timeString = minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
-                console.log(timeString);
+        */
+       function PlayTrack(index: number) {
+           trackName = tracks[index]; // will give the name of the track of the given original index, ex: test.mp3
+           trackPath = path.concat(trackName); // will combine the path of the file with the track name, ex: E:/BGM/test.mp3
+           // if (ReactPlayer.canPlay(trackPath) == false) { <- doesnt work with FILE:ERR_NOT_FOUND
+           //     console.error(trackName + " cant be played");
+           //     bgm[bgmIndex].played = true;
+           //     return;
+           // }
+           getAudioDurationInSeconds(trackPath).then((duration: any) => {
+               let dateObj = new Date(duration * 1000);
+               let minutes = dateObj.getUTCMinutes();
+               let seconds = dateObj.getSeconds();
+               
+               trackDuration = minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0'); // ex: 01:34 
             })
-
+            setCurrentUrl(trackPath); // will update the state and put the track path
+            
         }
-
+        
         function CurrentQueue() {
-            SetBGMJson(); // CANT DO THIS WHEN FIRST SELECTING QUEUE OR WILL OVERWRITE QUEUE
+            SetBGMJson(); // CANT PRESS CURRENT QUEUE WHEN FIRST SELECTING QUEUE OR WILL OVERWRITE QUEUE
             GetBGMJson();
             const bgmQueue = []; // the array of tracks of the next 10 tracks if possible
             var tempIndex = 0; // times the for loop occured [min=1, max=10], 0 if none
@@ -143,131 +143,151 @@ const bgm = tracks.map(_track => {
                 tracksIndex = finalTrackIndex - index; 
                 bgm[tracksIndex+1].played = false; 
             }
-            console.log(bgmQueue);
-            console.log(tempIndex + " / " + (bgm.length - currentQueue) + " result(s) displayed");
+            queue = bgmQueue.map(item => item)
+            // console.log(queue)
+            // console.log(bgmQueue);
+            // console.log(tempIndex + " / " + (bgm.length - currentQueue) + " result(s) displayed");
+            setResults(tempIndex + " / " + (bgm.length - currentQueue) + " result(s) displayed"); // <- el re-render hace que el queue haga display correctamente
         }
         
         /**
          * Will find the next track index in the current queue and overwrite the current url that is playing
-         */
-        function SkipTrack() {
-            var nextTrack = bgm.findIndex((bgm: { played: boolean; }) => bgm.played === false); // find index
-            bgmIndex = bgm[nextTrack].index
-            PlayTrack(bgmIndex);
-            console.log("skipped");
-            console.log(currentUrl);
+        */
+       function SkipTrack() {
+           var nextTrack = bgm.findIndex((bgm: { played: boolean; }) => bgm.played === false); // find index
+           bgmIndex = bgm[nextTrack].index
+           PlayTrack(bgmIndex);
+           console.log("skipped");
+           console.log(currentUrl);
         }
-    
+        
         /**
          * Will convert data from the json into the current bgm queue
          * @param message of the current action
-         */
-        function GetBGMJson() {
-            const data = fs.readFileSync('BGMQUEUE.txt', 'utf8') // read the file and put it in data
-            let jsonBGM = JSON.parse(data); // parse the data into the json bgm variable
-            // for every track in the json change the current bgm into the one in the json
-            for (let index = 0; index < bgm.length; index++) {
-                bgm[index] = jsonBGM[index];
+        */
+       function GetBGMJson() {
+           const data = fs.readFileSync('BGMQUEUE.txt', 'utf8') // read the file and put it in data
+           let jsonBGM = JSON.parse(data); // parse the data into the json bgm variable
+           // for every track in the json change the current bgm into the one in the json
+           for (let index = 0; index < bgm.length; index++) {
+               bgm[index] = jsonBGM[index];
             }
         }
-    
+        
         /**
          * Will set stringify current bgm into the json
          * @param message of current action
-         */
+        */
         function SetBGMJson() {
             let jsonBGM = JSON.stringify(bgm);
             fs.writeFileSync('BGMQUEUE.txt', jsonBGM, 'utf8');
         }
-    
-    return (
-        <>
-            <TrackPause playing={playing} setPlaying={setPlaying}/>
-            <BGMShuffle shuffle={Shuffle}/>
-            <TrackSkip skip={SkipTrack}/>
-            <BGMSaveQueue bgm={bgm}/>
-            <BGMLoadQueue load={LoadQueue}/>
-            <BGMCurrentQueue queue={CurrentQueue}/>
-            {/* <TrackThumbnail url={currentUrl}/> */}
+        
+        return (
+            <>
+            <div className="bgm-app">
+                <div className="left-side">
+                    <div className="top-side">
+                        <TrackPause playing={playing} setPlaying={setPlaying}/>
+                        <BGMShuffle shuffle={Shuffle}/>
+                        <TrackSkip skip={SkipTrack}/>
+                        <BGMSaveQueue bgm={bgm}/>
+                        <BGMLoadQueue load={LoadQueue}/>
+                        <div className="current-track">
+                            <button className="current-track-name">{trackName.replace(".mp3", '')}</button>
+                            <button className="current-track-duration">{trackDuration}</button> 
+                        </div>
+                    </div>
+                    {queue.length === 0 && <p>No current queue found</p>}
+                    <ul className="bgm-queue">
+                        {queue.map((item) => 
+                        <li key={item}>{item.replace('.mp3', '')}
+                        </li>)}
+                    </ul>
+                    <p className="bgm-results">{results}</p>
+                    <TrackThumbnail className="track-thumbnail" url={currentUrl}/>
+                </div>
 
-            <ReactPlayer playing={playing} url={currentUrl}
-            onStart={() => {
-                var currentTrack = bgm.findIndex(bgm => bgm.played === false); // Will find current queue index in the current track
-                if (currentTrack == -1) {
-                    EndOfQueue()
-                    return;
+                <ReactPlayer playing={playing} url={currentUrl}
+                onStart={() => {
+                    var currentTrack = bgm.findIndex(bgm => bgm.played === false); // Will find current queue index in the current track
+                    if (currentTrack == -1) {
+                        EndOfQueue()
+                        return;
+                    }
+                    console.log(currentTrack);
+                    bgmIndex = currentTrack;
+                    bgm[bgmIndex].played = true; // set the current track as played
+                    console.log(bgm[bgmIndex]);
+                    saveQueueTimer++; // add 1 into the timer
+                    // if already played 5 tracks auto save the queue and set the timer back to 0
+                    if (saveQueueTimer == 5) {
+                        saveQueueTimer = 0;
+                        SetBGMJson(); // save it into the json
+                        console.log("auto saved")
+                    }
+                    console.log(currentUrl); // url of the current playing track
+                    CurrentQueue();
+                }}
+                onEnded={() => {
+                    // Must find next track in the current queue
+                    
+                    PlayNextInQueue();
                 }
-                console.log(currentTrack);
-                bgmIndex = currentTrack;
-                bgm[bgmIndex].played = true; // set the current track as played
-                console.log(bgm[bgmIndex]);
-                saveQueueTimer++; // add 1 into the timer
-                // if already played 5 tracks auto save the queue and set the timer back to 0
-                if (saveQueueTimer == 5) {
-                    saveQueueTimer = 0;
-                    SetBGMJson(); // save it into the json
-                    console.log("auto saved")
-                }
-                console.log(currentUrl); // url of the current playing track
-
-            }}
-            onEnded={() => {
-                // Must find next track in the current queue
-                PlayNextInQueue();
-                }
-            }/>
-            {/* <DataGrid columns={[]} rows={[]}/> */}
-            {/* <table>
-                <tbody>
-                    {tracks.map((item, index) => 
-                    <tr className="track-list" key={item}>
-                    <td className={selectedBGMIndex === index ? 'list-group-item active' : 'list-group-item'}
-                    key={item} onClick={() => {
-                        console.log("clicked");
-                        GetBGMJson();
-                        setSelectedBGMIndex(index); 
-                        // selectedBGMIndex = index;
-                        bgmIndex = index;
-                        var nextTrack = bgm.findIndex(bgm => bgm.played === false); // Will find next queue index
-                        PlayTrack(bgmIndex)
-                        console.log(nextTrack);
-                    }}>{item}
-                    </td>
-                    <td>
-                        {/* {Fest(item, index)} */}
-                    {/* </td>
-                    </tr>)}
-                    <tr>
-                        <th>test3
-                            teas2
-                            twas
-                            w2
-                        </th>
-                        <td>test4
-                            Test5
-                            test6
+                }/>
+                {/* <DataGrid columns={[]} rows={[]}/> */}
+                {/* <table>
+                    <tbody>
+                        {tracks.map((item, index) => 
+                        <tr className="track-list" key={item}>
+                        <td className={selectedBGMIndex === index ? 'list-group-item active' : 'list-group-item'}
+                        key={item} onClick={() => {
+                            console.log("clicked");
+                            GetBGMJson();
+                            setSelectedBGMIndex(index); 
+                            // selectedBGMIndex = index;
+                            bgmIndex = index;
+                            var nextTrack = bgm.findIndex(bgm => bgm.played === false); // Will find next queue index
+                            PlayTrack(bgmIndex)
+                            console.log(nextTrack);
+                        }}>{item}
                         </td>
-                    </tr>
-                </tbody> */}
-            {/* /</table> */} 
-            <h1>List</h1>
-                {tracks.length === 0 && <p>No BGM found</p>}
-                <ul className="list-group">
-                    {tracks.map((item, index) => 
-                    <li className={selectedBGMIndex === index ? 'list-group-item active' : 'list-group-item'} // <- el html no sirve en electron
-                    key={item} onClick={() => { 
-                        // Un bug donde escoge el no el proximo sino el despues de ese
-                        console.log("clicked");
-                        GetBGMJson();
-                        // setSelectedBGMIndex(index); 
-                        selectedBGMIndex = index;
-                        bgmIndex = index;
-                        var nextTrack = bgm.findIndex(bgm => bgm.played === false); // Will find next queue index
-                        PlayTrack(bgmIndex)
-                        console.log(nextTrack);
-                }}>{item}
-                </li>)}
-            </ul>
+                        <td>
+                            {/* {Fest(item, index)} */}
+                        {/* </td>
+                        </tr>)}
+                        <tr>
+                            <th>test3
+                                teas2
+                                twas
+                                w2
+                            </th>
+                            <td>test4
+                                Test5
+                                test6
+                            </td>
+                        </tr>
+                    </tbody> */}
+                {/* /</table> */} 
+                <h1>List</h1>
+                    {tracks.length === 0 && <p>No BGM found</p>}
+                    <ul className="bgm-list">
+                        {tracks.map((item, index) => 
+                        <li className={selectedBGMIndex === index ? 'list-group-item active' : 'list-group-item'} // <- el html no sirve en electron
+                        key={item} onClick={() => { 
+                            // Un bug donde escoge el no el proximo sino el despues de ese
+                            console.log("clicked");
+                            GetBGMJson();
+                            // setSelectedBGMIndex(index); 
+                            selectedBGMIndex = index;
+                            bgmIndex = index;
+                            var nextTrack = bgm.findIndex(bgm => bgm.played === false); // Will find next queue index
+                            PlayTrack(bgmIndex)
+                            console.log(nextTrack);
+                    }}>{item.replace('.mp3', '')}
+                    </li>)}
+                </ul>
+            </div>
             </>
     );
 }

@@ -1,9 +1,9 @@
 import ReactPlayer from "react-player";
 
-function TrackDuration() {
+function TrackSeek() {
     // return (
         
     // );
 }
 
-export default TrackDuration;
+export default TrackSeek;

@@ -24,7 +24,7 @@ function TrackThumbnail(props: any) {
         }
     })
     return (
-        <img src={thumbnail}/>
+        <img src={thumbnail} width={400} height={250} />
     );
 }
 
