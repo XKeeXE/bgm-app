@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import ReactPlayer from "react-player/file";
 import fs from 'fs'
 import BGMShuffle from "./BGMShuffle";
@@ -8,6 +8,9 @@ import TrackThumbnail from "./TrackThumbnail";
 import BGMSaveQueue from "./BGMSaveQueue";
 import BGMCurrentQueue from "./BGMCurrentQueue";
 import TrackPause from "./TrackPause";
+import BaseReactPlayer from "react-player/base";
+import TrackSeek from "./TrackSeek";
+// import ReactPlayer from 'react-player
 // import { DataGrid } from '@mui/x-data-grid';
 // import styled from "@emotion/styled";
 
@@ -17,15 +20,14 @@ let path = "E:/BGM/"
 let trackPath: string;
 let trackName = '';
 let bgmIndex = -1;
-let originaltrackIndex = 0; 
+let originalTrackIndex = 0; 
 let saveQueueTimer = 0;
 let selectedBGMIndex = -1;
 let queue: string[] = [];
-let trackDuration = '';
 const tracks = fs.readdirSync(path).map(item => item); // read all the tracks from directory declared in the path
 const bgm = tracks.map(_track => {
     return Object.assign(
-        {index: originaltrackIndex++}, // original index of the track
+        {index: originalTrackIndex++}, // original index of the track
         {played: false} // has been played in current queue
         )
     });
@@ -37,9 +39,12 @@ const bgm = tracks.map(_track => {
     
     function BGMList() {
         // const { playing, setPlaying } = props;
+        // const videoRef = useRef<any>();
         const [currentUrl, setCurrentUrl] = useState<string>(trackPath);
         const [playing, setPlaying] = useState<boolean>(true);
         const [results, setResults] = useState<string>("None");
+        const [durationString, setDurationString] = useState('');
+        
         // const [selectedBGMIndex, setSelectedBGMIndex] = useState(-1);
         
         /**
@@ -107,8 +112,8 @@ const bgm = tracks.map(_track => {
                let dateObj = new Date(duration * 1000);
                let minutes = dateObj.getUTCMinutes();
                let seconds = dateObj.getSeconds();
-               
-               trackDuration = minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0'); // ex: 01:34 
+
+               setDurationString(minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0')); // ex: 01:34
             })
             setCurrentUrl(trackPath); // will update the state and put the track path
             
@@ -159,6 +164,7 @@ const bgm = tracks.map(_track => {
            PlayTrack(bgmIndex);
            console.log("skipped");
            console.log(currentUrl);
+           
         }
         
         /**
@@ -195,8 +201,9 @@ const bgm = tracks.map(_track => {
                         <BGMLoadQueue load={LoadQueue}/>
                         <div className="current-track">
                             <button className="current-track-name">{trackName.replace(".mp3", '')}</button>
-                            <button className="current-track-duration">{trackDuration}</button> 
+                            <button className="current-track-duration">{durationString}</button> 
                         </div>
+                        {/* <TrackSeek playerRef={videoRef}/> */}
                     </div>
                     {queue.length === 0 && <p>No current queue found</p>}
                     <ul className="bgm-queue">
@@ -208,7 +215,7 @@ const bgm = tracks.map(_track => {
                     <TrackThumbnail className="track-thumbnail" url={currentUrl}/>
                 </div>
 
-                <ReactPlayer playing={playing} url={currentUrl}
+                <ReactPlayer playing={playing} url={currentUrl} 
                 onStart={() => {
                     var currentTrack = bgm.findIndex(bgm => bgm.played === false); // Will find current queue index in the current track
                     if (currentTrack == -1) {
