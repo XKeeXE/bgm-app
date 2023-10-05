@@ -6,12 +6,7 @@ import TrackSkip from "./TrackSkip";
 import BGMLoadQueue from "./BGMLoadQueue";
 import TrackThumbnail from "./TrackThumbnail";
 import BGMSaveQueue from "./BGMSaveQueue";
-import BGMCurrentQueue from "./BGMCurrentQueue";
 import TrackPause from "./TrackPause";
-
-// import ReactPlayer from 'react-player
-// import { DataGrid } from '@mui/x-data-grid';
-// import styled from "@emotion/styled";
 
 let { getAudioDurationInSeconds } = require('get-audio-duration');
 
