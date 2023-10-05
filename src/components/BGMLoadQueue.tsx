@@ -2,7 +2,7 @@
 
 function BGMLoadQueue(props: any) {
     return (
-        <button onClick={props.load}>Load Queue</button>
+        <button className='button' onClick={props.load}>Load Queue</button>
     );
 }
 

@@ -23,6 +23,9 @@
   
 }
 
+.button {
+}
+
 .left-side {
   width: 50%;
   object-fit: fill;
@@ -80,15 +83,18 @@
   padding-left: 100px;
 }
 
+
+
 .bgm-list {
   font-size: small;
   /* float: right; */
   list-style-type: none;
-  margin: auto;
+  /* margin: auto; */
   /* position: absolute; */
   padding-left: 300px;
   /* overflow-y: scroll; */
   overflow: hidden;
+  /* margin-top: 50px; */
   /* overflow: auto; */
   /* overflow:scroll; */
   /* overflow: scroll;

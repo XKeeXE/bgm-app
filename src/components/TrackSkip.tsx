@@ -1,6 +1,6 @@
 const TrackSkip = (props: any) => {
     return (
-       <button onClick={props.skip}>Skip Track</button>
+       <button className='button' onClick={props.skip}>Skip Track</button>
     );
 }
 
