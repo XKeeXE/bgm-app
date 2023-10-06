@@ -7,6 +7,7 @@ import BGMLoadQueue from "./BGMLoadQueue";
 import TrackThumbnail from "./TrackThumbnail";
 import BGMSaveQueue from "./BGMSaveQueue";
 import TrackPause from "./TrackPause";
+import BGMVolume from "./BGMVolume";
 
 let { getAudioDurationInSeconds } = require('get-audio-duration');
 
@@ -38,6 +39,8 @@ const bgm = tracks.map(_track => {
         const [playing, setPlaying] = useState<boolean>(true);
         const [results, setResults] = useState<string>("None");
         const [durationString, setDurationString] = useState('');
+        const [bgmVolume, setBGMVolume] = useState(0.5);
+        // console.log(bgmVolume);
         // const [selectedBGMIndex, setSelectedBGMIndex] = useState(-1);
         
         /**
@@ -190,6 +193,7 @@ const bgm = tracks.map(_track => {
                         <TrackSkip skip={SkipTrack}/>
                         <BGMSaveQueue bgm={bgm}/>
                         <BGMLoadQueue load={LoadQueue}/>
+                        <BGMVolume bgmVolume={bgmVolume} setBGMVolume={setBGMVolume}/>
                         <div className="current-track">
                             <p className="current-track-name">{trackName.replace(".mp3", '')}</p>
                             <p className="current-track-duration">{durationString}</p> 
@@ -204,7 +208,7 @@ const bgm = tracks.map(_track => {
                     </ul>
                     <p className="bgm-results">{results}</p>
                     <TrackThumbnail className="track-thumbnail" url={currentUrl}/>
-                        <ReactPlayer playing={playing} url={currentUrl} 
+                        <ReactPlayer playing={playing} url={currentUrl} volume={bgmVolume}
                         onStart={() => {
                             var currentTrack = bgm.findIndex(bgm => bgm.played === false); // Will find current queue index in the current track
                             if (currentTrack == -1) {
