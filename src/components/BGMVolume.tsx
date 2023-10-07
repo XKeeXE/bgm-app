@@ -6,6 +6,7 @@ const BGMVolume = (props: any) => {
     const handleVolumeChange = (e: { target: { value: string; }; }) => {
         setVolumeSlider(parseFloat(e.target.value))
         setBGMVolume(volumeSlider/100)
+        console.log(bgmVolume);
     }
     // console.log(volumeSlider);
     // console.log(bgmVolume);
@@ -17,6 +18,7 @@ const BGMVolume = (props: any) => {
     //                                          0 volume -> |-O-----------------| <- volume 1
     //                                          0 volume -> |-----------------O-| <- volume 1
 
+    // esta como que delayed, wtf???
     return (
         <input type="range" min={0} max={100} value={volumeSlider} onChange={handleVolumeChange}></input>
     );
