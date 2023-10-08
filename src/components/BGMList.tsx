@@ -55,23 +55,6 @@ function BGMList() {
         bgmIndex = nextTrack?.index as number;
         PlayTrack(bgmIndex);
     }
-    
-    /**
-     * Shuffle by doing Fisher-Yates
-    */
-    function Shuffle() {
-        for (let index = bgm.length - 1; index > 0; index--) {
-            let j = Math.floor(Math.random() * (index + 1));
-            [bgm[index], bgm[j]] = [bgm[j], bgm[index]];
-        }
-        console.log(bgm);
-    }
-    
-    function LoadQueue() {
-        console.log("Queue Loaded")
-        GetBGMJson(); // get bgm from json
-        PlayNextInQueue(); // play the next unplayed track from the json
-    }
 
     /**
      * Will play the track by putting the name of the original track index and adding it the
@@ -95,8 +78,27 @@ function BGMList() {
         setDurationString(minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0')); // ex: 01:34
         })
         setCurrentUrl(trackPath); // will update the state and put the track path
+        document.title = trackName.replace('.mp3', '') // put the app title as the current playing item
+    }
     
-        document.title = trackName.replace('.mp3', '') // remove .mp3
+    /**
+     * Shuffle by doing Fisher-Yates
+    */
+    function Shuffle() {
+        for (let index = bgm.length - 1; index > 0; index--) {
+            let j = Math.floor(Math.random() * (index + 1));
+            [bgm[index], bgm[j]] = [bgm[j], bgm[index]];
+        }
+        console.log(bgm);
+    }
+    
+    /**
+     * Load queue from json
+     */
+    function LoadQueue() {
+        console.log("Queue Loaded")
+        GetBGMJson(); // get bgm from json
+        PlayNextInQueue(); // play the next unplayed track from the json
     }
     
     /**
@@ -113,7 +115,6 @@ function BGMList() {
     
     /**
      * Will convert data from the json into the current bgm queue
-     * @param message of the current action
     */
     function GetBGMJson() {
         const data = fs.readFileSync('BGMQUEUE.txt', 'utf8') // read the file and put it in data
@@ -126,7 +127,6 @@ function BGMList() {
     
     /**
      * Will set stringify current bgm into the json
-     * @param message of current action
     */
     function SetBGMJson() {
         let jsonBGM = JSON.stringify(bgm);
@@ -182,13 +182,12 @@ function BGMList() {
                     {tracks.map((item, index) => 
                     <li className={selectedBGMIndex.current === index ? 'list-group-item active' : 'list-group-item'} // <- el html no sirve en electron
                     key={item} onClick={() => { 
-                        // Un bug donde escoge el no el proximo sino el despues de ese
+                        // Tengo que rework para que no se chupe el queue ya que cada vez que haces select quita uno del queue aunque ya habia hecho play
                         console.log("clicked");
-                        // setSelectedBGMIndex(index); 
-                        selectedBGMIndex.current = index;
-                        bgmIndex = index;
-                        // var nextTrack = bgm.findIndex(bgm => bgm.played === false); // Will find next queue index
-                        PlayTrack(bgmIndex)
+                        console.log(index);
+                        console.log(bgm[bgmIndex])
+                        bgm[bgmIndex].played = true;
+                        PlayTrack(index)
                     }}>{item.replace('.mp3', '')}
                 </li>)}
                 </ul>
