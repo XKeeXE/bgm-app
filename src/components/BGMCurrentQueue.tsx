@@ -14,11 +14,11 @@ const BGMCurrentQueue = (props: any) => {
         var tempIndex = 0; // times the for loop occured [min=1, max=10], 0 if none
         let currentQueue = 0; // how many tracks have played in the current queue
         let finalTrackIndex = 0; // named liked that because when for loop finishes will get the final index of the following 10 tracks
-        let tracksIndex = 0;
+        let tracksIndex = 0; // the bgmIndex of this component
         var queueTracks: any; // declared as var for organization for find index and find
         for (let index = 0; index < 11; index++) { // en vez de index < 10, se tuvo que cambiar a index < 11 para hacerle queue.shift y quitar el primero
             queueTracks = bgm.findIndex((bgm: { played: boolean; }) => bgm.played === false); // get index of queue of the track in current queue
-            if (bgm.length - queueTracks < 0 || queueTracks == -1 ) {
+            if (bgm.length - queueTracks < 0 || queueTracks == -1 ) { // bgm.length = 3000, if 3000-3000 < 0 or if all tracks have been played, break
                 break;
             }
             finalTrackIndex = queueTracks; // when for loop finishes get the final track index
@@ -32,8 +32,8 @@ const BGMCurrentQueue = (props: any) => {
             tempIndex = index+1; // add 1 into the times it ocurred for real life numbers [min=1, max=10] as for loop starts at 0 and ends on 9
         }
         // Since the tracks were marked true revert the process and mark it false the amount of tracks were marked true
-        for (let index = tempIndex; index > 0; index--) {
-            tracksIndex = finalTrackIndex - index; 
+        for (let index = tempIndex; index > 0; index--) { // if queue had more than 11 elements then revert 11 elements
+            tracksIndex = finalTrackIndex - index; // revert the process, ex: current queue index = 22 pues de 33 va a revert hasta que sea 22
             bgm[tracksIndex+1].played = false; 
         }
         setResults(tempIndex-1 + " / " + (bgm.length - currentQueue) + " result(s) displayed"); // <- el re-render hace que el queue haga display correctamente
