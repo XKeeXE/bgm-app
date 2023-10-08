@@ -34,9 +34,11 @@ function EndOfQueue() {
 function BGMList() {
     // const videoRef = useRef<any>();
     const selectedBGMIndex = useRef(-1);
+    
     const [currentUrl, setCurrentUrl] = useState<string>(trackPath);
     const [playing, setPlaying] = useState<boolean>(true);
-    const [durationString, setDurationString] = useState('');
+    const [trackTitle, setTrackTitle] = useState<string>('None')
+    const [durationString, setDurationString] = useState<string>('00:00');
     const [bgmVolume, setBGMVolume] = useState(0.5);
     // const [selectedBGMIndex, setSelectedBGMIndex] = useState(-1);
     
@@ -78,6 +80,7 @@ function BGMList() {
         setDurationString(minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0')); // ex: 01:34
         })
         setCurrentUrl(trackPath); // will update the state and put the track path
+        setTrackTitle(trackName.replace('.mp3', ''));
         document.title = trackName.replace('.mp3', '') // put the app title as the current playing item
     }
     
@@ -145,7 +148,7 @@ function BGMList() {
                     <BGMLoadQueue load={LoadQueue}/>
                     <BGMVolume bgmVolume={bgmVolume} setBGMVolume={setBGMVolume}/>
                     <div className="current-track">
-                        <p className="current-track-name">{trackName.replace(".mp3", '')}</p>
+                        <p className="current-track-name">{trackTitle}</p>
                         <p className="current-track-duration">{durationString}</p> 
                     </div>
                     {/* <TrackSeek playerRef={videoRef}/> */}
