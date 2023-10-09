@@ -36,9 +36,9 @@ const BGMCurrentQueue = (props: any) => {
             tracksIndex = finalTrackIndex - index; // revert the process, ex: current queue index = 22 pues de 33 va a revert hasta que sea 22
             bgm[tracksIndex+1].played = false; 
         }
-        setResults(tempIndex-1 + " / " + (bgm.length - currentQueue) + " result(s) displayed"); // <- el re-render hace que el queue haga display correctamente
-        queue = bgmQueue.map(item => item)
-        queue.shift();
+        setResults(tempIndex-1 + " / " + (bgm.length - currentQueue+1) + " result(s) displayed"); // <- el re-render hace que el queue haga display correctamente
+        queue = bgmQueue.map(item => item) // map bgmQueue into queue to show it on the list
+        queue.shift(); // remove the first element as that would be the one playing in the current queue
     }, [currentUrl]);
 
     return (
