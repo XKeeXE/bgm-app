@@ -164,11 +164,10 @@ function BGMList() {
                         <p className="current-track-name">{trackTitle}</p>
                         <p className="current-track-duration">{durationString}</p> 
                     </div>
-                    {/* <TrackSeek playerRef={videoRef}/> */}
                 </div>
                 <BGMCurrentQueue currentUrl={currentUrl} bgm={bgm} tracks={tracks}/>
                 <TrackThumbnail className="track-thumbnail" url={currentUrl}/>
-                <TrackSeek playerRef={videoRef} bgmPlayer={bgmPlayer}/>
+                <TrackSeek playerRef={videoRef} bgmPlayer={bgmPlayer} setBGMPlayer={setBGMPlayer}/>
                 <ReactPlayer playing={playing} url={currentUrl} volume={bgmVolume}
                 onStart={() => {
                     var currentTrack = bgm.findIndex(bgm => bgm.played === false); // Will find current queue index in the current track

@@ -4,11 +4,16 @@ const TrackSeek = (props: any) => {
   const { playerRef, bgmPlayer, setBGMPlayer } = props;
 
   const handleSeekMouseUp = (e: any) => {
+    console.log("up");
+    console.log(bgmPlayer);
     setBGMPlayer({...bgmPlayer, seeking: false});
     playerRef.current?.seekTo(parseFloat(e.target.value));
+    
   };
 
   const handleSeekChange = (e: any) => {
+    console.log("change");
+    console.log(bgmPlayer);
     setBGMPlayer({...bgmPlayer, played: parseFloat(e.target.value)});
   };
   
