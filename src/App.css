@@ -19,7 +19,46 @@
 } */
 
 .bgm-app {
-  display:flex;
+  /* display:flex; */
+  /* flex-direction: row; */
+}
+
+.top-side {
+  /* position: fixed; */
+  top: 0px;
+}
+
+.main {
+  display: flex;
+}
+
+.left-side {
+  width: 50%;
+  object-fit: fill;
+  text-wrap: nowrap;
+  order: 0;
+}
+
+.right-side {
+  /* position: sticky; */
+  /* height: 500px; */
+  /* overflow-y: scroll;
+  overflow-x: hidden; */
+  /* overflow: hidden; */
+  font-size: small;
+  /* float: right; */
+  list-style-type: none;
+  /* margin: auto; */
+  /* position: absolute; */
+  /* padding-left: 300px; */
+  /* overflow-y: scroll; */
+  overflow: hidden;
+  /* margin-top: 50px; */
+  /* overflow: auto; */
+  /* overflow:scroll; */
+  /* overflow: scroll;
+  overflow: hidden;
+  scroll-behavior: smooth; */
   
 }
 
@@ -27,18 +66,6 @@
   font-size: small;
   /* margin-left: 15px; */
 }
-
-.left-side {
-  width: 50%;
-  object-fit: fill;
-  text-wrap: nowrap;
-  
-}
-
-.right-side {
-  width: 50%;
-}
-
 .current-track {
   display:flex;
 }
@@ -62,7 +89,7 @@
   font-weight: 500;
   margin: 5px;
   position: absolute;
-  padding-left: 510px;
+  padding-left: 650px;
   /* border: 1px solid rgb(255, 255, 255); */
   /* float: right; */
   /* padding-left: 100px; */
@@ -70,7 +97,10 @@
 }
 
 .track-thumbnail {
-  
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  max-width: 70%;
+  height: auto;
 }
 
 .bgm-queue {
@@ -85,24 +115,8 @@
   padding-left: 100px;
 }
 
-
-
 .bgm-list {
-  font-size: small;
-  /* float: right; */
   list-style-type: none;
-  /* margin: auto; */
-  /* position: absolute; */
-  padding-left: 300px;
-  /* overflow-y: scroll; */
-  overflow: hidden;
-  /* margin-top: 50px; */
-  /* overflow: auto; */
-  /* overflow:scroll; */
-  /* overflow: scroll;
-  overflow: hidden;
-  scroll-behavior: smooth; */
-  
 }
 
 /* .track-seek {

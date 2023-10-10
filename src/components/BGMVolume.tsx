@@ -22,7 +22,7 @@ const BGMVolume = (props: any) => {
 
     // esta como que delayed, wtf???
     return (
-        <input type="range" min={0} max={100} value={volumeSlider} onChange={handleVolumeChange}></input>
+        <input className="bgm-volume" type="range" min={0} max={100} value={volumeSlider} onChange={handleVolumeChange}></input>
     );
 }
 

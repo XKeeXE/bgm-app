@@ -152,62 +152,64 @@ function BGMList() {
     return (
         <>
         <div className="bgm-app">
-            <div className="left-side">
-                <div className="top-side">
-                    <TrackPause playing={playing} setPlaying={setPlaying}/>
-                    <BGMShuffle shuffle={Shuffle}/>
-                    <TrackSkip skip={SkipTrack}/>
-                    <BGMSaveQueue bgm={bgm}/>
-                    <BGMLoadQueue load={LoadQueue}/>
-                    <BGMVolume bgmVolume={bgmVolume} setBGMVolume={setBGMVolume}/>
-                    <div className="current-track">
-                        <p className="current-track-name">{trackTitle}</p>
-                        <p className="current-track-duration">{durationString}</p> 
-                    </div>
-                </div>
-                <BGMCurrentQueue currentUrl={currentUrl} bgm={bgm} tracks={tracks}/>
-                <TrackThumbnail className="track-thumbnail" url={currentUrl}/>
+            <div className="top-side">
+                <TrackPause playing={playing} setPlaying={setPlaying}/>
+                <BGMShuffle shuffle={Shuffle}/>
+                <TrackSkip skip={SkipTrack}/>
+                <BGMSaveQueue bgm={bgm}/>
+                <BGMLoadQueue load={LoadQueue}/>
+                <BGMVolume bgmVolume={bgmVolume} setBGMVolume={setBGMVolume}/>
                 <TrackSeek playerRef={videoRef} bgmPlayer={bgmPlayer} setBGMPlayer={setBGMPlayer}/>
-                <ReactPlayer playing={playing} url={currentUrl} volume={bgmVolume}
-                onStart={() => {
-                    var currentTrack = bgm.findIndex(bgm => bgm.played === false); // Will find current queue index in the current track
-                    if (currentTrack == -1) {
-                        EndOfQueue()
-                        return;
-                    }
-                    console.log(currentTrack);
-                    bgmIndex = currentTrack;
-                    bgm[bgmIndex].played = true; // set the current track as played
-                    console.log(bgm[bgmIndex]);
-                    saveQueueTimer++; // add 1 into the timer
-                    // if already played 5 tracks auto save the queue and set the timer back to 0
-                    if (saveQueueTimer == 5) {
-                        saveQueueTimer = 0;
-                        SetBGMJson(); // save it into the json
-                        console.log("auto saved")
-                    }
-                    console.log(currentUrl); // url of the current playing track
-                }}
-                onEnded={() => {
-                    PlayNextInQueue(); // Must find next track in the current queue
-                }}
-                onProgress={handleProgress}/>
+                <div className="current-track">
+                    <p className="current-track-name">{trackTitle}</p>
+                    <p className="current-track-duration">{durationString}</p> 
+                </div>
             </div>
-            <div className="right-side">
-                {tracks.length === 0 && <p>No BGM found</p>}
-                <ul className="bgm-list">
-                    {tracks.map((item, index) => 
-                    <li className={selectedBGMIndex.current === index ? 'list-group-item active' : 'list-group-item'} // <- el html no sirve en electron
-                    key={item} onClick={() => { 
-                        // Tengo que rework para que no se chupe el queue ya que cada vez que haces select quita uno del queue aunque ya habia hecho play
-                        console.log("clicked");
-                        console.log(index);
-                        console.log(bgm[bgmIndex])
-                        bgm[bgmIndex].played = true;
-                        PlayTrack(index)
-                    }}>{item.replace('.mp3', '')}
-                </li>)}
-                </ul>
+            <div className="main">
+                <div className="left-side">
+                    <BGMCurrentQueue currentUrl={currentUrl} bgm={bgm} tracks={tracks}/>
+                    <TrackThumbnail url={currentUrl}/>
+                    <ReactPlayer playing={playing} url={currentUrl} volume={bgmVolume} progressInterval={1000} width={0} height={0}
+                    onStart={() => {
+                        var currentTrack = bgm.findIndex(bgm => bgm.played === false); // Will find current queue index in the current track
+                        if (currentTrack == -1) {
+                            EndOfQueue()
+                            return;
+                        }
+                        console.log(currentTrack);
+                        bgmIndex = currentTrack;
+                        bgm[bgmIndex].played = true; // set the current track as played
+                        console.log(bgm[bgmIndex]);
+                        saveQueueTimer++; // add 1 into the timer
+                        // if already played 5 tracks auto save the queue and set the timer back to 0
+                        if (saveQueueTimer == 5) {
+                            saveQueueTimer = 0;
+                            SetBGMJson(); // save it into the json
+                            console.log("auto saved")
+                        }
+                        console.log(currentUrl); // url of the current playing track
+                    }}
+                    onEnded={() => {
+                        PlayNextInQueue(); // Must find next track in the current queue
+                    }}
+                    onProgress={handleProgress}/>
+                </div>
+                <div className="right-side">
+                    {tracks.length === 0 && <p>No BGM found</p>}
+                    <ul className="bgm-list">
+                        {tracks.map((item, index) => 
+                        <li className={selectedBGMIndex.current === index ? 'list-group-item active' : 'list-group-item'} // <- el html no sirve en electron
+                        key={item} onClick={() => { 
+                            // Tengo que rework para que no se chupe el queue ya que cada vez que haces select quita uno del queue aunque ya habia hecho play
+                            console.log("clicked");
+                            console.log(index);
+                            console.log(bgm[bgmIndex])
+                            bgm[bgmIndex].played = true;
+                            PlayTrack(index)
+                        }}>{item.replace('.mp3', '')}
+                    </li>)}
+                    </ul>
+                </div>
             </div>
         </div>
         </>

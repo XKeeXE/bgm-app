@@ -17,7 +17,7 @@ const TrackSeek = (props: any) => {
     setBGMPlayer({...bgmPlayer, played: parseFloat(e.target.value)});
   };
   
-  const handleSeekMouseDown = (e: any) => {
+  const handleSeekMouseDown = (_e: any) => {
     setBGMPlayer({...bgmPlayer, seeking: true});
   };
   
@@ -33,7 +33,7 @@ const TrackSeek = (props: any) => {
       onChange={handleSeekChange}
       onMouseDown={handleSeekMouseDown}>
       </input>
-      <ReactPlayer ref={playerRef}/>
+      <ReactPlayer ref={playerRef} width={0} height={0}/>
     </>
   );
 };
