@@ -1,5 +1,10 @@
 import fs from 'fs';
 
+/**
+ * Will save queue on a json called BGMQUEUE.txt
+ * @param props bgm
+ * @returns the Save Queue button
+ */
 const BGMSaveQueue = (props: any) => {
     const { bgm } = props;
     return (

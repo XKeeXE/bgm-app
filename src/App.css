@@ -18,10 +18,10 @@
   filter: drop-shadow(0 0 2em #61dafbaa);
 } */
 
-.bgm-app {
-  /* display:flex; */
-  /* flex-direction: row; */
-}
+/* .bgm-app {
+  display:flex; 
+  flex-direction: row; 
+} */
 
 .top-side {
   /* position: fixed; */
@@ -96,11 +96,26 @@
   
 }
 
+.track-thumbnail-container {
+  position: relative;
+}
+
 .track-thumbnail {
   border: 1px solid #ddd;
+  background-color: black;
   border-radius: 4px;
   max-width: 70%;
   height: auto;
+}
+
+.track-thumbnail-none {
+  position: absolute;
+  top: 40%;
+  left: 20%;
+}
+
+.track-thumbnail-show { 
+  opacity: 0.0;
 }
 
 .bgm-queue {
