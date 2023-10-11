@@ -1,9 +1,11 @@
+/* @import "../node_modules/bootstrap/scss/bootstrap.scss"; */
 /* #root {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
 }
+
 
 .logo {
   height: 6em;
@@ -22,6 +24,7 @@
   display:flex; 
   flex-direction: row; 
 } */
+
 
 .top-side {
   /* position: fixed; */

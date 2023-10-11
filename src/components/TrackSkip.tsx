@@ -8,9 +8,10 @@ const TrackSkip = (props: any) => {
     
     return (
         <button className='button' onClick={() => {
-            var nextTrack = bgm.findIndex((bgm: { played: boolean; }) => bgm.played === false); // find index
-            console.log(bgm[nextTrack]);
-            bgmIndex.current = bgm[nextTrack].index
+            var nextTrack = bgm.current.findIndex((bgm: { played: boolean; }) => bgm.played === false); // find index
+            console.log(bgm.current[nextTrack]);
+            bgm.current[nextTrack].played = true; // just in case the follwing track is not playable
+            bgmIndex.current = bgm.current[nextTrack].index
             PlayTrack(bgmIndex.current);
             console.log("skipped");
        }}>Skip Track</button>

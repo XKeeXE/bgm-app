@@ -12,22 +12,15 @@ import BGMCurrentQueue from "./BGMCurrentQueue";
 import TrackSeek from "./TrackSeek";
 import BGMLoadSettings from "./BGMLoadSettings";
 
-let { getAudioDurationInSeconds } = require('get-audio-duration');
+const { getAudioDurationInSeconds } = require('get-audio-duration');
 let trackPath: string;
 let trackName = '';
-let originalTrackIndex = 0; 
 let saveQueueTimer = 0;
 
 const path = "E:/BGM/";
 const queueFile = "BGMQUEUE.txt";
 const settingsFile = "Settings.txt";
 const tracks = fs.readdirSync(path).map(item => item); // read all the tracks from directory declared in the path
-const bgm = tracks.map(_track => {
-    return Object.assign(
-        {index: originalTrackIndex++}, // original index of the track
-        {played: false} // has been played in current queue
-        )
-    });
     
 function EndOfQueue() {
     console.log("WOO END OF QUEUE");
@@ -38,7 +31,18 @@ function BGMList() {
     const bgmPlayerRef = useRef<any>();
     const bgmIndex = useRef<number>(-1);
     const selectedBGMIndex = useRef(-1);
-    
+    const [playing, setPlaying] = useState<boolean>(true);
+    const [currentUrl, setCurrentUrl] = useState<string>(trackPath);
+    const [trackTitle, setTrackTitle] = useState<string>('None')
+    const [durationString, setDurationString] = useState<string>('00:00');
+
+    const bgm = useRef(tracks.map((_track, originalTrackIndex) => {
+        return Object.assign(
+            {index: originalTrackIndex}, // original index of the track
+            {played: false} // has been played in current queue
+            )
+    }));
+
     const [bgmPlayer, setBGMPlayer] = useState({
         played: 0,
         seeking: false
@@ -47,10 +51,6 @@ function BGMList() {
     const [volumeSettings, setVolumeSettings] = useState({
         volume: 1
     })
-    const [playing, setPlaying] = useState<boolean>(true);
-    const [currentUrl, setCurrentUrl] = useState<string>(trackPath);
-    const [trackTitle, setTrackTitle] = useState<string>('None')
-    const [durationString, setDurationString] = useState<string>('00:00');
     
     const handleProgress = (state: any) => {
         if (!bgmPlayer.seeking) {
@@ -64,7 +64,7 @@ function BGMList() {
      * @returns if next track gives undefined which means end of queue as all track has been played
     */
    function PlayNextInQueue() {
-       var nextTrack = bgm.find((bgm: { played: boolean; }) => bgm.played === false); // find track
+       var nextTrack = bgm.current.find((bgm: { played: boolean; }) => bgm.played === false); // find track
        console.log(nextTrack);
        if (nextTrack === undefined) {
            EndOfQueue();
@@ -101,25 +101,14 @@ function BGMList() {
     }
 
     /**
-     * Shuffle by doing Fisher-Yates
-    */
-    function Shuffle() {
-        for (let index = bgm.length - 1; index > 0; index--) {
-            let j = Math.floor(Math.random() * (index + 1));
-            [bgm[index], bgm[j]] = [bgm[j], bgm[index]];
-        }
-        console.log(bgm);
-    }
-
-    /**
      * Will convert data from the json into the current bgm queue
     */
     function GetBGMJson() {
         const data = fs.readFileSync(queueFile, 'utf8') // read the file and put it in data
         let jsonBGM = JSON.parse(data); // parse the data into the json bgm variable
         // for every track in the json change the current bgm into the one in the json
-        for (let index = 0; index < bgm.length; index++) {
-            bgm[index] = jsonBGM[index];
+        for (let index = 0; index < bgm.current.length; index++) {
+            bgm.current[index] = jsonBGM[index];
         }
     }
 
@@ -127,7 +116,7 @@ function BGMList() {
      * Will set stringify current bgm into the json
     */
     function SetBGMJson() {
-        let jsonBGM = JSON.stringify(bgm);
+        let jsonBGM = JSON.stringify(bgm.current);
         fs.writeFileSync(queueFile, jsonBGM, 'utf8');
     }
     
@@ -142,7 +131,7 @@ function BGMList() {
             <BGMLoadSettings volumeSettings={volumeSettings} setVolumeSettings={setVolumeSettings}/>
             <div className="top-side">
                 <TrackPause playing={playing} setPlaying={setPlaying}/>
-                <BGMShuffle shuffle={Shuffle}/>
+                <BGMShuffle bgm={bgm}/>
                 <TrackSkip bgm={bgm} PlayTrack={PlayTrack} bgmIndex={bgmIndex}/>
                 <BGMSaveQueue bgm={bgm}/>
                 <BGMLoadQueue GetBGMJson={GetBGMJson} PlayNextInQueue={PlayNextInQueue}/>
@@ -168,15 +157,15 @@ function BGMList() {
                             SetBGMJson(); // save it into the json
                             console.log("auto saved")
                         }
-                        var currentTrack = bgm.findIndex(bgm => bgm.played === false); // Will find current queue index in the current track
+                        var currentTrack = bgm.current.findIndex(bgm => bgm.played === false); // Will find current queue index in the current track
                         if (currentTrack == -1) {
                             EndOfQueue()
                             return;
                         }
                         console.log(currentTrack);
                         bgmIndex.current = currentTrack;
-                        bgm[bgmIndex.current].played = true; // set the current track as played
-                        console.log(bgm[bgmIndex.current]);
+                        bgm.current[bgmIndex.current].played = true; // set the current track as played
+                        console.log(bgm.current[bgmIndex.current]);
                         saveQueueTimer++; // add 1 into the timer
                         console.log(currentUrl); // url of the current playing track
                     }}
@@ -194,8 +183,8 @@ function BGMList() {
                             // Tengo que rework para que no se chupe el queue ya que cada vez que haces select quita uno del queue aunque ya habia hecho play
                             console.log("clicked");
                             console.log(index);
-                            console.log(bgm[bgmIndex.current])
-                            bgm[bgmIndex.current].played = true;
+                            console.log(bgm.current[bgmIndex.current])
+                            bgm.current[bgmIndex.current].played = true;
                             PlayTrack(index)
                         }}>{item.replace('.mp3', '')}
                     </li>)}

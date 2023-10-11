@@ -9,7 +9,7 @@ const BGMSaveQueue = (props: any) => {
     const { bgm } = props;
     return (
         <button className='button' onClick={() => {
-            let jsonBGM = JSON.stringify(bgm);
+            let jsonBGM = JSON.stringify(bgm.current);
             fs.writeFileSync('BGMQUEUE.txt', jsonBGM, 'utf8');
             console.log("queue saved")
         }}>Save Queue</button>
