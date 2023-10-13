@@ -1,15 +1,20 @@
-// import { useEffect } from "react"
+import fs from 'fs';
 
-// const BGMSaveSettings = (props: any) => {
-//     const { bgmVolume } = props;
+const BGMSaveSettings = (props: any) => {
+    const { settingsFile, savedSettings } = props;
 
-//     useEffect(() => {
-        
-//     }, []);
+    const SaveSettings = () => {
+        let settings = JSON.stringify(savedSettings)
+        fs.writeFileSync(settingsFile, settings, 'utf8')
+    }
 
-//     return (
-//         <></>
-//     );
-// }
+    window.onbeforeunload = (_e) => {
+        SaveSettings();
+    };
+    
+    return (
+        <></>
+    );
+}
 
-// export default BGMSaveSettings;
+export default BGMSaveSettings;

@@ -1,10 +1,10 @@
 const BGMVolume = (props: any) => {
-    const { volumeSettings, setVolumeSettings } = props;
+    const { savedSettings, setSavedSettings } = props;
     const handleVolumeChange = (e: { target: { value: string; }; }) => {
-        setVolumeSettings({...volumeSettings, volume: parseFloat(e.target.value)}); 
+        setSavedSettings({...savedSettings, volume: parseFloat(e.target.value)}); 
     }
     return (
-        <input className="bgm-volume" type="range" step="any" min={0} max={1} value={volumeSettings.volume} onChange={handleVolumeChange}></input>
+        <input className="bgm-volume" type="range" step="any" min={0} max={1} value={savedSettings.volume} onChange={handleVolumeChange}></input>
     );
 }
 

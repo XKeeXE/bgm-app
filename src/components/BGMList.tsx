@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ReactPlayer from "react-player/file";
 import fs from 'fs'
 import BGMShuffle from "./BGMShuffle";
@@ -11,6 +11,7 @@ import BGMVolume from "./BGMVolume";
 import BGMCurrentQueue from "./BGMCurrentQueue";
 import TrackSeek from "./TrackSeek";
 import BGMLoadSettings from "./BGMLoadSettings";
+import BGMSaveSettings from "./BGMSaveSettings";
 
 const { getAudioDurationInSeconds } = require('get-audio-duration');
 let trackPath: string;
@@ -48,7 +49,8 @@ function BGMList() {
         seeking: false
     });
     
-    const [volumeSettings, setVolumeSettings] = useState({
+    const [savedSettings, setSavedSettings] = useState({
+        path: '',
         volume: 1
     })
     
@@ -119,27 +121,22 @@ function BGMList() {
         let jsonBGM = JSON.stringify(bgm.current);
         fs.writeFileSync(queueFile, jsonBGM, 'utf8');
     }
-    
-    function SaveSettings() {
-        let settings = JSON.stringify(volumeSettings)
-        fs.writeFileSync(settingsFile, settings, 'utf8')
-    }
-    
+
     return (
         <>
         <div className="bgm-app">
-            <BGMLoadSettings volumeSettings={volumeSettings} setVolumeSettings={setVolumeSettings}/>
+            {/** Background stuff, like load previous settings and save current settings when closed */}
+            <BGMLoadSettings settingsFile={settingsFile} savedSettings={savedSettings} setSavedSettings={setSavedSettings}/>
+            <BGMSaveSettings settingsFile={settingsFile} savedSettings={savedSettings}/>
             <div className="top-side">
+                {/** Buttons to manipulate the bgm */}
                 <TrackPause playing={playing} setPlaying={setPlaying}/>
                 <BGMShuffle bgm={bgm}/>
                 <TrackSkip bgm={bgm} PlayTrack={PlayTrack} bgmIndex={bgmIndex}/>
                 <BGMSaveQueue bgm={bgm}/>
                 <BGMLoadQueue GetBGMJson={GetBGMJson} PlayNextInQueue={PlayNextInQueue}/>
-                <BGMVolume volumeSettings={volumeSettings} setVolumeSettings={setVolumeSettings}/>
+                <BGMVolume savedSettings={savedSettings} setSavedSettings={setSavedSettings}/>
                 <TrackSeek bgmPlayerRef={bgmPlayerRef} bgmPlayer={bgmPlayer} setBGMPlayer={setBGMPlayer}/>
-                <button onClick={() => {
-                    SaveSettings();
-                }}>Save Settings</button>
                 <div className="current-track">
                     <p className="current-track-name">{trackTitle}</p>
                     <p className="current-track-duration">{durationString}</p> 
@@ -149,7 +146,7 @@ function BGMList() {
                 <div className="left-side">
                     <BGMCurrentQueue currentUrl={currentUrl} bgm={bgm} tracks={tracks}/>
                     <TrackThumbnail currentUrl={currentUrl}/>
-                    <ReactPlayer ref={bgmPlayerRef} playing={playing} url={currentUrl} volume={volumeSettings.volume} progressInterval={1000} width={0} height={0}
+                    <ReactPlayer ref={bgmPlayerRef} playing={playing} url={currentUrl} volume={savedSettings.volume} progressInterval={1000} width={0} height={0}
                     onStart={() => {
                         // if already played 5 tracks auto save the queue and set the timer back to 0, will save the queue before the current track is set true
                         if (saveQueueTimer == 5) {
