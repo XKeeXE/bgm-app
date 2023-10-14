@@ -12,34 +12,27 @@ import BGMCurrentQueue from "./BGMCurrentQueue";
 import TrackSeek from "./TrackSeek";
 import BGMLoadSettings from "./BGMLoadSettings";
 import BGMSaveSettings from "./BGMSaveSettings";
+import TrackPlay from "./TrackPlay";
 
 const { getAudioDurationInSeconds } = require('get-audio-duration');
 let trackPath: string;
 let trackName = '';
-let saveQueueTimer = 0;
 
 const queueFile = "BGMQUEUE.txt";
 const settingsFile = "Settings.txt";
-    
+
 function EndOfQueue() {
     console.log("WOO END OF QUEUE");
     // TODO {END OF THE PLAYLIST}
 }
 
 function BGMList() {
-    const bgmPlayerRef = useRef<any>();
     const bgmIndex = useRef<number>(-1);
     const selectedBGMIndex = useRef(-1);
     const [playing, setPlaying] = useState<boolean>(true);
     const [currentUrl, setCurrentUrl] = useState<string>(trackPath);
     const [trackTitle, setTrackTitle] = useState<string>('None')
     const [durationString, setDurationString] = useState<string>('00:00');
-    
-    
-    const [bgmPlayer, setBGMPlayer] = useState({
-        played: 0,
-        seeking: false
-    });
     
     const [savedSettings, setSavedSettings] = useState({
         path: 'E:/BGM/',
@@ -53,12 +46,6 @@ function BGMList() {
             {played: false} // has been played in current queue
             )
         }));
-    
-    const handleProgress = (state: any) => {
-        if (!bgmPlayer.seeking) {
-            setBGMPlayer(state);
-        }
-    }
     
     /**
      * Will find the next track that is still unplayed in the current queue and since every track
@@ -136,7 +123,8 @@ function BGMList() {
                 <BGMSaveQueue bgm={bgm}/>
                 <BGMLoadQueue SetBGMJson={SetBGMJson} GetBGMJson={GetBGMJson} PlayNextInQueue={PlayNextInQueue}/>
                 <BGMVolume savedSettings={savedSettings} setSavedSettings={setSavedSettings}/>
-                <TrackSeek bgmPlayerRef={bgmPlayerRef} bgmPlayer={bgmPlayer} setBGMPlayer={setBGMPlayer}/>
+                <TrackPlay bgm={bgm} playing={playing} currentUrl={currentUrl} savedSettings={savedSettings} 
+                SetBGMJson={SetBGMJson} EndOfQueue={EndOfQueue} PlayNextInQueue={PlayNextInQueue} />
                 <div className="current-track">
                     <p className="current-track-name">{trackTitle}</p>
                     <p className="current-track-duration">{durationString}</p> 
@@ -146,30 +134,6 @@ function BGMList() {
                 <div className="left-side">
                     <BGMCurrentQueue currentUrl={currentUrl} bgm={bgm} tracks={tracks}/>
                     <TrackThumbnail currentUrl={currentUrl}/>
-                    <ReactPlayer ref={bgmPlayerRef} playing={playing} url={currentUrl} volume={savedSettings.volume} progressInterval={1000} width={0} height={0}
-                    onStart={() => {
-                        // if already played 5 tracks auto save the queue and set the timer back to 0, will save the queue before the current track is set true
-                        if (saveQueueTimer == 5) {
-                            saveQueueTimer = 0;
-                            SetBGMJson(); // save it into the json
-                            console.log("auto saved")
-                        }
-                        var currentTrack = bgm.current.findIndex(bgm => bgm.played === false); // Will find current queue index in the current track
-                        if (currentTrack == -1) {
-                            EndOfQueue()
-                            return;
-                        }
-                        console.log(currentTrack);
-                        bgmIndex.current = currentTrack;
-                        bgm.current[bgmIndex.current].played = true; // set the current track as played
-                        console.log(bgm.current[bgmIndex.current]);
-                        saveQueueTimer++; // add 1 into the timer
-                        console.log(currentUrl); // url of the current playing track
-                    }}
-                    onEnded={() => {
-                        PlayNextInQueue(); // Must find next track in the current queue
-                    }}
-                    onProgress={handleProgress}/>
                 </div>
                 <div className="right-side">
                     {tracks.current.length === 0 && <p>No BGM found</p>}
