@@ -18,10 +18,8 @@ let trackPath: string;
 let trackName = '';
 let saveQueueTimer = 0;
 
-const path = "E:/BGM/";
 const queueFile = "BGMQUEUE.txt";
 const settingsFile = "Settings.txt";
-const tracks = fs.readdirSync(path).map(item => item); // read all the tracks from directory declared in the path
     
 function EndOfQueue() {
     console.log("WOO END OF QUEUE");
@@ -36,23 +34,25 @@ function BGMList() {
     const [currentUrl, setCurrentUrl] = useState<string>(trackPath);
     const [trackTitle, setTrackTitle] = useState<string>('None')
     const [durationString, setDurationString] = useState<string>('00:00');
-
-    const bgm = useRef(tracks.map((_track, originalTrackIndex) => {
-        return Object.assign(
-            {index: originalTrackIndex}, // original index of the track
-            {played: false} // has been played in current queue
-            )
-    }));
-
+    
+    
     const [bgmPlayer, setBGMPlayer] = useState({
         played: 0,
         seeking: false
     });
     
     const [savedSettings, setSavedSettings] = useState({
-        path: '',
+        path: 'E:/BGM/',
         volume: 1
     })
+    
+    const tracks = useRef(fs.readdirSync(savedSettings.path).map(item => item)); // read all the tracks from directory declared in the path
+    const bgm = useRef(tracks.current.map((_track, originalTrackIndex) => {
+        return Object.assign(
+            {index: originalTrackIndex}, // original index of the track
+            {played: false} // has been played in current queue
+            )
+        }));
     
     const handleProgress = (state: any) => {
         if (!bgmPlayer.seeking) {
@@ -65,7 +65,7 @@ function BGMList() {
      * has the original track index inside it get it and play the track.
      * @returns if next track gives undefined which means end of queue as all track has been played
     */
-   function PlayNextInQueue() {
+    function PlayNextInQueue() {
        var nextTrack = bgm.current.find((bgm: { played: boolean; }) => bgm.played === false); // find track
        console.log(nextTrack);
        if (nextTrack === undefined) {
@@ -83,8 +83,8 @@ function BGMList() {
      * @param index the index which reprensents the original track index from tracks array
     */
     function PlayTrack(index: number) {
-       trackName = tracks[index]; // will give the name of the track of the given original index, ex: test.mp3
-       trackPath = path.concat(trackName); // will combine the path of the file with the track name, ex: E:/BGM/test.mp3
+       trackName = tracks.current[index]; // will give the name of the track of the given original index, ex: test.mp3
+       trackPath = savedSettings.path.concat(trackName); // will combine the path of the file with the track name, ex: E:/BGM/test.mp3
        // if (ReactPlayer.canPlay(trackPath) == false) { // <- doesnt work with FILE:ERR_NOT_FOUND
        //     console.error(trackName + " cant be played");
        //     bgm[bgmIndex].played = true;
@@ -172,9 +172,9 @@ function BGMList() {
                     onProgress={handleProgress}/>
                 </div>
                 <div className="right-side">
-                    {tracks.length === 0 && <p>No BGM found</p>}
+                    {tracks.current.length === 0 && <p>No BGM found</p>}
                     <ul className="bgm-list">
-                        {tracks.map((item, index) => 
+                        {tracks.current.map((item, index) => 
                         <li className={selectedBGMIndex.current === index ? 'list-group-item active' : 'list-group-item'} // <- el html no sirve en electron
                         key={item} onClick={() => { 
                             // Tengo que rework para que no se chupe el queue ya que cada vez que haces select quita uno del queue aunque ya habia hecho play

@@ -28,7 +28,7 @@ const BGMCurrentQueue = (props: any) => {
                 break;
             }
             bgm.current[finalTrackIndex].played = true; // mark the bgm to played true to find next track
-            bgmQueue.push(tracks[queueTracks.index]); // put the name of the tracks into the queue
+            bgmQueue.push(tracks.current[queueTracks.index]); // put the name of the tracks into the queue
             tempIndex = index+1; // add 1 into the times it ocurred for real life numbers [min=1, max=10] as for loop starts at 0 and ends on 9
         }
         // Since the tracks were marked true revert the process and mark it false the amount of tracks were marked true
