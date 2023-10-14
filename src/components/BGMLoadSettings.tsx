@@ -3,7 +3,7 @@ import fs from 'fs';
 
 const BGMLoadSettings = (props: any) => {
     const { settingsFile, savedSettings, setSavedSettings } = props;
-    useEffect(() => {
+    useEffect(() => { // Run once on startup
         if (fs.existsSync(settingsFile)) { // if Settings.txt exists then read it
             const data = fs.readFileSync(settingsFile, 'utf8')
             setSavedSettings(JSON.parse(data));

@@ -16,8 +16,3 @@ postMessage({ payload: 'removeLoading' }, '*')
 window.ipcRenderer.on('main-process-message', (_event, message) => {
   console.log(message)
 })
-
-// window.onbeforeunload = (_event) => {
-//   let settings = JSON.stringify(savedSettings)
-//   fs.writeFileSync(settingsFile, settings, 'utf8')
-// }

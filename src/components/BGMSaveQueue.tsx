@@ -1,3 +1,5 @@
+import { IconButton, Tooltip } from '@mui/material';
+import SaveQueueIcon from '@mui/icons-material/Save';
 import fs from 'fs';
 
 /**
@@ -8,11 +10,14 @@ import fs from 'fs';
 const BGMSaveQueue = (props: any) => {
     const { bgm } = props;
     return (
-        <button className='button' onClick={() => {
-            let jsonBGM = JSON.stringify(bgm.current);
-            fs.writeFileSync('BGMQUEUE.txt', jsonBGM, 'utf8');
-            console.log("queue saved")
-        }}>Save Queue</button>
+        <Tooltip title="Save Queue">
+            <IconButton onClick={() => {
+                let jsonBGM = JSON.stringify(bgm.current);
+                fs.writeFileSync('BGMQUEUE.txt', jsonBGM, 'utf8');
+                console.log("queue saved")
+            }}><SaveQueueIcon/>
+            </IconButton>
+        </Tooltip>
     );
 }
 

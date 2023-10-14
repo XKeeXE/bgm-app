@@ -65,8 +65,12 @@
   
 }
 
-.button {
-  font-size: small;
+.button-image {
+  /* font-size: small; */
+  height: 20px;
+  width: 20px;
+  /* background-image: none; */
+  /* background-size: cover; */
   /* margin-left: 15px; */
 }
 .current-track {

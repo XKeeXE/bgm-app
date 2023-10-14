@@ -8,7 +8,7 @@ const BGMSaveSettings = (props: any) => {
         fs.writeFileSync(settingsFile, settings, 'utf8')
     }
 
-    window.onbeforeunload = (_e) => {
+    window.onbeforeunload = (_e) => { // Run once when app closes
         SaveSettings();
     };
     

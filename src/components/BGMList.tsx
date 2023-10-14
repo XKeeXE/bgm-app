@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import ReactPlayer from "react-player/file";
 import fs from 'fs'
 import BGMShuffle from "./BGMShuffle";
@@ -134,7 +134,7 @@ function BGMList() {
                 <BGMShuffle bgm={bgm}/>
                 <TrackSkip bgm={bgm} PlayTrack={PlayTrack} bgmIndex={bgmIndex}/>
                 <BGMSaveQueue bgm={bgm}/>
-                <BGMLoadQueue GetBGMJson={GetBGMJson} PlayNextInQueue={PlayNextInQueue}/>
+                <BGMLoadQueue SetBGMJson={SetBGMJson} GetBGMJson={GetBGMJson} PlayNextInQueue={PlayNextInQueue}/>
                 <BGMVolume savedSettings={savedSettings} setSavedSettings={setSavedSettings}/>
                 <TrackSeek bgmPlayerRef={bgmPlayerRef} bgmPlayer={bgmPlayer} setBGMPlayer={setBGMPlayer}/>
                 <div className="current-track">
