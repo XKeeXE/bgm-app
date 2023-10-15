@@ -1,5 +1,4 @@
 import { useRef, useState } from "react";
-import ReactPlayer from "react-player/file";
 import fs from 'fs'
 import BGMShuffle from "./BGMShuffle";
 import TrackSkip from "./TrackSkip";
@@ -9,7 +8,6 @@ import BGMSaveQueue from "./BGMSaveQueue";
 import TrackPause from "./TrackPause";
 import BGMVolume from "./BGMVolume";
 import BGMCurrentQueue from "./BGMCurrentQueue";
-import TrackSeek from "./TrackSeek";
 import BGMLoadSettings from "./BGMLoadSettings";
 import BGMSaveSettings from "./BGMSaveSettings";
 import TrackPlay from "./TrackPlay";
@@ -123,8 +121,9 @@ function BGMList() {
                 <BGMSaveQueue bgm={bgm}/>
                 <BGMLoadQueue SetBGMJson={SetBGMJson} GetBGMJson={GetBGMJson} PlayNextInQueue={PlayNextInQueue}/>
                 <BGMVolume savedSettings={savedSettings} setSavedSettings={setSavedSettings}/>
-                <TrackPlay bgm={bgm} playing={playing} currentUrl={currentUrl} savedSettings={savedSettings} 
-                SetBGMJson={SetBGMJson} EndOfQueue={EndOfQueue} PlayNextInQueue={PlayNextInQueue} />
+                {/** TrackPlay contains ReactPlayer component which is used to play the track */}
+                <TrackPlay bgm={bgm} bgmIndex={bgmIndex} playing={playing} currentUrl={currentUrl} 
+                savedSettings={savedSettings} SetBGMJson={SetBGMJson} EndOfQueue={EndOfQueue} PlayNextInQueue={PlayNextInQueue}/>
                 <div className="current-track">
                     <p className="current-track-name">{trackTitle}</p>
                     <p className="current-track-duration">{durationString}</p> 
@@ -132,10 +131,12 @@ function BGMList() {
             </div>
             <div className="main">
                 <div className="left-side">
+                    {/** To see the current queue and current thumbnail */}
                     <BGMCurrentQueue currentUrl={currentUrl} bgm={bgm} tracks={tracks}/>
                     <TrackThumbnail currentUrl={currentUrl}/>
                 </div>
                 <div className="right-side">
+                    {/** The list of the tracks */}
                     {tracks.current.length === 0 && <p>No BGM found</p>}
                     <ul className="bgm-list">
                         {tracks.current.map((item, index) => 

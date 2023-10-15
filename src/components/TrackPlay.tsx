@@ -13,10 +13,9 @@ let saveQueueTimer = 0;
  * @returns 
  */
 const TrackPlay = (props: any) => {
-    const { bgm, playing, currentUrl, savedSettings, SetBGMJson, EndOfQueue, PlayNextInQueue } = props;
+    const { bgm, bgmIndex, playing, currentUrl, savedSettings, SetBGMJson, EndOfQueue, PlayNextInQueue } = props;
 
     const bgmPlayerRef = useRef<any>();
-    const bgmIndex = useRef<number>(-1);
     const [bgmPlayer, setBGMPlayer] = useState({
         played: 0,
         seeking: false
