@@ -20,15 +20,17 @@
   filter: drop-shadow(0 0 2em #61dafbaa);
 } */
 
-/* .bgm-app {
-  display:flex; 
-  flex-direction: row; 
-} */
+.bgm-app {
+  position: absolute;
+  /* display:flex;  */
+  top: 0px;
+  /* flex-direction: row;  */
+}
 
 
 .top-side {
   /* position: fixed; */
-  top: 0px;
+  /* top: 0px; */
 }
 
 .main {
@@ -36,26 +38,27 @@
 }
 
 .left-side {
-  width: 50%;
+  width: 100%;
   object-fit: fill;
   text-wrap: nowrap;
-  order: 0;
+  /* order: 0; */
 }
 
 .right-side {
+  /* height: 1000px; */
   /* position: sticky; */
-  /* height: 500px; */
+  /* top: 0px; */
   /* overflow-y: scroll;
   overflow-x: hidden; */
   /* overflow: hidden; */
-  font-size: small;
+  /* font-size: small; */
   /* float: right; */
-  list-style-type: none;
+  /* list-style-type: none; */
   /* margin: auto; */
   /* position: absolute; */
   /* padding-left: 300px; */
   /* overflow-y: scroll; */
-  overflow: hidden;
+  /* overflow: hidden; */
   /* margin-top: 50px; */
   /* overflow: auto; */
   /* overflow:scroll; */
@@ -138,7 +141,7 @@
 }
 
 .bgm-list {
-  list-style-type: none;
+  /* list-style-type: none; */
 }
 
 /* .track-seek {
