@@ -45,37 +45,12 @@
 }
 
 .right-side {
-  /* height: 1000px; */
-  /* position: sticky; */
-  /* top: 0px; */
-  /* overflow-y: scroll;
-  overflow-x: hidden; */
-  /* overflow: hidden; */
-  /* font-size: small; */
-  /* float: right; */
-  /* list-style-type: none; */
-  /* margin: auto; */
-  /* position: absolute; */
-  /* padding-left: 300px; */
-  /* overflow-y: scroll; */
-  /* overflow: hidden; */
-  /* margin-top: 50px; */
-  /* overflow: auto; */
-  /* overflow:scroll; */
-  /* overflow: scroll;
-  overflow: hidden;
-  scroll-behavior: smooth; */
+  /* float: left; */
+  /* width: 100%; */
+  /* padding-right: 100px; */
   
 }
 
-.button-image {
-  /* font-size: small; */
-  height: 20px;
-  width: 20px;
-  /* background-image: none; */
-  /* background-size: cover; */
-  /* margin-left: 15px; */
-}
 .current-track {
   display:flex;
 }
@@ -141,6 +116,8 @@
 }
 
 .bgm-list {
+  /* float: right; */
+  /* padding-right: 100px; */
   /* list-style-type: none; */
 }
 

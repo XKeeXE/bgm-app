@@ -32,6 +32,12 @@ const TrackPlay = (props: any) => {
         <TrackSeek bgmPlayerRef={bgmPlayerRef} bgmPlayer={bgmPlayer} setBGMPlayer={setBGMPlayer}/>
         <ReactPlayer ref={bgmPlayerRef} playing={playing} url={currentUrl} volume={savedSettings.volume} progressInterval={200} width={0} height={0}
         onStart={() => {
+            // console.log(bgmIndex.current);
+            // console.log(bgm.current[bgmIndex.current])
+            // if (bgm.current[bgmIndex.current].played == true) { // conflict with TrackSkip
+            //     console.log("test");
+            //     return;
+            // }
             // if already played 5 tracks auto save the queue and set the timer back to 0, will save the queue before the current track is set true
             if (saveQueueTimer == 5) {
                 saveQueueTimer = 0;
@@ -43,7 +49,7 @@ const TrackPlay = (props: any) => {
                 EndOfQueue()
                 return;
             }
-            console.log(currentTrack);
+            console.log("currently in the queue number: #" + currentTrack);
             bgmIndex.current = currentTrack;
             bgm.current[bgmIndex.current].played = true; // set the current track as played
             console.log(bgm.current[bgmIndex.current]);

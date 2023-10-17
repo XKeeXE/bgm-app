@@ -28,7 +28,7 @@ function EndOfQueue() {
 
 function App() {
     const bgmIndex = useRef<number>(-1);
-    const selectedBGMIndex = useRef(-1);
+    const listRef = useRef<any>();
     const [playing, setPlaying] = useState<boolean>(true);
     const [currentUrl, setCurrentUrl] = useState<string>(trackPath);
     const [trackTitle, setTrackTitle] = useState<string>('None')
@@ -70,13 +70,16 @@ function App() {
      * @param index the index which reprensents the original track index from tracks array
     */
     function PlayTrack(index: number) {
-       trackName = tracks.current[index]; // will give the name of the track of the given original index, ex: test.mp3
-       trackPath = savedSettings.path.concat(trackName); // will combine the path of the file with the track name, ex: E:/BGM/test.mp3
-       // if (ReactPlayer.canPlay(trackPath) == false) { // <- doesnt work with FILE:ERR_NOT_FOUND
-       //     console.error(trackName + " cant be played");
-       //     bgm[bgmIndex].played = true;
-       //     return;
-       // }
+        // console.log(bgmIndex.current);   // <-- THE SAME, but works with every other component EXCEPT BGMLIST
+        // console.log(index);              // <-- THE SAME, works with every component
+        trackName = tracks.current[index]; // will give the name of the track of the given original index, ex: test.mp3
+        trackPath = savedSettings.path.concat(trackName); // will combine the path of the file with the track name, ex: E:/BGM/test.mp3
+        // if (ReactPlayer.canPlay(trackPath) == false) { // <- doesnt work with FILE:ERR_NOT_FOUND
+        //     console.error(trackName + " cant be played");
+        //     bgm.current[bgmIndex.current].played = true; <- wont even work
+        //     return;
+        // }
+        console.log("Now playing: " + tracks.current[index]);
         getAudioDurationInSeconds(trackPath).then((duration: any) => { // bug when first loading queue
             let dateObj = new Date(duration * 1000);
             let minutes = dateObj.getUTCMinutes();
@@ -87,6 +90,8 @@ function App() {
         setCurrentUrl(trackPath); // will update the state and put the track path
         setTrackTitle(trackName.replace('.mp3', ''));
         document.title = trackName.replace('.mp3', '') // put the app title as the current playing item
+        listRef.current.scrollToItem(index, "smart");
+        
     }
 
     /**
@@ -140,20 +145,7 @@ function App() {
                 <div className="right-side">
                     {/** The list of the tracks */}
                     {tracks.current.length === 0 && <p>No BGM found</p>}
-                    {/* <ul>
-                        {tracks.current.map((item, index) => 
-                        <li className="test" // <- el html no sirve en electron (selectedBGMIndex.current === index ? 'list-group-item active' : 'list-group-item')
-                        key={item} onClick={() => { 
-                            // Tengo que rework para que no se chupe el queue ya que cada vez que haces select quita uno del queue aunque ya habia hecho play
-                            console.log("clicked");
-                            console.log(index);
-                            console.log(bgm.current[bgmIndex.current])
-                            bgm.current[bgmIndex.current].played = true;
-                            PlayTrack(index)
-                        }}>{item.replace('.mp3', '')}
-                    </li>)}
-                    </ul> */}
-                    <BGMList tracks={tracks}/>
+                    <BGMList tracks={tracks} listRef={listRef} PlayTrack={PlayTrack}/>
                 </div>
             </div>
         </div>
