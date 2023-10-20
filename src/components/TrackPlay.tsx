@@ -13,7 +13,7 @@ let saveQueueTimer = 0;
  * @returns 
  */
 const TrackPlay = (props: any) => {
-    const { bgm, bgmIndex, playing, currentUrl, savedSettings, SetBGMJson, EndOfQueue, PlayNextInQueue } = props;
+    const { bgm, bgmIndex, skipped, setSelectedTrack, playing, currentUrl, savedSettings, SetBGMJson, EndOfQueue, PlayNextInQueue } = props;
 
     const bgmPlayerRef = useRef<any>();
     const [bgmPlayer, setBGMPlayer] = useState({
@@ -34,10 +34,14 @@ const TrackPlay = (props: any) => {
         onStart={() => {
             // console.log(bgmIndex.current);
             // console.log(bgm.current[bgmIndex.current])
-            // if (bgm.current[bgmIndex.current].played == true) { // conflict with TrackSkip
+            // if (skipped.current == true) { // conflict with TrackSkip
             //     console.log("test");
             //     return;
             // }
+            // var test = bgm.current.find((obj: { index: any; }) => {
+            //     return obj.index === bgmIndex;
+            // })
+            // console.log(test);
             // if already played 5 tracks auto save the queue and set the timer back to 0, will save the queue before the current track is set true
             if (saveQueueTimer == 5) {
                 saveQueueTimer = 0;
@@ -54,9 +58,11 @@ const TrackPlay = (props: any) => {
             bgm.current[bgmIndex.current].played = true; // set the current track as played
             console.log(bgm.current[bgmIndex.current]);
             saveQueueTimer++; // add 1 into the timer
+            setSelectedTrack(bgmIndex.current);
             console.log(currentUrl); // url of the current playing track
         }}
         onEnded={() => {
+            skipped.current = false;
             PlayNextInQueue(); // Must find next track in the current queue
         }}
         onProgress={handleProgress}/>

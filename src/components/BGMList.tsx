@@ -1,29 +1,35 @@
 import { ListItem, ListItemButton, ListItemText } from "@mui/material";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
 
-let test: any[] = [];
+let bgmTracks: any[] = [];
+let test = -1;
 
 const Row = (props: ListChildComponentProps) => {
     const { style, index, data } = props;
+    const [tester, settester] = useState(-1);
+    
     return (
         <ListItem style={style} key={index}>
-            <ListItemButton onClick={() => {
-                console.log(test[index]);
+            <ListItemButton selected={test == index} onClick={() => {
+                console.log(bgmTracks[index]);
                 data(index);
                 // if played do not add 1 to the current queue
             }}>
-                <ListItemText primary={test[index].replace('.mp3', '')}/>
+                <ListItemText primary={bgmTracks[index].replace('.mp3', '')}/>
             </ListItemButton>
         </ListItem>
     );
 }
 
 const BGMList = (props: any) => {
-    const { tracks, listRef, PlayTrack } = props;
+    const { tracks, listRef, selectedTrack, PlayTrack } = props;
     useEffect(() => {
+        
     }, [])
-    test = tracks.current;
+    bgmTracks = tracks.current;
+    test = selectedTrack;
+    console.log(test);
     return (
         <FixedSizeList
         className="bgm-list"

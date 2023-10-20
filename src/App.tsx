@@ -29,6 +29,8 @@ function EndOfQueue() {
 function App() {
     const bgmIndex = useRef<number>(-1);
     const listRef = useRef<any>();
+    const skipped = useRef(false);
+    const [selectedTrack, setSelectedTrack] = useState<number>(-1);
     const [playing, setPlaying] = useState<boolean>(true);
     const [currentUrl, setCurrentUrl] = useState<string>(trackPath);
     const [trackTitle, setTrackTitle] = useState<string>('None')
@@ -124,12 +126,12 @@ function App() {
                 {/** Buttons to manipulate the bgm */}
                 <TrackPause playing={playing} setPlaying={setPlaying}/>
                 <BGMShuffle bgm={bgm}/>
-                <TrackSkip bgm={bgm} PlayTrack={PlayTrack} bgmIndex={bgmIndex}/>
+                <TrackSkip bgm={bgm} skipped={skipped} PlayTrack={PlayTrack} bgmIndex={bgmIndex}/>
                 <BGMSaveQueue bgm={bgm}/>
                 <BGMLoadQueue SetBGMJson={SetBGMJson} GetBGMJson={GetBGMJson} PlayNextInQueue={PlayNextInQueue}/>
                 <BGMVolume savedSettings={savedSettings} setSavedSettings={setSavedSettings}/>
                 {/** TrackPlay contains ReactPlayer component which is used to play the track */}
-                <TrackPlay bgm={bgm} bgmIndex={bgmIndex} playing={playing} currentUrl={currentUrl} 
+                <TrackPlay bgm={bgm} bgmIndex={bgmIndex} skipped={skipped} setSelectedTrack={setSelectedTrack} playing={playing} currentUrl={currentUrl} 
                 savedSettings={savedSettings} SetBGMJson={SetBGMJson} EndOfQueue={EndOfQueue} PlayNextInQueue={PlayNextInQueue}/>
                 <div className="current-track">
                     <p className="current-track-name">{trackTitle}</p>
@@ -145,7 +147,7 @@ function App() {
                 <div className="right-side">
                     {/** The list of the tracks */}
                     {tracks.current.length === 0 && <p>No BGM found</p>}
-                    <BGMList tracks={tracks} listRef={listRef} PlayTrack={PlayTrack}/>
+                    <BGMList tracks={tracks} listRef={listRef} selectedTrack={selectedTrack} setSelectedTrack={setSelectedTrack} PlayTrack={PlayTrack}/>
                 </div>
             </div>
         </div>

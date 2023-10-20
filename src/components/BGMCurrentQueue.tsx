@@ -46,7 +46,7 @@ const BGMCurrentQueue = (props: any) => {
         {queue.length === 0 && <p>No current queue found</p>}
         <ul className="bgm-queue">
             {queue.map((item) => 
-            <li key={item}>{item.replace('.mp3', '')}
+            <li key={item}>{item}
             </li>)}
         </ul>
         <p className="bgm-results">{results}</p>
