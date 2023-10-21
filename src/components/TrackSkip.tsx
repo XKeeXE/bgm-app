@@ -16,9 +16,10 @@ const TrackSkip = (props: any) => {
                     EndOfQueue()
                     return;
                 }
-                skipped.current = true; // mark that skip was used
+                // skipped.current = true; // mark that skip was used
                 bgm.current[nextTrack].played = true; // just in case the following track is not playable
                 bgmIndex.current = bgm.current[nextTrack].index // convert bgmIndex into the original track index of the next track
+                // console.log(bgmIndex.current);
                 PlayTrack(bgmIndex.current); // play next track by inserting the original track index
                 console.log("skipped");
             }}><SkipIcon/>

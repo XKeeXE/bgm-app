@@ -3,17 +3,17 @@ import { useEffect, useRef, useState } from "react";
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
 
 let bgmTracks: any[] = [];
-let test = -1;
 
 const Row = (props: ListChildComponentProps) => {
-    const { style, index, data } = props;
-    const [tester, settester] = useState(-1);
-    
+    const { style, index, data, test } = props;
+    // selected={data === index}
     return (
         <ListItem style={style} key={index}>
-            <ListItemButton selected={test == index} onClick={() => {
+            <ListItemButton onClick={() => {
                 console.log(bgmTracks[index]);
+                // console.log(test);
                 data(index);
+                // test(index);
                 // if played do not add 1 to the current queue
             }}>
                 <ListItemText primary={bgmTracks[index].replace('.mp3', '')}/>
@@ -28,8 +28,6 @@ const BGMList = (props: any) => {
         
     }, [])
     bgmTracks = tracks.current;
-    test = selectedTrack;
-    console.log(test);
     return (
         <FixedSizeList
         className="bgm-list"

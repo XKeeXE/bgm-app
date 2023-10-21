@@ -58,7 +58,6 @@ const TrackPlay = (props: any) => {
             bgm.current[bgmIndex.current].played = true; // set the current track as played
             console.log(bgm.current[bgmIndex.current]);
             saveQueueTimer++; // add 1 into the timer
-            setSelectedTrack(bgmIndex.current);
             console.log(currentUrl); // url of the current playing track
         }}
         onEnded={() => {

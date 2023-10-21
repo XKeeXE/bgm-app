@@ -48,7 +48,7 @@ function App() {
             {played: false} // has been played in current queue
             )
         }));
-    
+
     /**
      * Will find the next track that is still unplayed in the current queue and since every track
      * has the original track index inside it get it and play the track.
@@ -89,11 +89,22 @@ function App() {
             
             setDurationString(minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0')); // ex: 01:34
         })
+        setSelectedTrack(index);
         setCurrentUrl(trackPath); // will update the state and put the track path
         setTrackTitle(trackName.replace('.mp3', ''));
         document.title = trackName.replace('.mp3', '') // put the app title as the current playing item
         listRef.current.scrollToItem(index, "smart");
         
+        // var currentTrack = bgm.current.findIndex((bgm: { played: boolean; }) => bgm.played === false); // Will find current queue index in the current track
+        //     if (currentTrack == -1) {
+        //         EndOfQueue()
+        //         return;
+        //     }
+        //     console.log(index);
+        // console.log("currently in the queue number: #" + currentTrack);
+        // bgmIndex.current = currentTrack;
+        // bgm.current[index].played = true; // set the current track as played
+        // console.log(bgm.current[bgmIndex.current]);
     }
 
     /**
