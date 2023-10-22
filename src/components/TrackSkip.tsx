@@ -7,7 +7,7 @@ import SkipIcon from '@mui/icons-material/SkipNext';
  * @returns the skip button
  */
 const TrackSkip = (props: any) => {
-    const { bgm, skipped, bgmIndex, PlayTrack, EndOfQueue } = props;
+    const { bgm, bgmIndex, trackSkipped, PlayTrack, EndOfQueue } = props;
     return (
         <Tooltip title="Skip">
             <IconButton onClick={() => {
@@ -16,7 +16,8 @@ const TrackSkip = (props: any) => {
                     EndOfQueue()
                     return;
                 }
-                // skipped.current = true; // mark that skip was used
+                console.log(bgm.current[nextTrack]);
+                trackSkipped.current = true;
                 bgm.current[nextTrack].played = true; // just in case the following track is not playable
                 bgmIndex.current = bgm.current[nextTrack].index // convert bgmIndex into the original track index of the next track
                 // console.log(bgmIndex.current);

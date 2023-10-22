@@ -14,7 +14,7 @@ const BGMCurrentQueue = (props: any) => {
         const bgmQueue: any[] = []; // the array of tracks of the next 10 tracks if possible
         const unplayedQueue: number[] = [];
         var tempIndex = 0; // times the for loop occured [min=1, max=10], 0 if none
-        let currentQueue = 0; // how many tracks have played in the current queue
+        let numberPlayedTracks = 0; // how many tracks have played in the current queue
         let finalTrackIndex = 0; // named liked that because when for loop finishes will get the final index of the following 10 tracks
         let tracksIndex = 0; // the bgmIndex of this component
         var queueTracks: any; // declared as var for organization for find index and find
@@ -25,13 +25,13 @@ const BGMCurrentQueue = (props: any) => {
                 break;
             }
             finalTrackIndex = queueTracks; // when for loop finishes get the final track index
-            currentQueue = queueTracks; // index of current queue
+            numberPlayedTracks = queueTracks; // index of current queue
             queueTracks = bgm.current.find((bgm: { played: boolean; }) => bgm.played === false); // find the next track in the current queue
             if (queueTracks === undefined) { // since it is possible to give undefined when all tracks have been played break from the loop
                 break;
             }
             bgm.current[finalTrackIndex].played = true; // mark the bgm to played true to find next track in the current queue
-            unplayedQueue.push(currentQueue); // store the tracks indexes that are in the current queue to use it later to revert the process of played true
+            unplayedQueue.push(numberPlayedTracks); // store the tracks indexes that are in the current queue to use it later to revert the process of played true
             if (tracks.current[queueTracks.index] == undefined) { // if for some reason the track is undefined as it was removed or something
                 trackString = "---{Undefined Track}---";
             } else {
@@ -45,16 +45,22 @@ const BGMCurrentQueue = (props: any) => {
             }
             bgmQueue.push(trackString); // put the string of the tracks into the queue
             // console.log(bgmQueue);
-            tempIndex = index+1; // add 1 into the times it ocurred for real life numbers [min=1, max=10] as for loop starts at 0 and ends on 9
+            tempIndex = index; // number of times the loop occurred [min=1, max=10]
         }
-        // Since the tracks were marked true revert the process and mark it false 
         // console.log(unplayedQueue);
         // unplayedQueue.shift()
+        // console.log(bgmQueue);
+        // console.log(tracks.current[bgm.current[unplayedQueue[0]].index]);
+        // Since the tracks were marked true revert the process and mark it false 
         for (let index = unplayedQueue.length-1; index >= 0; index--) {
+            // if (index == 0) { // skip the index 0 as that is the playing track and we dont want to mark it as played false
+            //     break;
+            // }
+            // console.log(tracks.current[bgm.current[unplayedQueue[index]].index]);
             bgm.current[unplayedQueue[index]].played = false; // mark the track as played false so that they may be playable again when queue reaches track
         }
         // bgmIndex.current = unplayedQueue[0];
-        setResults(tempIndex-1 + " / " + (bgm.current.length - currentQueue+1) + " result(s) displayed"); // <- el re-render hace que el queue haga display correctamente
+        setResults(tempIndex + " / " + (bgm.current.length - numberPlayedTracks+1) + " result(s) displayed"); // <- el re-render hace que el queue haga display correctamente
         queue = bgmQueue.map(item => item) // map bgmQueue into queue to show it on the list
         queue.shift(); // remove the first element as that would be the one playing in the current queue
         

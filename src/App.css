@@ -27,6 +27,16 @@
   /* flex-direction: row;  */
 }
 
+.search-track-input {
+  position: absolute;
+  opacity: 0.0;
+  /* visibility: hidden; */
+}
+
+.show-track-input {
+  position: absolute;
+}
+
 
 .top-side {
   /* position: fixed; */

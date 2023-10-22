@@ -9,10 +9,10 @@ const Row = (props: ListChildComponentProps) => {
     // selected={data === index}
     return (
         <ListItem style={style} key={index}>
-            <ListItemButton onClick={() => {
+            <ListItemButton selected={data === index} onClick={() => {
                 console.log(bgmTracks[index]);
                 // console.log(test);
-                data(index);
+                // data(index);
                 // test(index);
                 // if played do not add 1 to the current queue
             }}>
@@ -25,7 +25,8 @@ const Row = (props: ListChildComponentProps) => {
 const BGMList = (props: any) => {
     const { tracks, listRef, selectedTrack, PlayTrack } = props;
     useEffect(() => {
-        
+        // itemData={PlayTrack}
+        // itemData={selectedTrack}
     }, [])
     bgmTracks = tracks.current;
     return (
@@ -36,7 +37,7 @@ const BGMList = (props: any) => {
         width={800}
         itemSize={45}
         itemCount={tracks.current.length}
-        itemData={PlayTrack}
+        itemData={selectedTrack}
         overscanCount={5}>
             {Row}
         </FixedSizeList>
