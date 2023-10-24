@@ -11,6 +11,8 @@ const TrackSkip = (props: any) => {
     return (
         <Tooltip title="Skip">
             <IconButton onClick={() => {
+                // setBGMPlayer({...bgmPlayer, seeking: false});
+                // bgmPlayerRef.current?.seekTo(0.999999);
                 var nextTrack = bgm.current.findIndex((bgm: { played: boolean; }) => bgm.played === false); // find first track that is not played in current queue
                 if (nextTrack == -1) {
                     EndOfQueue()

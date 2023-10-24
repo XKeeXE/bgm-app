@@ -30,6 +30,7 @@ function EndOfQueue() {
 function App() {
     const bgmIndex = useRef<number>(-1);
     const listRef = useRef<any>();
+    const currentSelectedTrack = useRef<number>(-1);
     const trackSkipped = useRef<boolean>(false);
     const [selectedTrack, setSelectedTrack] = useState<number>(-1);
     // const originalSelect = useRef(selectedTrack);
@@ -44,6 +45,7 @@ function App() {
     })
     
     const tracks = useRef(fs.readdirSync(savedSettings.path).map(item => item)); // read all the tracks from directory declared in the path
+        
     const bgm = useRef(tracks.current.map((_track, originalTrackIndex) => {
         return Object.assign(
             {index: originalTrackIndex}, // original index of the track
@@ -131,7 +133,7 @@ function App() {
             {/** Background stuff, like load previous settings and save current settings when closed */}
             <BGMLoadSettings settingsFile={settingsFile} savedSettings={savedSettings} setSavedSettings={setSavedSettings}/>
             <BGMSaveSettings settingsFile={settingsFile} savedSettings={savedSettings}/>
-            <BGMInputSearch tracks={tracks} listRef={listRef} setSelectedTrack={setSelectedTrack}/>
+            <BGMInputSearch tracks={tracks} listRef={listRef} currentSelectedTrack={currentSelectedTrack} setSelectedTrack={setSelectedTrack}/>
             <div className="top-side">
                 {/** Buttons to manipulate the bgm */}
                 <TrackPause playing={playing} setPlaying={setPlaying}/>
@@ -141,7 +143,7 @@ function App() {
                 <BGMLoadQueue SetBGMJson={SetBGMJson} GetBGMJson={GetBGMJson} PlayNextInQueue={PlayNextInQueue}/>
                 <BGMVolume savedSettings={savedSettings} setSavedSettings={setSavedSettings}/>
                 {/** TrackPlay contains ReactPlayer component which is used to play the track */}
-                <TrackPlay bgm={bgm} bgmIndex={bgmIndex} trackSkipped={trackSkipped} setSelectedTrack={setSelectedTrack} playing={playing} currentUrl={currentUrl} 
+                <TrackPlay bgm={bgm} bgmIndex={bgmIndex} trackSkipped={trackSkipped} currentSelectedTrack={currentSelectedTrack} playing={playing} currentUrl={currentUrl} 
                 savedSettings={savedSettings} SetBGMJson={SetBGMJson} EndOfQueue={EndOfQueue} PlayNextInQueue={PlayNextInQueue}/>
                 <div className="current-track">
                     <p className="current-track-name">{trackTitle}</p>

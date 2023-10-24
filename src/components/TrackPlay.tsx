@@ -13,7 +13,7 @@ let saveQueueTimer = 0;
  * @returns 
  */
 const TrackPlay = (props: any) => {
-    const { bgm, bgmIndex, trackSkipped, setSelectedTrack, playing, currentUrl, savedSettings, SetBGMJson, EndOfQueue, PlayNextInQueue } = props;
+    const { bgm, bgmIndex, trackSkipped, currentSelectedTrack, playing, currentUrl, savedSettings, SetBGMJson, EndOfQueue, PlayNextInQueue } = props;
 
     const bgmPlayerRef = useRef<any>();
     const [bgmPlayer, setBGMPlayer] = useState({
@@ -61,6 +61,8 @@ const TrackPlay = (props: any) => {
                 console.log("auto saved")
             }
             console.log(bgm.current[bgmIndex.current]);
+            currentSelectedTrack.current = bgm.current[bgmIndex.current].index;
+            // console.log(currentSelectedTrack);
             saveQueueTimer++; // add 1 into the timer
             console.log(currentUrl); // url of the current playing track
         }}
