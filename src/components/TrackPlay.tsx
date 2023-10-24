@@ -32,20 +32,20 @@ const TrackPlay = (props: any) => {
         <TrackSeek bgmPlayerRef={bgmPlayerRef} bgmPlayer={bgmPlayer} setBGMPlayer={setBGMPlayer}/>
         <ReactPlayer ref={bgmPlayerRef} playing={playing} url={currentUrl} volume={savedSettings.volume} progressInterval={200} width={0} height={0}
         onStart={() => {
-            // console.log(bgmIndex.current);
-            // console.log(bgm.current[bgmIndex.current])
-            // if (skipped.current == true) { // conflict with TrackSkip
-            //     console.log("test");
+            // if (trackSkipped.current == true) { // in case the track is not playable or something then had to add this check just in case to not skip the wrong track
+            //     trackSkipped.current = false;
+            //     bgm.current[bgmIndex.current].played = false;
+            // }
+            // const trackIndex = bgm.current.map((track: { index: any; }) => track.index).indexOf(bgmIndex.current);
+            // if (bgm.current[trackIndex].played == true) {
+            //     console.log("already played");
             //     return;
             // }
-            // var test = bgm.current.find((obj: { index: any; }) => {
-            //     return obj.index === bgmIndex;
-            // })
-            // console.log(test);
-            if (trackSkipped.current == true) { // in case the track is not playable or something then had to add this check just in case to not skip the wrong track
-                trackSkipped.current = false;
-                bgm.current[bgmIndex.current].played = false;
-            }
+            // if (bgm.current[selectedTrack].played == true) {
+            //     console.log("the track has been played")
+            //     console.log(bgm.current[bgmIndex.current]);
+            //     return;
+            // }
             var currentTrack = bgm.current.findIndex((bgm: { played: boolean; }) => bgm.played === false); // Will find current queue index in the current track
             if (currentTrack == -1) {
                 EndOfQueue()

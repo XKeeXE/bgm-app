@@ -16,11 +16,11 @@ const BGMCurrentQueue = (props: any) => {
         var tempIndex = 0; // times the for loop occured [min=1, max=10], 0 if none
         let numberPlayedTracks = 0; // how many tracks have played in the current queue
         let finalTrackIndex = 0; // named liked that because when for loop finishes will get the final index of the following 10 tracks
-        let tracksIndex = 0; // the bgmIndex of this component
         var queueTracks: any; // declared as var for organization for find index and find
         let trackString: string;
         for (let index = 0; index < 11; index++) { // en vez de index < 10, se tuvo que cambiar a index < 11 para hacerle queue.shift y quitar el primero
             queueTracks = bgm.current.findIndex((bgm: { played: boolean; }) => bgm.played === false); // get index of queue of the track in current queue
+            console.log(bgm.current[queueTracks]);
             if (bgm.current.length - queueTracks < 0 || queueTracks == -1 ) { // bgm.length = 3000, if 3000-3000 < 0 or if all tracks have been played, break
                 break;
             }
@@ -37,7 +37,7 @@ const BGMCurrentQueue = (props: any) => {
             } else {
                 trackString = tracks.current[queueTracks.index].replace('.mp3', ''); // else remove .mp3 from the track
             }
-
+            
             if (trackString.length > maxStringLength) { // if track has max string length of 63 put ... after it. Ex: TestTrack
                 let tempString = '';
                 tempString = trackString.substring(0, maxStringLength-3) // remove only the last 3 strings. ex: TestTr
@@ -63,9 +63,15 @@ const BGMCurrentQueue = (props: any) => {
         setResults(tempIndex + " / " + (bgm.current.length - numberPlayedTracks+1) + " result(s) displayed"); // <- el re-render hace que el queue haga display correctamente
         queue = bgmQueue.map(item => item) // map bgmQueue into queue to show it on the list
         queue.shift(); // remove the first element as that would be the one playing in the current queue
+        // if (bgmIndex.current != -1) {
+        //     const trackIndex = bgm.current.map((track: { index: any; }) => track.index).indexOf(bgmIndex.current);
+        //     bgm.current[trackIndex].played = true;
+        //     console.log(bgm.current[trackIndex]);
+            
+        // }
         
     }, [currentUrl]);
-
+    
     return (
         <>
         {queue.length === 0 && <p>No current queue found</p>}

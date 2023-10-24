@@ -13,16 +13,22 @@ const TrackSkip = (props: any) => {
             <IconButton onClick={() => {
                 // setBGMPlayer({...bgmPlayer, seeking: false});
                 // bgmPlayerRef.current?.seekTo(0.999999);
-                var nextTrack = bgm.current.findIndex((bgm: { played: boolean; }) => bgm.played === false); // find first track that is not played in current queue
-                if (nextTrack == -1) {
-                    EndOfQueue()
-                    return;
-                }
+                var nextTrack = bgm.current.findIndex((bgm: { played: boolean; }) => bgm.played == false); // find first track that is not played in current queue
+                // if (nextTrack == -1) {
+                //     EndOfQueue()
+                //     return;
+                // }
+                console.log(nextTrack);
+                // console.log(bgm.current.length);
+                // console.log(tracks.current.length);
+                // const nextTrack = bgm.current.map(find)
+                // console.log(nextTrack);
+
                 console.log(bgm.current[nextTrack]);
-                trackSkipped.current = true;
-                bgm.current[nextTrack].played = true; // just in case the following track is not playable
+                // trackSkipped.current = true;
+                // bgm.current[nextTrack].played = true; // just in case the following track is not playable
                 bgmIndex.current = bgm.current[nextTrack].index // convert bgmIndex into the original track index of the next track
-                // console.log(bgmIndex.current);
+                // // console.log(bgmIndex.current);
                 PlayTrack(bgmIndex.current); // play next track by inserting the original track index
                 console.log("skipped");
             }}><SkipIcon/>

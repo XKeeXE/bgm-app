@@ -98,13 +98,7 @@ function App() {
         setCurrentUrl(trackPath); // will update the state and put the track path
         setTrackTitle(trackName.replace('.mp3', ''));
         document.title = trackName.replace('.mp3', '') // put the app title as the current playing item
-        listRef.current.scrollToItem(index, "smart");
-        // console.log("currently in the queue number: #" + currentTrack);
-        // var currentTrack = bgm.current.findIndex((bgm: { played: boolean; }) => bgm.played === false); // Will find current queue index in the current track
-        //     if (currentTrack == -1) { Cant do this currentTrack because if selecting a track will give wrong track
-        //         currentTrack = index;
-        //     }
-        // console.log(bgm.current[bgmIndex.current]);
+        listRef.current.scrollToItem(index, "center");
     }
 
     /**
@@ -153,13 +147,13 @@ function App() {
             <div className="main">
                 <div className="left-side">
                     {/** To see the current queue and current thumbnail */}
-                    <BGMCurrentQueue currentUrl={currentUrl} bgm={bgm} tracks={tracks}/>
+                    <BGMCurrentQueue currentUrl={currentUrl} bgm={bgm} tracks={tracks} bgmIndex={bgmIndex}/>
                     <TrackThumbnail currentUrl={currentUrl}/>
                 </div>
                 <div className="right-side">
                     {/** The list of the tracks */}
                     {tracks.current.length === 0 && <p>No BGM found</p>}
-                    <BGMList tracks={tracks} listRef={listRef} selectedTrack={selectedTrack} setSelectedTrack={setSelectedTrack} PlayTrack={PlayTrack}/>
+                    <BGMList tracks={tracks} bgmIndex={bgmIndex} listRef={listRef} selectedTrack={selectedTrack} setSelectedTrack={setSelectedTrack} PlayTrack={PlayTrack}/>
                 </div>
             </div>
         </div>

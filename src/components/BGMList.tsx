@@ -1,34 +1,25 @@
 import { ListItem, ListItemButton, ListItemText } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
 
-let bgmTracks: any[] = [];
-
-const Row = (props: ListChildComponentProps) => {
-    const { style, index, data, test } = props;
-    // selected={data === index}
-    return (
-        <ListItem style={style} key={index}>
-            <ListItemButton selected={data === index} onClick={() => {
-                console.log(bgmTracks[index]);
-                // console.log(test);
-                // data(index);
-                // test(index);
-                // if played do not add 1 to the current queue
-            }}>
-                <ListItemText primary={bgmTracks[index].replace('.mp3', '')}/>
-            </ListItemButton>
-        </ListItem>
-    );
-}
-
 const BGMList = (props: any) => {
-    const { tracks, listRef, selectedTrack, PlayTrack } = props;
-    useEffect(() => {
-        // itemData={PlayTrack}
-        // itemData={selectedTrack}
-    }, [])
-    bgmTracks = tracks.current;
+    const { tracks, bgmIndex, listRef, selectedTrack, PlayTrack } = props;
+
+    const Row = (props: ListChildComponentProps) => {
+        const { style, index } = props;
+        return (
+            <ListItem style={style} key={index}>
+                <ListItemButton selected={selectedTrack === index} onClick={() => {
+                    // console.log(index);
+                    PlayTrack(index);
+                    bgmIndex.current = index;
+                    console.log(bgmIndex.current);
+                    // bgm.current[trackIndex].played = true;
+                }}>
+                    <ListItemText primary={tracks.current[index].replace('.mp3', '')}/>
+                </ListItemButton>
+            </ListItem>
+        );
+    }
     return (
         <FixedSizeList
         className="bgm-list"
@@ -37,7 +28,6 @@ const BGMList = (props: any) => {
         width={800}
         itemSize={45}
         itemCount={tracks.current.length}
-        itemData={selectedTrack}
         overscanCount={5}>
             {Row}
         </FixedSizeList>

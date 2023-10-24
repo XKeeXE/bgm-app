@@ -24,7 +24,7 @@ const BGMInputSearch = (props: any) => {
         let result = searchTracks.current.filter((track: { title: string; }) => track.title.startsWith(inputSearch.current.toLowerCase()));
         if (result.length == 0) { // if the search did not start with the entered search
             result = searchTracks.current.filter((track: { title: string; }) => track.title.includes(inputSearch.current.toLowerCase()));
-            if (result == 0) { // if in case no tracks were found by neither startWith nor includes then return nothing
+            if (result.length == 0) { // if in case no tracks were found by neither startWith nor includes then return nothing
                 console.log("does not exist");
                 return;
             }
@@ -47,7 +47,7 @@ const BGMInputSearch = (props: any) => {
     return (
         <div>
             <input className="search-track-input" ref={inputSearchRef} onChange={handleChange} onBlur={() => {
-                SelectTrack(currentSelectedTrack.current) // set the playing track as the selected track if no longer focused on text input
+                // SelectTrack(currentSelectedTrack.current) // set the playing track as the selected track if no longer focused on text input
             }}/>
             <p className="show-track-input">{viewInput}</p>
         </div>
