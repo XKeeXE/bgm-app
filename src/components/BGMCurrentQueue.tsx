@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 let queue: string[] = [];
 let maxStringLength = 65;
@@ -15,6 +15,7 @@ const BGMCurrentQueue = (props: any) => {
         const unplayedQueue: number[] = [];
         var tempIndex = 0; // times the for loop occured [min=1, max=10], 0 if none
         let numberPlayedTracks = 0; // how many tracks have played in the current queue
+        let undefinedTimes = 0;
         let finalTrackIndex = 0; // named liked that because when for loop finishes will get the final index of the following 10 tracks
         var queueTracks: any; // declared as var for organization for find index and find
         let trackString: string;
@@ -34,6 +35,8 @@ const BGMCurrentQueue = (props: any) => {
             unplayedQueue.push(numberPlayedTracks); // store the tracks indexes that are in the current queue to use it later to revert the process of played true
             if (tracks.current[queueTracks.index] == undefined) { // if for some reason the track is undefined as it was removed or something
                 trackString = "---{Undefined Track}---";
+                undefinedTimes = undefinedTimes+1;
+                trackString = trackString.concat(undefinedTimes.toString());
             } else {
                 trackString = tracks.current[queueTracks.index].replace('.mp3', ''); // else remove .mp3 from the track
             }

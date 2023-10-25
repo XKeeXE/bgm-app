@@ -14,6 +14,7 @@ import BGMSaveSettings from "./components/BGMSaveSettings";
 import TrackPlay from "./components/TrackPlay";
 import BGMList from './components/BGMList';
 import BGMInputSearch from './components/BGMInputSearch';
+import ReactPlayer from 'react-player';
 
 const { getAudioDurationInSeconds } = require('get-audio-duration');
 let trackPath: string;
@@ -80,6 +81,16 @@ function App() {
         // console.log(index);              // <-- THE SAME, works with every component
         
         trackName = tracks.current[index]; // will give the name of the track of the given original index, ex: test.mp3
+        if (trackName == undefined) {
+            var currentUndefinedIndex = bgm.current.find(track => {
+                return track.index == index;
+            })
+            // 
+            console.log(currentUndefinedIndex);
+            console.log(index);
+            bgm.current[index].played = true;
+            return;
+        }
         trackPath = savedSettings.path.concat(trackName); // will combine the path of the file with the track name, ex: E:/BGM/test.mp3
         // if (ReactPlayer.canPlay(trackPath) == false) { // <- doesnt work with FILE:ERR_NOT_FOUND
         //     console.error(trackName + " cant be played");
