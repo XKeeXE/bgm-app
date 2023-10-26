@@ -21,7 +21,7 @@ const BGMCurrentQueue = (props: any) => {
         let trackString: string;
         for (let index = 0; index < 11; index++) { // en vez de index < 10, se tuvo que cambiar a index < 11 para hacerle queue.shift y quitar el primero
             queueTracks = bgm.current.findIndex((bgm: { played: boolean; }) => bgm.played === false); // get index of queue of the track in current queue
-            console.log(bgm.current[queueTracks]);
+            // console.log(bgm.current[queueTracks]);
             if (bgm.current.length - queueTracks < 0 || queueTracks == -1 ) { // bgm.length = 3000, if 3000-3000 < 0 or if all tracks have been played, break
                 break;
             }

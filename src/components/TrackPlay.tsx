@@ -53,13 +53,13 @@ const TrackPlay = (props: any) => {
             }
             console.log("currently in the queue number: #" + currentTrack);
             bgmIndex.current = currentTrack;
-            bgm.current[bgmIndex.current].played = true; // set the current track as played
             // if already played 5 tracks auto save the queue and set the timer back to 0, will save the queue before the current track is set true
             if (saveQueueTimer == 5) {
                 saveQueueTimer = 0;
                 SetBGMJson(); // save it into the json
                 console.log("auto saved")
             }
+            bgm.current[bgmIndex.current].played = true; // set the current track as played
             console.log(bgm.current[bgmIndex.current]);
             currentSelectedTrack.current = bgm.current[bgmIndex.current].index;
             // console.log(currentSelectedTrack);
@@ -67,6 +67,7 @@ const TrackPlay = (props: any) => {
             console.log(currentUrl); // url of the current playing track
         }}
         onEnded={() => {
+            // bgm.current[bgmIndex.current].played = true; // set the current track as played
             PlayNextInQueue(); // Must find next track in the current queue
         }}
         onProgress={handleProgress}/>

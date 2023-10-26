@@ -81,16 +81,16 @@ function App() {
         // console.log(index);              // <-- THE SAME, works with every component
         
         trackName = tracks.current[index]; // will give the name of the track of the given original index, ex: test.mp3
-        if (trackName == undefined) {
-            var currentUndefinedIndex = bgm.current.find(track => {
-                return track.index == index;
-            })
-            // 
-            console.log(currentUndefinedIndex);
-            console.log(index);
-            bgm.current[index].played = true;
-            return;
-        }
+        // if (trackName == undefined) {
+        //     var currentUndefinedIndex = bgm.current.find(track => {
+        //         return track.index == index;
+        //     })
+        //     // 
+        //     console.log(currentUndefinedIndex);
+        //     console.log(index);
+        //     bgm.current[index].played = true;
+        //     return;
+        // }
         trackPath = savedSettings.path.concat(trackName); // will combine the path of the file with the track name, ex: E:/BGM/test.mp3
         // if (ReactPlayer.canPlay(trackPath) == false) { // <- doesnt work with FILE:ERR_NOT_FOUND
         //     console.error(trackName + " cant be played");
@@ -164,7 +164,7 @@ function App() {
                 <div className="right-side">
                     {/** The list of the tracks */}
                     {tracks.current.length === 0 && <p>No BGM found</p>}
-                    <BGMList tracks={tracks} bgmIndex={bgmIndex} listRef={listRef} selectedTrack={selectedTrack} setSelectedTrack={setSelectedTrack} PlayTrack={PlayTrack}/>
+                    <BGMList tracks={tracks} bgm={bgm} bgmIndex={bgmIndex} listRef={listRef} selectedTrack={selectedTrack} setSelectedTrack={setSelectedTrack} PlayTrack={PlayTrack}/>
                 </div>
             </div>
         </div>
