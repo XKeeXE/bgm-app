@@ -53,7 +53,6 @@ function App() {
             {played: false} // has been played in current queue
             )
         }));
-
     /**
      * Will find the next track that is still unplayed in the current queue and since every track
      * has the original track index inside it get it and play the track.
