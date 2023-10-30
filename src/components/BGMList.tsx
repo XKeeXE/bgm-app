@@ -2,7 +2,7 @@ import { ListItem, ListItemButton, ListItemText } from "@mui/material";
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
 
 const BGMList = (props: any) => {
-    const { tracks, bgm, bgmIndex, listRef, selectedTrack, PlayTrack } = props;
+    const { tracks, bgm, bgmIndex, selectedBool, listRef, selectedTrack, PlayTrack } = props;
 
     const Row = (props: ListChildComponentProps) => {
         const { style, index } = props;
@@ -18,6 +18,7 @@ const BGMList = (props: any) => {
                     // console.log(bgm.current.length);
                     // console.log(bgmIndex.current);
                     // bgmIndex.current = index;
+                    selectedBool.current = true;
                     PlayTrack(index);
                 }}>
                     <ListItemText primary={tracks.current[index].replace('.mp3', '')}/>

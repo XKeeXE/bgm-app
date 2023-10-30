@@ -31,6 +31,7 @@ function EndOfQueue() {
 function App() {
     const bgmIndex = useRef<number>(-1);
     const listRef = useRef<any>();
+    const selectedBool = useRef(false);
     const currentSelectedTrack = useRef<number>(-1);
     const trackSkipped = useRef<boolean>(false);
     const [selectedTrack, setSelectedTrack] = useState<number>(-1);
@@ -147,7 +148,7 @@ function App() {
                 <BGMLoadQueue SetBGMJson={SetBGMJson} GetBGMJson={GetBGMJson} PlayNextInQueue={PlayNextInQueue}/>
                 <BGMVolume savedSettings={savedSettings} setSavedSettings={setSavedSettings}/>
                 {/** TrackPlay contains ReactPlayer component which is used to play the track */}
-                <TrackPlay bgm={bgm} bgmIndex={bgmIndex} trackSkipped={trackSkipped} currentSelectedTrack={currentSelectedTrack} playing={playing} currentUrl={currentUrl} 
+                <TrackPlay bgm={bgm} bgmIndex={bgmIndex} selectedBool={selectedBool} currentSelectedTrack={currentSelectedTrack} playing={playing} currentUrl={currentUrl} 
                 savedSettings={savedSettings} SetBGMJson={SetBGMJson} EndOfQueue={EndOfQueue} PlayNextInQueue={PlayNextInQueue}/>
                 <div className="current-track">
                     <p className="current-track-name">{trackTitle}</p>
@@ -157,13 +158,13 @@ function App() {
             <div className="main">
                 <div className="left-side">
                     {/** To see the current queue and current thumbnail */}
-                    <BGMCurrentQueue currentUrl={currentUrl} bgm={bgm} tracks={tracks} bgmIndex={bgmIndex}/>
+                    <BGMCurrentQueue currentUrl={currentUrl} bgm={bgm} tracks={tracks} bgmIndex={bgmIndex} selectedBool={selectedBool}/>
                     <TrackThumbnail currentUrl={currentUrl}/>
                 </div>
                 <div className="right-side">
                     {/** The list of the tracks */}
                     {tracks.current.length === 0 && <p>No BGM found</p>}
-                    <BGMList tracks={tracks} bgm={bgm} bgmIndex={bgmIndex} listRef={listRef} selectedTrack={selectedTrack} setSelectedTrack={setSelectedTrack} PlayTrack={PlayTrack}/>
+                    <BGMList tracks={tracks} bgm={bgm} bgmIndex={bgmIndex} selectedBool={selectedBool} listRef={listRef} selectedTrack={selectedTrack} setSelectedTrack={setSelectedTrack} PlayTrack={PlayTrack}/>
                 </div>
             </div>
         </div>
