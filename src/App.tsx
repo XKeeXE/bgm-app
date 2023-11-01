@@ -14,7 +14,6 @@ import BGMSaveSettings from "./components/BGMSaveSettings";
 import TrackPlay from "./components/TrackPlay";
 import BGMList from './components/BGMList';
 import BGMInputSearch from './components/BGMInputSearch';
-import ReactPlayer from 'react-player';
 
 const { getAudioDurationInSeconds } = require('get-audio-duration');
 let trackPath: string;
@@ -31,9 +30,7 @@ function EndOfQueue() {
 function App() {
     const bgmIndex = useRef<number>(-1);
     const listRef = useRef<any>();
-    const selectedBool = useRef(false);
     const currentSelectedTrack = useRef<number>(-1);
-    const trackSkipped = useRef<boolean>(false);
     const [selectedTrack, setSelectedTrack] = useState<number>(-1);
     // const originalSelect = useRef(selectedTrack);
     const [playing, setPlaying] = useState<boolean>(true);
@@ -81,16 +78,6 @@ function App() {
         // console.log(index);              // <-- THE SAME, works with every component
         
         trackName = tracks.current[index]; // will give the name of the track of the given original index, ex: test.mp3
-        // if (trackName == undefined) {
-        //     var currentUndefinedIndex = bgm.current.find(track => {
-        //         return track.index == index;
-        //     })
-        //     // 
-        //     console.log(currentUndefinedIndex);
-        //     console.log(index);
-        //     bgm.current[index].played = true;
-        //     return;
-        // }
         trackPath = savedSettings.path.concat(trackName); // will combine the path of the file with the track name, ex: E:/BGM/test.mp3
         // if (ReactPlayer.canPlay(trackPath) == false) { // <- doesnt work with FILE:ERR_NOT_FOUND
         //     console.error(trackName + " cant be played");
@@ -105,11 +92,16 @@ function App() {
             
             setDurationString(minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0')); // ex: 01:34
         })
-        setSelectedTrack(index);
+        setSelectedTrack(index); // sets the selected item in the bgm list as the current track
         setCurrentUrl(trackPath); // will update the state and put the track path
-        setTrackTitle(trackName.replace('.mp3', ''));
+        setTrackTitle(trackName.replace('.mp3', '')); // sets the title as the current playing track
         document.title = trackName.replace('.mp3', '') // put the app title as the current playing item
-        listRef.current.scrollToItem(index, "center");
+        listRef.current.scrollToItem(index, "center"); // in the bgm list scrolls to the current track
+
+        var resultIndex = bgm.current.findIndex((track: { index: number; }) => track.index == index); // find the index that has index == originalTrackIndex
+        console.log("currently in the queue number: #" + resultIndex); // number in the current queue
+        bgmIndex.current = resultIndex; // set the current bgmIndex as the result index for later use
+        bgm.current[resultIndex].played = true; // set the current track as played ** had to be moved from TrackPlay as unplayable tracks got in the way **
     }
 
     /**
@@ -143,12 +135,12 @@ function App() {
                 {/** Buttons to manipulate the bgm */}
                 <TrackPause playing={playing} setPlaying={setPlaying}/>
                 <BGMShuffle bgm={bgm}/>
-                <TrackSkip bgm={bgm} trackSkipped={trackSkipped} PlayTrack={PlayTrack} bgmIndex={bgmIndex}/>
+                <TrackSkip bgm={bgm} PlayTrack={PlayTrack}/>
                 <BGMSaveQueue bgm={bgm}/>
                 <BGMLoadQueue SetBGMJson={SetBGMJson} GetBGMJson={GetBGMJson} PlayNextInQueue={PlayNextInQueue}/>
                 <BGMVolume savedSettings={savedSettings} setSavedSettings={setSavedSettings}/>
                 {/** TrackPlay contains ReactPlayer component which is used to play the track */}
-                <TrackPlay bgm={bgm} bgmIndex={bgmIndex} selectedBool={selectedBool} currentSelectedTrack={currentSelectedTrack} playing={playing} currentUrl={currentUrl} 
+                <TrackPlay bgm={bgm} bgmIndex={bgmIndex} currentSelectedTrack={currentSelectedTrack} playing={playing} currentUrl={currentUrl} 
                 savedSettings={savedSettings} SetBGMJson={SetBGMJson} EndOfQueue={EndOfQueue} PlayNextInQueue={PlayNextInQueue}/>
                 <div className="current-track">
                     <p className="current-track-name">{trackTitle}</p>
@@ -158,13 +150,13 @@ function App() {
             <div className="main">
                 <div className="left-side">
                     {/** To see the current queue and current thumbnail */}
-                    <BGMCurrentQueue currentUrl={currentUrl} bgm={bgm} tracks={tracks} bgmIndex={bgmIndex} selectedBool={selectedBool}/>
+                    <BGMCurrentQueue currentUrl={currentUrl} bgm={bgm} tracks={tracks}/>
                     <TrackThumbnail currentUrl={currentUrl}/>
                 </div>
                 <div className="right-side">
                     {/** The list of the tracks */}
                     {tracks.current.length === 0 && <p>No BGM found</p>}
-                    <BGMList tracks={tracks} bgm={bgm} bgmIndex={bgmIndex} selectedBool={selectedBool} listRef={listRef} selectedTrack={selectedTrack} setSelectedTrack={setSelectedTrack} PlayTrack={PlayTrack}/>
+                    <BGMList tracks={tracks} listRef={listRef} selectedTrack={selectedTrack} setSelectedTrack={setSelectedTrack} PlayTrack={PlayTrack}/>
                 </div>
             </div>
         </div>

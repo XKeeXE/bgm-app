@@ -14,8 +14,8 @@ const BGMInputSearch = (props: any) => {
     const [viewInput, setViewInput] = useState(''); // to view the input
     
     function SelectTrack(selectTrack: number) {
-        setSelectedTrack(selectTrack);
-        listRef.current.scrollToItem(selectTrack, "center");
+        setSelectedTrack(selectTrack); // sets the selected track as the entered track
+        listRef.current.scrollToItem(selectTrack, "center"); // scrolls in the bgm list to the selected track
     }
 
     const handleChange = (e: { target: { value: string; }; }) => {
