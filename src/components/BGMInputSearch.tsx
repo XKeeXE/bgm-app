@@ -46,10 +46,10 @@ const BGMInputSearch = (props: any) => {
     }, []);
     return (
         <div>
-            <input className="search-track-input" ref={inputSearchRef} onChange={handleChange} onBlur={() => {
+            <input className="absolute opacity-0" ref={inputSearchRef} onChange={handleChange} onBlur={() => {
                 // SelectTrack(currentSelectedTrack.current) // set the playing track as the selected track if no longer focused on text input
             }}/>
-            <p className="show-track-input">{viewInput}</p>
+            <p className="absolute">{viewInput}</p>
         </div>
     );
 }

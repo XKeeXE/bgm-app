@@ -4,7 +4,7 @@ const BGMVolume = (props: any) => {
         setSavedSettings({...savedSettings, volume: parseFloat(e.target.value)}); 
     }
     return (
-        <input className="bgm-volume" type="range" step="any" min={0} max={1} value={savedSettings.volume} onChange={handleVolumeChange}></input>
+        <input className="absolute right-0 self-center" type="range" step="any" min={0} max={1} value={savedSettings.volume} onChange={handleVolumeChange}></input>
     );
 }
 

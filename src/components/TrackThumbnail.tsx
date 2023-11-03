@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 var jsmediatags = require("jsmediatags");
 
 function TrackThumbnail(props: any) {
-    const { currentUrl } = props;
+    const { currentUrl, width, height } = props;
     const noThumbnail = useRef<boolean>(true); // To indicate that there is no thumbnail because there is no track playing
     const [thumbnail, setThumbnail] = useState<string>(currentUrl);
     
@@ -29,9 +29,9 @@ function TrackThumbnail(props: any) {
         
     }, [currentUrl])
     return (
-        <div className="track-thumbnail-container">
-            <img className="track-thumbnail" src={thumbnail} width={400} height={200} />
-            <div className={"track-thumbnail-" + (noThumbnail.current === true ? 'none' : 'show')}>No Track Playing</div>
+        <div className="relative">
+            <img className="h-auto max-h-fit order-2" src={thumbnail} width={width} height={height} />
+            <div className={noThumbnail.current === true ? 'absolute top-10 left-5' : 'opacity-0'}>No Track Playing</div>
         </div>
     );
 }

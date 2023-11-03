@@ -32,13 +32,6 @@ const TrackPlay = (props: any) => {
         <TrackSeek bgmPlayerRef={bgmPlayerRef} bgmPlayer={bgmPlayer} setBGMPlayer={setBGMPlayer}/>
         <ReactPlayer ref={bgmPlayerRef} playing={playing} url={currentUrl} volume={savedSettings.volume} progressInterval={200} width={0} height={0}
         onStart={() => {
-            // var currentTrack = bgm.current.findIndex((bgm: { played: boolean; }) => bgm.played === false); // Will find current queue index in the current track
-            // if (currentTrack == -1) {
-            //     EndOfQueue()
-            //     return;
-            // }
-            // console.log("currently in the queue number: #" + currentTrack);
-            // bgmIndex.current = currentTrack;
             // if already played 5 tracks auto save the queue and set the timer back to 0, will save the queue before the current track is set true
             if (saveQueueTimer == 5) {
                 saveQueueTimer = 0;

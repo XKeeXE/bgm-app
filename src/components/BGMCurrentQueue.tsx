@@ -67,12 +67,12 @@ const BGMCurrentQueue = (props: any) => {
     return (
         <>
         {queue.length === 0 && <p>No current queue found</p>}
-        <ul className="bgm-queue">
+        <ul className="text-sm">
             {queue.map((item) => 
             <li key={item}>{item}
             </li>)}
         </ul>
-        <p className="bgm-results">{results}</p>
+        <p className="">{results}</p>
         </>
     );
 } 

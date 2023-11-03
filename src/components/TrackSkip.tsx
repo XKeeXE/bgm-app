@@ -1,4 +1,4 @@
-import { IconButton, Tooltip } from '@mui/material';
+import { Button, Tooltip } from "@nextui-org/react";
 import SkipIcon from '@mui/icons-material/SkipNext';
 
 /**
@@ -9,8 +9,8 @@ import SkipIcon from '@mui/icons-material/SkipNext';
 const TrackSkip = (props: any) => {
     const { bgm, PlayTrack, EndOfQueue } = props;
     return (
-        <Tooltip title="Skip">
-            <IconButton onClick={() => {
+        <Tooltip content="Skip">
+            <Button variant="light" size="lg" aria-label="skip" isIconOnly onClick={() => {
                 var nextTrack = bgm.current.findIndex((bgm: { played: boolean; }) => bgm.played == false); // find first track that is not played in current queue
                 if (nextTrack == -1) {
                     EndOfQueue()
@@ -21,7 +21,7 @@ const TrackSkip = (props: any) => {
                 PlayTrack(bgm.current[nextTrack].index); // play next unplayed track 
                 console.log("skipped");
             }}><SkipIcon/>
-            </IconButton>
+            </Button>
         </Tooltip>
     );
 }

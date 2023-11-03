@@ -1,4 +1,4 @@
-import { IconButton, Tooltip } from "@mui/material";
+import { Button, Tooltip } from "@nextui-org/react";
 import PlayIcon from "@mui/icons-material/PlayArrow";
 import PauseIcon from "@mui/icons-material/Pause";
 
@@ -11,12 +11,12 @@ const TrackPause = (props: any) => {
     const { playing, setPlaying } = props;
 
     return (
-        <Tooltip title={playing ? "Pause" : "Play"}>
-            <IconButton onClick={() => {
+        <Tooltip content={playing ? "Pause" : "Play"}>
+            <Button radius="full" size="lg" aria-label="pause" isIconOnly onClick={() => {
                 setPlaying(!playing); // if paused play, if playing pause
                 console.log(playing); // Paused: true | false
             }}>{playing ? <PauseIcon/> : <PlayIcon/> }
-            </IconButton>
+            </Button>
         </Tooltip>
     );
 }

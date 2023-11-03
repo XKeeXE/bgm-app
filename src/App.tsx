@@ -14,6 +14,8 @@ import BGMSaveSettings from "./components/BGMSaveSettings";
 import TrackPlay from "./components/TrackPlay";
 import BGMList from './components/BGMList';
 import BGMInputSearch from './components/BGMInputSearch';
+import { Card, CardBody, CardFooter } from '@nextui-org/react';
+import TrackPrevious from './components/TrackReverse';
 
 const { getAudioDurationInSeconds } = require('get-audio-duration');
 let trackPath: string;
@@ -126,38 +128,46 @@ function App() {
 
     return (
         <>
-        <div className="bgm-app">
+        <div className="absolute top-0">
             {/** Background stuff, like load previous settings and save current settings when closed */}
             <BGMLoadSettings settingsFile={settingsFile} savedSettings={savedSettings} setSavedSettings={setSavedSettings}/>
             <BGMSaveSettings settingsFile={settingsFile} savedSettings={savedSettings}/>
             <BGMInputSearch tracks={tracks} listRef={listRef} currentSelectedTrack={currentSelectedTrack} setSelectedTrack={setSelectedTrack}/>
-            <div className="top-side">
-                {/** Buttons to manipulate the bgm */}
-                <TrackPause playing={playing} setPlaying={setPlaying}/>
-                <BGMShuffle bgm={bgm}/>
-                <TrackSkip bgm={bgm} PlayTrack={PlayTrack}/>
-                <BGMSaveQueue bgm={bgm}/>
-                <BGMLoadQueue SetBGMJson={SetBGMJson} GetBGMJson={GetBGMJson} PlayNextInQueue={PlayNextInQueue}/>
-                <BGMVolume savedSettings={savedSettings} setSavedSettings={setSavedSettings}/>
-                {/** TrackPlay contains ReactPlayer component which is used to play the track */}
-                <TrackPlay bgm={bgm} bgmIndex={bgmIndex} currentSelectedTrack={currentSelectedTrack} playing={playing} currentUrl={currentUrl} 
-                savedSettings={savedSettings} SetBGMJson={SetBGMJson} EndOfQueue={EndOfQueue} PlayNextInQueue={PlayNextInQueue}/>
-                <div className="current-track">
-                    <p className="current-track-name">{trackTitle}</p>
-                    <p className="current-track-duration">{durationString}</p> 
-                </div>
-            </div>
-            <div className="main">
-                <div className="left-side">
+            <div className="flex">
+                <div className="w-max object-fill ">
                     {/** To see the current queue and current thumbnail */}
                     <BGMCurrentQueue currentUrl={currentUrl} bgm={bgm} tracks={tracks}/>
-                    <TrackThumbnail currentUrl={currentUrl}/>
+                    <TrackThumbnail currentUrl={currentUrl} width={400} height={200}/>
                 </div>
                 <div className="right-side">
                     {/** The list of the tracks */}
                     {tracks.current.length === 0 && <p>No BGM found</p>}
                     <BGMList tracks={tracks} listRef={listRef} selectedTrack={selectedTrack} setSelectedTrack={setSelectedTrack} PlayTrack={PlayTrack}/>
                 </div>
+            </div>
+            <div className="fixed bottom-0 bg-gray-500/50 opacity-0.1 w-full p-3 flex place-content-center " onMouseLeave={() => {
+                console.log('test');
+            }}>
+                <div className='relative bottom-2'>
+                    <TrackPrevious bgm={bgm} bgmIndex={bgmIndex} PlayTrack={PlayTrack}/>
+                    <TrackPause playing={playing} setPlaying={setPlaying}/>
+                    <TrackSkip bgm={bgm} PlayTrack={PlayTrack}/>
+                </div>
+                <div className="absolute left-0 self-center">
+                    <BGMShuffle bgm={bgm}/>
+                    <BGMLoadQueue SetBGMJson={SetBGMJson} GetBGMJson={GetBGMJson} PlayNextInQueue={PlayNextInQueue}/>
+                    <BGMSaveQueue bgm={bgm}/>
+                </div>
+                <BGMVolume savedSettings={savedSettings} setSavedSettings={setSavedSettings}/>
+                <TrackPlay bgm={bgm} bgmIndex={bgmIndex} currentSelectedTrack={currentSelectedTrack} playing={playing} currentUrl={currentUrl} 
+                savedSettings={savedSettings} SetBGMJson={SetBGMJson} EndOfQueue={EndOfQueue} PlayNextInQueue={PlayNextInQueue}/>
+                <div className='flex bottom-0 absolute justify-evenly'>
+                    <p className='text-xs w-96'>{durationString}</p>
+                    <p className='text-xs'>{durationString}</p>
+                </div>
+                {/* <p>{trackTitle}</p> */}
+                {/** Buttons to manipulate the bgm */}
+                {/** TrackPlay contains ReactPlayer component which is used to play the track */}
             </div>
         </div>
         </>

@@ -1,3 +1,6 @@
+import { Button, Progress } from "@nextui-org/react";
+
+
 const TrackSeek = (props: any) => {
   const { bgmPlayerRef, bgmPlayer, setBGMPlayer } = props;
 
@@ -16,17 +19,13 @@ const TrackSeek = (props: any) => {
   
   return (
     <>
-      <input className="track-seek" 
-      type="range" 
-      min={0} 
-      max={0.999999} 
-      step="any" 
+      <Progress 
+      size="sm" 
       value={bgmPlayer.played} 
-      onMouseUp={handleSeekMouseUp}
-      onChange={handleSeekChange}
-      onMouseDown={handleSeekMouseDown}>
-      </input>
-    </>
+      maxValue={0.999999} 
+      className="max-w-md absolute bottom-3.5"
+      aria-label="seek"/>
+      </>
   );
 };
 
