@@ -125,7 +125,7 @@ function App() {
             <BGMLoadSettings settingsFile={settingsFile} savedSettings={savedSettings} setSavedSettings={setSavedSettings}/>
             <BGMSaveSettings settingsFile={settingsFile} savedSettings={savedSettings}/>
             <div className="flex">
-                <div className="w-max object-fill ">
+                <div className="w-max object-fill">
                     {/** To see the current queue and current thumbnail */}
                     <BGMCurrentQueue currentUrl={currentUrl} bgm={bgm} tracks={tracks}/>
                     <TrackThumbnail currentUrl={currentUrl} width={400} height={200}/>
@@ -137,7 +137,7 @@ function App() {
                 </div>
             </div>
             {/** Buttons to manipulate the bgm */}
-            <div className="fixed bottom-0 bg-gray-500/50 opacity-0.1 w-full p-3 flex place-content-center justify-center align-middle" onMouseLeave={() => {
+            <div className="fixed bottom-0 bg-gray-500/50 opacity-0.1 w-full p-3 flex place-content-center justify-center align-middle min-w-max min-h-max" onMouseLeave={() => {
                 setShowVolume(false);
             }}>
                 <div className='relative bottom-2 align-middle flex justify-center'>

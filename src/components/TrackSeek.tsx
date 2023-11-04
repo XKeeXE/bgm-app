@@ -1,31 +1,33 @@
-import { Button, Progress } from "@nextui-org/react";
-
+import { Progress, Slider } from "@nextui-org/react";
 
 const TrackSeek = (props: any) => {
   const { bgmPlayerRef, bgmPlayer, setBGMPlayer } = props;
 
-  const handleSeekMouseUp = (e: any) => {
+  const handleSeekChange = (value: any) => {
     setBGMPlayer({...bgmPlayer, seeking: false});
-    bgmPlayerRef.current?.seekTo(parseFloat(e.target.value));
-  };
-
-  const handleSeekChange = (e: any) => {
-    setBGMPlayer({...bgmPlayer, played: parseFloat(e.target.value)});
-  };
-  
-  const handleSeekMouseDown = (_e: any) => {
-    setBGMPlayer({...bgmPlayer, seeking: true});
+    bgmPlayerRef.current?.seekTo(parseFloat(value));
+    
   };
   
   return (
     <>
-      <Progress 
+      <Slider
+        size="sm"
+        step={0.01}
+        value={bgmPlayer.played} 
+        hideThumb
+        maxValue={0.999999} 
+        className="max-w-md absolute bottom-1.5"
+        aria-label="seek"
+        onChange={handleSeekChange}/>
+        
+      {/* <Progress 
       size="sm" 
       value={bgmPlayer.played} 
       maxValue={0.999999} 
       className="max-w-md absolute bottom-3.5"
-      aria-label="seek"/>
-      </>
+      aria-label="seek"/> */}
+    </>
   );
 };
 
