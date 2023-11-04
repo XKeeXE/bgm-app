@@ -67,7 +67,7 @@ const BGMCurrentQueue = (props: any) => {
     return (
         <>
         {queue.length === 0 && <p>No current queue found</p>}
-        <ul className="text-sm">
+        <ul className="text-sm list-decimal">
             {queue.map((item) => 
             <li key={item}>{item}
             </li>)}

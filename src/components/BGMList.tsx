@@ -1,8 +1,9 @@
+
 import { ListItem, ListItemButton, ListItemText } from "@mui/material";
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
 
 const BGMList = (props: any) => {
-    const { tracks, listRef, selectedTrack, PlayTrack } = props;
+    const { tracks, bgm, listRef, selectedTrack, PlayTrack } = props;
 
     const Row = (props: ListChildComponentProps) => {
         const { style, index } = props;
@@ -10,6 +11,9 @@ const BGMList = (props: any) => {
             <ListItem style={style} key={index}>
                 <ListItemButton selected={selectedTrack === index} onClick={() => {
                     PlayTrack(index); // play the track of the selected index
+                }} onContextMenu={() => {
+                    var resultIndex = bgm.current.findIndex((track: { index: number; }) => track.index == index);
+                    console.log(bgm.current[resultIndex].played)
                 }}>
                     <ListItemText primary={tracks.current[index].replace('.mp3', '')}/>
                 </ListItemButton>

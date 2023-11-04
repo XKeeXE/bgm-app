@@ -1,6 +1,6 @@
-import { IconButton, Tooltip } from "@mui/material";
+import { Button, Tooltip } from "@nextui-org/react";
 import { useRef } from "react";
-import LoadQueueIcon from "@mui/icons-material/DownloadForOffline";
+import { FileDownload } from "@mui/icons-material";
 
 /**
  * Will load queue from json and play next in queue
@@ -11,8 +11,8 @@ const BGMLoadQueue = (props: any) => {
     const { SetBGMJson, GetBGMJson, PlayNextInQueue} = props;
     const firstLoad = useRef(true);
     return (
-        <Tooltip title="Load Queue">
-            <IconButton onClick={() => {
+        <Tooltip content="Load Queue">
+            <Button variant="light" size="lg" isIconOnly aria-label="load queue" onClick={() => {
                 console.log("Queue Loaded")
                 if (firstLoad.current == true) { // if its the first time the queue is loaded
                     firstLoad.current = false;
@@ -22,8 +22,8 @@ const BGMLoadQueue = (props: any) => {
                     GetBGMJson(); // get bgm from json
                 }
                 PlayNextInQueue(); // play the next unplayed track from the json
-            }}><LoadQueueIcon/>
-            </IconButton>
+            }}><FileDownload/>
+            </Button>
         </Tooltip>
     );
 }

@@ -1,6 +1,7 @@
 import { Button, Tooltip } from "@nextui-org/react";
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
 
+// WONT WORK IF TRACK SELECTED FROM BGM LIST
 const TrackPrevious = (props: any) => {
     const { bgm, bgmIndex, PlayTrack } = props;
     return (

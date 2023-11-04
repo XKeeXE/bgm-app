@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ReactPlayer from "react-player/file";
 import TrackSeek from "./TrackSeek";
 
@@ -13,9 +13,11 @@ let saveQueueTimer = 0;
  * @returns 
  */
 const TrackPlay = (props: any) => {
-    const { bgm, bgmIndex, currentSelectedTrack, playing, currentUrl, savedSettings, SetBGMJson, PlayNextInQueue } = props;
+    const { bgm, bgmIndex, currentSelectedTrack, playing, currentUrl, muteBGM, savedSettings, SetBGMJson, PlayNextInQueue } = props;
 
     const bgmPlayerRef = useRef<any>();
+    const [trackDuration, setTrackDuration] = useState("00:00");
+    const [trackCurrentTime, setTrackCurrentTime] = useState("00:00");
     const [bgmPlayer, setBGMPlayer] = useState({
         played: 0,
         seeking: false
@@ -27,12 +29,28 @@ const TrackPlay = (props: any) => {
         }
     }
 
+    useEffect(() => {
+        if (bgmPlayerRef.current != null) {
+            setTrackCurrentTime(CalculateTime(bgmPlayerRef.current.getCurrentTime())); // state to set the current track time
+            setTrackDuration(CalculateTime(bgmPlayerRef.current.getDuration())); // state to set the track duration
+        }
+    }, [bgmPlayer])
+
+    function CalculateTime(time: number) {
+        let dateObj = new Date(time * 1000);
+        let minutes = dateObj.getUTCMinutes();
+        let seconds = dateObj.getSeconds();
+        
+        return (minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0')); // ex: 01:34
+    } 
+
     return (
         <>
         <TrackSeek bgmPlayerRef={bgmPlayerRef} bgmPlayer={bgmPlayer} setBGMPlayer={setBGMPlayer}/>
-        <ReactPlayer ref={bgmPlayerRef} playing={playing} url={currentUrl} volume={savedSettings.volume} progressInterval={200} width={0} height={0}
+        <ReactPlayer ref={bgmPlayerRef} playing={playing} url={currentUrl} volume={savedSettings.volume} muted={muteBGM} progressInterval={200} width={0} height={0}
         onStart={() => {
-            // if already played 5 tracks auto save the queue and set the timer back to 0, will save the queue before the current track is set true
+            console.log(bgm.current[bgmIndex.current])
+            // if played x tracks auto save the queue and set the timer back to 0
             if (saveQueueTimer == 5) {
                 saveQueueTimer = 0;
                 SetBGMJson(); // save it into the json
@@ -46,6 +64,11 @@ const TrackPlay = (props: any) => {
             PlayNextInQueue(); // Must find next track in the current queue
         }}
         onProgress={handleProgress}/>
+        {/* Current time in track and the track duration under the progress bar */}
+        <div className='flex bottom-0 absolute justify-evenly'>
+            <p className='text-xs w-96'>{trackCurrentTime}</p>
+            <p className='text-xs'>{trackDuration}</p>
+        </div>
         </>
     );
 }

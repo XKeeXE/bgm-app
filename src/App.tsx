@@ -14,10 +14,8 @@ import BGMSaveSettings from "./components/BGMSaveSettings";
 import TrackPlay from "./components/TrackPlay";
 import BGMList from './components/BGMList';
 import BGMInputSearch from './components/BGMInputSearch';
-import { Card, CardBody, CardFooter } from '@nextui-org/react';
 import TrackPrevious from './components/TrackReverse';
 
-const { getAudioDurationInSeconds } = require('get-audio-duration');
 let trackPath: string;
 let trackName = '';
 
@@ -36,9 +34,10 @@ function App() {
     const [selectedTrack, setSelectedTrack] = useState<number>(-1);
     // const originalSelect = useRef(selectedTrack);
     const [playing, setPlaying] = useState<boolean>(true);
+    const [muteBGM, setMuteBGM] = useState(false);
+    const [showVolume, setShowVolume] = useState(false);
     const [currentUrl, setCurrentUrl] = useState<string>(trackPath);
     const [trackTitle, setTrackTitle] = useState<string>('None')
-    const [durationString, setDurationString] = useState<string>('00:00');
     
     const [savedSettings, setSavedSettings] = useState({
         path: 'E:/BGM/',
@@ -87,13 +86,6 @@ function App() {
         //     return;
         // }
         console.log("Now playing: " + tracks.current[index]);
-        getAudioDurationInSeconds(trackPath).then((duration: any) => { // bug when first loading queue
-            let dateObj = new Date(duration * 1000);
-            let minutes = dateObj.getUTCMinutes();
-            let seconds = dateObj.getSeconds();
-            
-            setDurationString(minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0')); // ex: 01:34
-        })
         setSelectedTrack(index); // sets the selected item in the bgm list as the current track
         setCurrentUrl(trackPath); // will update the state and put the track path
         setTrackTitle(trackName.replace('.mp3', '')); // sets the title as the current playing track
@@ -132,7 +124,6 @@ function App() {
             {/** Background stuff, like load previous settings and save current settings when closed */}
             <BGMLoadSettings settingsFile={settingsFile} savedSettings={savedSettings} setSavedSettings={setSavedSettings}/>
             <BGMSaveSettings settingsFile={settingsFile} savedSettings={savedSettings}/>
-            <BGMInputSearch tracks={tracks} listRef={listRef} currentSelectedTrack={currentSelectedTrack} setSelectedTrack={setSelectedTrack}/>
             <div className="flex">
                 <div className="w-max object-fill ">
                     {/** To see the current queue and current thumbnail */}
@@ -142,32 +133,30 @@ function App() {
                 <div className="right-side">
                     {/** The list of the tracks */}
                     {tracks.current.length === 0 && <p>No BGM found</p>}
-                    <BGMList tracks={tracks} listRef={listRef} selectedTrack={selectedTrack} setSelectedTrack={setSelectedTrack} PlayTrack={PlayTrack}/>
+                    <BGMList tracks={tracks} bgm={bgm} listRef={listRef} selectedTrack={selectedTrack} setSelectedTrack={setSelectedTrack} PlayTrack={PlayTrack}/>
                 </div>
             </div>
-            <div className="fixed bottom-0 bg-gray-500/50 opacity-0.1 w-full p-3 flex place-content-center " onMouseLeave={() => {
-                console.log('test');
+            {/** Buttons to manipulate the bgm */}
+            <div className="fixed bottom-0 bg-gray-500/50 opacity-0.1 w-full p-3 flex place-content-center justify-center align-middle" onMouseLeave={() => {
+                setShowVolume(false);
             }}>
-                <div className='relative bottom-2'>
-                    <TrackPrevious bgm={bgm} bgmIndex={bgmIndex} PlayTrack={PlayTrack}/>
-                    <TrackPause playing={playing} setPlaying={setPlaying}/>
-                    <TrackSkip bgm={bgm} PlayTrack={PlayTrack}/>
-                </div>
-                <div className="absolute left-0 self-center">
+                <div className='relative bottom-2 align-middle flex justify-center'>
                     <BGMShuffle bgm={bgm}/>
                     <BGMLoadQueue SetBGMJson={SetBGMJson} GetBGMJson={GetBGMJson} PlayNextInQueue={PlayNextInQueue}/>
+                    <TrackPrevious bgm={bgm} bgmIndex={bgmIndex} PlayTrack={PlayTrack}/>
+                    <BGMInputSearch tracks={tracks} listRef={listRef} currentSelectedTrack={currentSelectedTrack} setSelectedTrack={setSelectedTrack}/>
+                    <TrackPause playing={playing} setPlaying={setPlaying}/>
+                    <TrackSkip bgm={bgm} PlayTrack={PlayTrack}/>
                     <BGMSaveQueue bgm={bgm}/>
                 </div>
-                <BGMVolume savedSettings={savedSettings} setSavedSettings={setSavedSettings}/>
-                <TrackPlay bgm={bgm} bgmIndex={bgmIndex} currentSelectedTrack={currentSelectedTrack} playing={playing} currentUrl={currentUrl} 
-                savedSettings={savedSettings} SetBGMJson={SetBGMJson} EndOfQueue={EndOfQueue} PlayNextInQueue={PlayNextInQueue}/>
-                <div className='flex bottom-0 absolute justify-evenly'>
-                    <p className='text-xs w-96'>{durationString}</p>
-                    <p className='text-xs'>{durationString}</p>
+                <div className="absolute left-0 self-center">
+                    <p className='text-xs'>{trackTitle}</p> 
+
                 </div>
-                {/* <p>{trackTitle}</p> */}
-                {/** Buttons to manipulate the bgm */}
+                <BGMVolume muteBGM={muteBGM} setMuteBGM={setMuteBGM} showVolume={showVolume} setShowVolume={setShowVolume} savedSettings={savedSettings} setSavedSettings={setSavedSettings}/>
                 {/** TrackPlay contains ReactPlayer component which is used to play the track */}
+                <TrackPlay bgm={bgm} bgmIndex={bgmIndex} currentSelectedTrack={currentSelectedTrack} playing={playing} currentUrl={currentUrl} 
+                muteBGM={muteBGM} savedSettings={savedSettings} SetBGMJson={SetBGMJson} EndOfQueue={EndOfQueue} PlayNextInQueue={PlayNextInQueue}/>
             </div>
         </div>
         </>
