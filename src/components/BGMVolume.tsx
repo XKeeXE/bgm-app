@@ -30,7 +30,7 @@ const BGMVolume = (props: any) => {
 
     return (
         <>
-        <div className="absolute right-0 self-center w-32 flex align-middle justify-center" onMouseEnter={() => { // inspired by Youtube
+        <div className="absolute right-0 self-center w-[20%] flex align-middle justify-center" onMouseEnter={() => { // inspired by Youtube
             setShowVolume(true); // set show volume as true to show input
         }}>
             <Tooltip content={savedSettings.volume.toFixed(2)}>

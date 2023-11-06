@@ -30,7 +30,7 @@ function TrackThumbnail(props: any) {
     }, [currentUrl])
     return (
         <div className="relative">
-            <img className="h-auto max-h-fit order-2" src={thumbnail} width={width} height={height} />
+            <img className="h-auto max-h-fit z-0" src={thumbnail} width={width} height={height} />
             <div className={noThumbnail.current === true ? 'absolute top-10 left-5' : 'opacity-0'}>No Track Playing</div>
         </div>
     );

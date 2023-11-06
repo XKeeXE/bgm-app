@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 
+/**
+ * When the user is focused on the app and presses a key that is not {alt, enter, shift, meta} will search trackSearch string by startWith() or includes().
+ * @param props 
+ * @returns hidden text input and text
+ */
 const BGMInputSearch = (props: any) => {
     const { tracks, listRef, currentSelectedTrack, setSelectedTrack } = props;
     const inputSearchRef = useRef<any>(); // get the input text ref
@@ -46,7 +51,7 @@ const BGMInputSearch = (props: any) => {
     }, []);
     return (
         <div className="absolute justify-center align-middle flex">
-            <input className="absolute opacity-0" ref={inputSearchRef} onChange={handleChange} onBlur={() => {
+            <input className="absolute opacity-0 top-96" ref={inputSearchRef} onChange={handleChange} onBlur={() => {
                 // SelectTrack(currentSelectedTrack.current) // set the playing track as the selected track if no longer focused on text input
             }}/>
             <p className="absolute bottom-0 pl-10">{viewInput}</p>

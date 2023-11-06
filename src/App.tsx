@@ -137,21 +137,20 @@ function App() {
                 </div>
             </div>
             {/** Buttons to manipulate the bgm */}
-            <div className="fixed bottom-0 bg-gray-500/50 opacity-0.1 w-full p-3 flex place-content-center justify-center align-middle min-w-max min-h-max" onMouseLeave={() => {
+            <div className="fixed bottom-0 bg-gray-500/50 opacity-0.1 w-full p-3 flex place-content-center justify-center align-middle" onMouseLeave={() => {
                 setShowVolume(false);
             }}>
                 <div className='relative bottom-2 align-middle flex justify-center'>
-                    <BGMShuffle bgm={bgm}/>
-                    <BGMLoadQueue SetBGMJson={SetBGMJson} GetBGMJson={GetBGMJson} PlayNextInQueue={PlayNextInQueue}/>
-                    <TrackPrevious bgm={bgm} bgmIndex={bgmIndex} PlayTrack={PlayTrack}/>
                     <BGMInputSearch tracks={tracks} listRef={listRef} currentSelectedTrack={currentSelectedTrack} setSelectedTrack={setSelectedTrack}/>
+                    <TrackPrevious bgm={bgm} bgmIndex={bgmIndex} PlayTrack={PlayTrack}/>
                     <TrackPause playing={playing} setPlaying={setPlaying}/>
                     <TrackSkip bgm={bgm} PlayTrack={PlayTrack}/>
-                    <BGMSaveQueue bgm={bgm}/>
                 </div>
                 <div className="absolute left-0 self-center">
-                    <p className='text-xs'>{trackTitle}</p> 
-
+                    {/* <p className='text-xs'>{trackTitle}</p>  */}
+                    <BGMShuffle bgm={bgm}/>
+                    <BGMLoadQueue SetBGMJson={SetBGMJson} GetBGMJson={GetBGMJson} PlayNextInQueue={PlayNextInQueue}/>
+                    <BGMSaveQueue bgm={bgm}/>
                 </div>
                 <BGMVolume muteBGM={muteBGM} setMuteBGM={setMuteBGM} showVolume={showVolume} setShowVolume={setShowVolume} savedSettings={savedSettings} setSavedSettings={setSavedSettings}/>
                 {/** TrackPlay contains ReactPlayer component which is used to play the track */}

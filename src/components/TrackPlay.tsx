@@ -46,7 +46,7 @@ const TrackPlay = (props: any) => {
 
     return (
         <>
-        <TrackSeek bgmPlayerRef={bgmPlayerRef} bgmPlayer={bgmPlayer} setBGMPlayer={setBGMPlayer}/>
+        <TrackSeek bgmPlayerRef={bgmPlayerRef} trackCurrentTime={trackCurrentTime} trackDuration={trackDuration} bgmPlayer={bgmPlayer} setBGMPlayer={setBGMPlayer}/>
         <ReactPlayer ref={bgmPlayerRef} playing={playing} url={currentUrl} volume={savedSettings.volume} muted={muteBGM} progressInterval={200} width={0} height={0}
         onStart={() => {
             console.log(bgm.current[bgmIndex.current])
@@ -65,9 +65,9 @@ const TrackPlay = (props: any) => {
         }}
         onProgress={handleProgress}/>
         {/* Current time in track and the track duration under the progress bar */}
-        <div className='flex bottom-0 absolute justify-evenly'>
-            <p className='text-xs w-96'>{trackCurrentTime}</p>
-            <p className='text-xs'>{trackDuration}</p>
+        <div className='flex bottom-0 absolute justify-evenly w-[70%] min-w-[100%] ' >
+            <p className='text-xs select-none'>{trackCurrentTime}</p>
+            <p className='text-xs select-none'>{trackDuration}</p>
         </div>
         </>
     );
