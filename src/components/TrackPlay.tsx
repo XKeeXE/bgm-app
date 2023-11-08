@@ -65,10 +65,10 @@ const TrackPlay = (props: any) => {
         }}
         onProgress={handleProgress}/>
         {/* Current time in track and the track duration under the progress bar */}
-        <div className='flex bottom-0 absolute justify-evenly w-[70%] min-w-[100%] ' >
+        {/* <div className='flex bottom-0 absolute justify-evenly w-[70%] min-w-[100%] ' >
             <p className='text-xs select-none'>{trackCurrentTime}</p>
             <p className='text-xs select-none'>{trackDuration}</p>
-        </div>
+        </div> */}
         </>
     );
 }

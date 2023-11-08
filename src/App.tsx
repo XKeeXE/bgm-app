@@ -15,6 +15,7 @@ import TrackPlay from "./components/TrackPlay";
 import BGMList from './components/BGMList';
 import BGMInputSearch from './components/BGMInputSearch';
 import TrackPrevious from './components/TrackReverse';
+import { Card, CardBody } from '@nextui-org/react';
 
 let trackPath: string;
 let trackName = '';
@@ -124,18 +125,23 @@ function App() {
             {/** Background stuff, like load previous settings and save current settings when closed */}
             <BGMLoadSettings settingsFile={settingsFile} savedSettings={savedSettings} setSavedSettings={setSavedSettings}/>
             <BGMSaveSettings settingsFile={settingsFile} savedSettings={savedSettings}/>
-            <div className="flex">
-                <div className="w-max object-fill">
-                    {/** To see the current queue and current thumbnail */}
-                    <BGMCurrentQueue currentUrl={currentUrl} bgm={bgm} tracks={tracks}/>
-                    <TrackThumbnail currentUrl={currentUrl} width={400} height={200}/>
-                </div>
-                <div className="right-side">
-                    {/** The list of the tracks */}
-                    {tracks.current.length === 0 && <p>No BGM found</p>}
-                    <BGMList tracks={tracks} bgm={bgm} listRef={listRef} selectedTrack={selectedTrack} setSelectedTrack={setSelectedTrack} PlayTrack={PlayTrack}/>
-                </div>
-            </div>
+            <Card className=''>
+                <CardBody>
+                    <div className="md:max-2xl:flex md:max-[10px]:hidden">
+                        <div className="w-max object-fill">
+                            {/** To see the current queue and current thumbnail */}
+                            <BGMCurrentQueue currentUrl={currentUrl} bgm={bgm} tracks={tracks}/>
+                            <TrackThumbnail currentUrl={currentUrl} width={400} height={200}/>
+                        </div>
+                        <div className="right-side">
+                            {/** The list of the tracks */}
+                            {tracks.current.length === 0 && <p>No BGM found</p>}
+                            <BGMList tracks={tracks} bgm={bgm} listRef={listRef} selectedTrack={selectedTrack} setSelectedTrack={setSelectedTrack} PlayTrack={PlayTrack}/>
+                        </div>
+                    </div>
+                    
+                </CardBody>
+            </Card>
             {/** Buttons to manipulate the bgm */}
             <div className="fixed bottom-0 bg-gray-500/50 opacity-0.1 w-full p-3 flex place-content-center justify-center align-middle" onMouseLeave={() => {
                 setShowVolume(false);
@@ -143,7 +149,7 @@ function App() {
                 <div className='relative bottom-2 align-middle flex justify-center'>
                     <BGMInputSearch tracks={tracks} listRef={listRef} currentSelectedTrack={currentSelectedTrack} setSelectedTrack={setSelectedTrack}/>
                     <TrackPrevious bgm={bgm} bgmIndex={bgmIndex} PlayTrack={PlayTrack}/>
-                    <TrackPause playing={playing} setPlaying={setPlaying}/>
+                    <TrackPause listRef={listRef} currentSelectedTrack={currentSelectedTrack} playing={playing} setPlaying={setPlaying}/>
                     <TrackSkip bgm={bgm} PlayTrack={PlayTrack}/>
                 </div>
                 <div className="absolute left-0 self-center">

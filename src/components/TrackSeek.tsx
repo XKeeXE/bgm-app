@@ -13,12 +13,12 @@ const TrackSeek = (props: any) => {
   
   return (
     <>
-    <div className="absolute flex w-[400px] h-[25%] bottom-0 self-center bg-white-500 align-middle justify-items-center" onMouseEnter={() => {
-      // setShowSlider(false);
+    <div className="absolute flex w-[50%] h-[25%] min-w-[300px] max-w-[500px] bottom-1 self-center align-middle items-center justify-center" onMouseEnter={() => {
+      setShowSlider(true);
     }} onMouseLeave={() => {
-      // setShowSlider(false);
+      setShowSlider(false);
     }}> 
-    {/* <p className="left-0" >{trackCurrentTime}</p> */}
+    <p className="pr-1 text-xs select-none">{trackCurrentTime}</p>
     {showSlider ? 
     <Slider
       size="md"
@@ -26,7 +26,7 @@ const TrackSeek = (props: any) => {
       value={bgmPlayer.played} 
       hideThumb
       maxValue={0.999999} 
-      className="max-w-md absolute bottom-0"
+      className="max-w-md flex-none "
       aria-label="seek slider"
       onChange={handleSeekChange}/> 
       : 
@@ -36,7 +36,7 @@ const TrackSeek = (props: any) => {
       value={bgmPlayer.played} 
       hideThumb
       maxValue={0.999999} 
-      className="max-w-md absolute bottom-1.5 min-w-[90%]"
+      className="max-w-md flex-none bottom"
       aria-label="seek progress"/> }
       {/* <Progress 
       size="sm" 
@@ -44,7 +44,7 @@ const TrackSeek = (props: any) => {
       maxValue={0.999999} 
       className="max-w-md absolute bottom-3.5"
       aria-label="seek progress"/> */}
-      {/* <p className="right-0" >{trackDuration}</p> */}
+      <p className="pl-1 text-xs select-none" >{trackDuration}</p>
     </div>
     </>
   );

@@ -8,12 +8,15 @@ import PauseIcon from "@mui/icons-material/Pause";
  * @returns the Pause button
  */
 const TrackPause = (props: any) => {
-    const { playing, setPlaying } = props;
+    const { listRef, currentSelectedTrack, playing, setPlaying } = props;
 
     return (
         <Tooltip content={playing ? "Pause" : "Play"}>
             <Button radius="full" size="lg" aria-label="pause" isIconOnly onClick={() => {
                 setPlaying(!playing); // if paused play, if playing pause
+                if (playing == false) {
+                    listRef.current.scrollToItem(currentSelectedTrack.current, "center");
+                }
                 console.log(playing); // Paused: true | false
             }}>{playing ? <PauseIcon/> : <PlayIcon/> }
             </Button>

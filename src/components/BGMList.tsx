@@ -1,42 +1,56 @@
 
 import { ListItem, ListItemButton, ListItemText } from "@mui/material";
+import { Divider, Tooltip } from "@nextui-org/react";
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
 
+let maxStringLength = 70;
 
 const BGMList = (props: any) => {
     const { tracks, bgm, listRef, selectedTrack, PlayTrack } = props;
+
+    function CheckPlayed(index: number): string {
+        var resultIndex = bgm.current.findIndex((track: { index: number; }) => track.index == index);
+        return bgm.current[resultIndex].played
+    }
 
     const Row = (props: ListChildComponentProps) => {
         const { style, index } = props;
         return (
             <ListItem style={style} key={index} dense={true}>
-                <ListItemButton selected={selectedTrack === index} onClick={() => {
-                    PlayTrack(index); // play the track of the selected index
-                }} onContextMenu={() => {
-                    var resultIndex = bgm.current.findIndex((track: { index: number; }) => track.index == index);
-                    console.log(bgm.current[resultIndex].played)
-                }}>
-                    <ListItemText 
-                        className="" 
-                        primary={tracks.current[index].replace('.mp3', '')} 
-                        primaryTypographyProps={{fontSize: 15,
-                                                 fontWeight: 'small'}} 
-                        />
-                </ListItemButton>
+                <Tooltip content={CheckPlayed(index).toString()} showArrow delay={500} placement="left-start">
+                    <ListItemButton className="overflow-hidden" selected={selectedTrack === index} onClick={() => {
+                        PlayTrack(index); // play the track of the selected index
+                    }}>
+                        <div className="hover:translate-x-2 w-[100%] ">
+                            <Divider/>
+
+                            <ListItemText 
+                                className="" 
+                                primary={tracks.current[index].replace('.mp3', '').length > maxStringLength ? 
+                                tracks.current[index].substring(0, maxStringLength-3).concat('...')
+                                : 
+                                tracks.current[index].replace('.mp3', '') } 
+                                primaryTypographyProps={{fontSize: 15,
+                                    fontWeight: 'small'}} 
+                                    />
+                        </div>
+                    </ListItemButton>
+                </Tooltip>
             </ListItem>
         );
     }
     return (
-        <FixedSizeList
-        className="text-xs"
-        ref={listRef}
-        height={500}
-        width={800}
-        itemSize={50}
-        itemCount={tracks.current.length}
-        overscanCount={5}>
-            {Row}
-        </FixedSizeList>
+            <FixedSizeList
+            className=" ltr:bg-white overflow-hidden"
+            direction="ltr"
+            ref={listRef}
+            height={400}
+            width={680}
+            itemSize={40}
+            itemCount={tracks.current.length}
+            overscanCount={5}>
+                {Row}
+            </FixedSizeList>
     )
 }
 

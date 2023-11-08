@@ -42,7 +42,7 @@ const BGMVolume = (props: any) => {
             </Tooltip>
             {/* <div className="block bg-white w-20 h-4 right-0 absolute self-center z-10" /> */}
             <Slider 
-                className={showVolume ? "opacity-1 self-center" : "opacity-0"}
+                className={showVolume ? "animate-[hide-volume_0.3s_ease-in-out_1_both] self-center" : "animate-[show-volume_0.3s_ease-in-out_1_both] self-center"}
                 aria-label="volume slider"
                 hideThumb
                 size="md"
