@@ -1,5 +1,5 @@
-import { Progress, Slider } from "@nextui-org/react";
-import { useRef, useState } from "react";
+import { Slider } from "@nextui-org/react";
+import { useState } from "react";
 
 const TrackSeek = (props: any) => {
   const { bgmPlayerRef, bgmPlayer, setBGMPlayer, trackCurrentTime, trackDuration } = props;
@@ -22,6 +22,7 @@ const TrackSeek = (props: any) => {
     {showSlider ? 
     <Slider
       size="md"
+      color="foreground"
       step={0.01}
       value={bgmPlayer.played} 
       hideThumb
@@ -32,18 +33,13 @@ const TrackSeek = (props: any) => {
       : 
       <Slider
       size="sm"
+      color="foreground"
       step={0.01}
       value={bgmPlayer.played} 
       hideThumb
       maxValue={0.999999} 
       className="max-w-md flex-none bottom"
       aria-label="seek progress"/> }
-      {/* <Progress 
-      size="sm" 
-      value={bgmPlayer.played} 
-      maxValue={0.999999} 
-      className="max-w-md absolute bottom-3.5"
-      aria-label="seek progress"/> */}
       <p className="pl-1 text-xs select-none" >{trackDuration}</p>
     </div>
     </>

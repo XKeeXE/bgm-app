@@ -38,7 +38,7 @@ function App() {
     const [muteBGM, setMuteBGM] = useState(false);
     const [showVolume, setShowVolume] = useState(false);
     const [currentUrl, setCurrentUrl] = useState<string>(trackPath);
-    const [trackTitle, setTrackTitle] = useState<string>('None')
+    // const [trackTitle, setTrackTitle] = useState<string>('None')
     
     const [savedSettings, setSavedSettings] = useState({
         path: 'E:/BGM/',
@@ -89,7 +89,7 @@ function App() {
         console.log("Now playing: " + tracks.current[index]);
         setSelectedTrack(index); // sets the selected item in the bgm list as the current track
         setCurrentUrl(trackPath); // will update the state and put the track path
-        setTrackTitle(trackName.replace('.mp3', '')); // sets the title as the current playing track
+        // setTrackTitle(trackName.replace('.mp3', '')); // sets the title as the current playing track
         document.title = trackName.replace('.mp3', '') // put the app title as the current playing item
         listRef.current.scrollToItem(index, "center"); // in the bgm list scrolls to the current track
 
