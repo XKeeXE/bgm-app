@@ -85,12 +85,11 @@ const BGMInputSearch = (props: any) => {
             window.removeEventListener("keydown", handleUserKeyPress);
         };
     }, [handleUserKeyPress]);
-
     
     return (
         <div className="absolute justify-center align-middle flex">
             <input className="absolute opacity-0 top-96" ref={inputSearchRef} onChange={handleChange}/>
-            <p className="absolute bottom-0 pl-10">{viewInput}</p>
+            <p className="absolute bottom-0 bg-white text-center">{viewInput}</p>
         </div>
     );
 }

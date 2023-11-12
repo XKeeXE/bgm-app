@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, globalShortcut } from 'electron'
 import path from 'node:path'
 
 // The built directory structure
@@ -13,20 +13,20 @@ import path from 'node:path'
 process.env.DIST = path.join(__dirname, '../dist')
 process.env.VITE_PUBLIC = app.isPackaged ? process.env.DIST : path.join(process.env.DIST, '../public')
 
-
 let win: BrowserWindow | null
+let modalWindow: BrowserWindow | null
 // 🚧 Use ['ENV_NAME'] avoid vite:define plugin - Vite@2.x
 const VITE_DEV_SERVER_URL = process.env['VITE_DEV_SERVER_URL']
 
 function createWindow() {
   win = new BrowserWindow({
     icon: path.join(process.env.VITE_PUBLIC, 'electron-vite.svg'),
-    width: 800,
+    width: 1200,
     height: 600,
     minHeight: 600,
     minWidth: 600,
     center: true,
-
+    
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       webSecurity: false,
@@ -34,17 +34,39 @@ function createWindow() {
       contextIsolation: false,
     },
   })
-
+  
+  modalWindow = new BrowserWindow({
+    parent: win,
+    modal: true,
+    width: 600,
+    height: 600,
+    minHeight: 600,
+    minWidth: 600,
+    fullscreenable: false,
+    maximizable: false,
+    show: false,
+    closable: false,
+    minimizable: false,
+    webPreferences: {
+      additionalArguments:['babymode'],
+      webSecurity: false,
+      nodeIntegration: true,
+      contextIsolation: false,
+    }
+  })
+  
   // Test active push message to Renderer-process.
   win.webContents.on('did-finish-load', () => {
     win?.webContents.send('main-process-message', (new Date).toLocaleString())
   })
-
+  
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL)
+    modalWindow.loadURL(VITE_DEV_SERVER_URL)
   } else {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(process.env.DIST, 'index.html'))
+    modalWindow.loadFile(path.join(process.env.DIST, 'index.html'))
   }
 }
 
@@ -66,4 +88,16 @@ app.on('activate', () => {
   }
 })
 
-app.whenReady().then(createWindow)
+
+app.whenReady().then(() => {
+  globalShortcut.register('Alt+J', () => {
+    if (win?.isMinimized() == true) {
+      win?.show();
+      // win?.
+      modalWindow?.hide();
+    } else {
+      win?.minimize();
+      modalWindow?.show();
+    }
+  })
+}).then(createWindow)

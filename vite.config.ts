@@ -3,6 +3,7 @@ import path from 'node:path'
 import electron from 'vite-plugin-electron/simple'
 import react from '@vitejs/plugin-react'
 import tsConfigPaths from 'vite-tsconfig-paths'
+const { resolve } = require('path')
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -24,4 +25,14 @@ export default defineConfig({
       renderer: {},
     }),
   ],
+  build: {
+    rollupOptions: {
+      input: {
+
+        main: resolve(__dirname, 'index.html'),
+        baby: resolve(__dirname, 'indexbaby.html')
+      }
+
+    }
+  }
 })
