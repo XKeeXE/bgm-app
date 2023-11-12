@@ -29,6 +29,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
 
+        
         main: resolve(__dirname, 'index.html'),
         baby: resolve(__dirname, 'indexbaby.html')
       }

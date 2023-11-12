@@ -62,11 +62,11 @@ function createWindow() {
   
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL)
-    modalWindow.loadURL(VITE_DEV_SERVER_URL)
+    modalWindow.loadURL(VITE_DEV_SERVER_URL + '/modal-window.html')
   } else {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(process.env.DIST, 'index.html'))
-    modalWindow.loadFile(path.join(process.env.DIST, 'index.html'))
+    modalWindow.loadFile(path.join(process.env.DIST, 'modal-window.html'))
   }
 }
 
@@ -90,14 +90,14 @@ app.on('activate', () => {
 
 
 app.whenReady().then(() => {
-  globalShortcut.register('Alt+J', () => {
-    if (win?.isMinimized() == true) {
-      win?.show();
-      // win?.
-      modalWindow?.hide();
-    } else {
-      win?.minimize();
-      modalWindow?.show();
-    }
-  })
+  // globalShortcut.register('Alt+J', () => {
+  //   if (win?.isMinimized() == true) {
+  //     win?.show();
+  //     // win?.
+  //     modalWindow?.hide();
+  //   } else {
+  //     win?.minimize();
+  //     modalWindow?.show();
+  //   }
+  // })
 }).then(createWindow)
