@@ -90,14 +90,14 @@ app.on('activate', () => {
 
 
 app.whenReady().then(() => {
-  // globalShortcut.register('Alt+J', () => {
-  //   if (win?.isMinimized() == true) {
-  //     win?.show();
-  //     // win?.
-  //     modalWindow?.hide();
-  //   } else {
-  //     win?.minimize();
-  //     modalWindow?.show();
-  //   }
-  // })
+  globalShortcut.register('Alt+J', () => {
+    if (win?.isMinimized() == true) {
+      win?.show();
+      // win?.
+      // modalWindow?.hide();
+    } else {
+      win?.minimize();
+      // modalWindow?.show();
+    }
+  })
 }).then(createWindow)

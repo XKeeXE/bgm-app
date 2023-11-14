@@ -2,8 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import ReactPlayer from "react-player/file";
 import TrackSeek from "./TrackSeek";
 
-let saveQueueTimer = 0;
-
 /**
  * This component contains the ReactPlayer component which is used to play the track, it contains bgmPlayerRef to get the
  * referance of the player, bgmIndex which contains the current queue index, bgmPlayer which is used to get the current
@@ -13,7 +11,7 @@ let saveQueueTimer = 0;
  * @returns 
  */
 const TrackPlay = (props: any) => {
-    const { bgm, bgmIndex, currentSelectedTrack, playing, currentUrl, muteBGM, savedSettings, SetBGMJson, PlayNextInQueue } = props;
+    const { bgm, bgmIndex, currentSelectedTrack, saveQueueTimer, playing, currentUrl, muteBGM, savedSettings, SetBGMJson, PlayNextInQueue } = props;
 
     const bgmPlayerRef = useRef<any>();
     const [trackDuration, setTrackDuration] = useState("00:00");
@@ -51,13 +49,13 @@ const TrackPlay = (props: any) => {
         onStart={() => {
             console.log(bgm.current[bgmIndex.current])
             // if played x tracks auto save the queue and set the timer back to 0
-            if (saveQueueTimer == 5) {
-                saveQueueTimer = 0;
+            if (saveQueueTimer.current == 5) {
+                saveQueueTimer.current = 0;
                 SetBGMJson(); // save it into the json
                 console.log("auto saved")
             }
             currentSelectedTrack.current = bgm.current[bgmIndex.current].index;
-            saveQueueTimer++; // add 1 into the timer
+            saveQueueTimer.current++; // add 1 into the timer
             console.log(currentUrl); // url of the current playing track
         }}
         onEnded={() => {

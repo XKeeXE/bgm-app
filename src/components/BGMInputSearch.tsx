@@ -1,19 +1,21 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
+let timer = 0;
+
 /**
  * When the user is focused on the app and presses a key that is not {alt, enter, shift, meta} will search trackSearch string by startWith() or includes().
  * @param props 
  * @returns hidden text input and text
  */
 const BGMInputSearch = (props: any) => {
-    const { tracks, listRef, currentSelectedTrack, setSelectedTrack } = props;
+    const { tracks, listRef, currentSelectedTrack, setSelectedTrack, CheckTrackType } = props;
     const inputSearchRef = useRef<any>(); // get the input text ref
     const inputSearch = useRef<any>(''); // the string to search for in the track list
     const result = useRef<any>(); // an array of track titles
     const searchIndex = useRef(0); // index to search in the result array
-    const searchTracks = useRef(tracks.current.map((track: string, index: number) => { // the tracks with title as lowered case, index, and removed .mp3
+    const searchTracks = useRef(tracks.current.map((track: string, index: number) => { // the tracks with title as lowered case, index, and removed type
         return Object.assign(
-            {title: track.toLowerCase().replace('.mp3', '')},
+            {title: CheckTrackType(track.toLowerCase())},
             {index: index}
             )
         }));
@@ -42,12 +44,17 @@ const BGMInputSearch = (props: any) => {
             SelectTrack(currentSelectedTrack.current) // set the playing track as the selected track
             return;
         }
+        // console.log(searchIndex.current);
+        // if (result.current.length > 0) {
+            //     SelectTrack(result.current[searchIndex.current].index);
+            
+            // }
         SelectTrack(result.current[searchIndex.current].index);
     }
     
     // For when the user wants to input search then it just needs to press a key that is not the restricted ones
-    const handleUserKeyPress = useCallback((event: { keyCode: any; }) => {
-        const { keyCode } = event;
+    const handleUserKeyPress = useCallback((event: { keyCode: any; repeat: boolean }) => {
+        const { keyCode, repeat } = event;
         // console.log(keyCode);
         /**
          * List of restricted keys:
@@ -64,18 +71,43 @@ const BGMInputSearch = (props: any) => {
         if (result.current == undefined || result.current.length <= 1) { // when starting app and want to use arrow keys or if result array has 1 or 0 results then just return
             return;
         }
-        if (keyCode == 37 || keyCode == 38) { // if arrow key left or up
-            searchIndex.current = searchIndex.current-1; // subtract 1 to the search index
-            if (searchIndex.current < 0) { // if search index is less than 0 then put the index as the last index of the result length
-                searchIndex.current = result.current.length-1; // set search index as last element
+        timer++
+        if (repeat == false) { // if the key is pressed for only one time then reset timer
+            timer = 0;
+        }
+        if (timer <= 10) { // if timer less than or equal to 15, add 1 or remove 1
+            if (keyCode == 37 || keyCode == 38) { // if arrow key left or up
+                searchIndex.current = searchIndex.current-1; // subtract 1 to the search index
+                if (searchIndex.current < 0) { // if search index is less than 0 then put the index as the last index of the result length
+                    searchIndex.current = result.current.length-1; // set search index as last element
+                }
+            } else if (keyCode == 39 || keyCode == 40) { // if arrow key right or down
+                searchIndex.current = searchIndex.current+1; // add 1 to the search index
+                if (searchIndex.current >= result.current.length) { // if search index is exactly the length of the result length then just put the search index as the beginning index
+                    searchIndex.current = 0; // set search index as first element
+                }
             }
-        } else if (keyCode == 39 || keyCode == 40) { // if arrow key right or down
-            searchIndex.current = searchIndex.current+1; // add 1 to the search index
-            console.log(searchIndex);
-            if (searchIndex.current >= result.current.length) { // if search index is exactly the length of the result length then just put the search index as the beginning index
-                searchIndex.current = 0; // set search index as first element
+        } else if (timer > 10 && timer < 30) { // if timer more than 15 and less than 25, add 5 or remove 5
+            if (keyCode == 37 || keyCode == 38) { // if arrow key left or up
+                searchIndex.current = searchIndex.current-5; // subtract 1 to the search index
+                if (searchIndex.current < 0) {
+                    searchIndex.current = 0;
+                }
+            } else if (keyCode == 39 || keyCode == 40) { // if arrow key right or down
+                searchIndex.current = searchIndex.current+5;
+                if (searchIndex.current >= result.current.length) {
+                    searchIndex.current = result.current.length-1; // add 1 to the search index
+                }
+            }
+        } else { // if timer more than 30, then select first or last element
+            if (keyCode == 37 || keyCode == 38) { // if arrow key left or up
+                searchIndex.current = 0;
+            } else if (keyCode == 39 || keyCode == 40) { // if arrow key right or down
+                searchIndex.current = result.current.length-1;
             }
         }
+        // console.log(timer);
+        // console.log(searchIndex)
         SelectTrack(result.current[searchIndex.current].index)
     }, []);
 

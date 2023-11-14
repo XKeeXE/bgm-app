@@ -4,7 +4,7 @@ let queue: string[] = [];
 let maxStringLength = 65;
 
 const BGMCurrentQueue = (props: any) => {
-    const { currentUrl, bgm, tracks } = props;
+    const { currentUrl, bgm, tracks, CheckTrackType } = props;
     const [results, setResults] = useState<string>("None"); // <- lo que hace que este component haga re-render para que el queue se vea bien
     /**
      * lo tuve que poner todo en el useEffect para que se active cuando currentUrl haga update para que se pueda re-render el queue bien
@@ -38,7 +38,7 @@ const BGMCurrentQueue = (props: any) => {
                 undefinedTimes = undefinedTimes+1;
                 trackString = trackString.concat(undefinedTimes.toString());
             } else {
-                trackString = tracks.current[queueTracks.index].replace('.mp3', ''); // else remove .mp3 from the track
+                trackString = CheckTrackType(tracks.current[queueTracks.index]); // else remove format from the track title
             }
             if (trackString.length > maxStringLength) { // if track has max string length of 63 put ... after it. Ex: TestTrack
                 let tempString = '';
@@ -61,20 +61,19 @@ const BGMCurrentQueue = (props: any) => {
         if (queue.length > 10) { // if queue length is more than 10 then pop last element
             queue.pop(); 
         }
-
     }, [currentUrl]);
     
     return (
         <>
-        <div>
-            {queue.length === 0 && <p>No current queue found</p>}
+        <div className="h-[198px]">
+            {queue.length === 0 && <p className="text-center">No current queue found</p>}
             <ul className="text-sm list-decimal pl-6">
                 {queue.map((item) => 
                 <li key={item}>{item}
                 </li>)}
             </ul>
         </div>
-        <p className="self-center">{results}</p>
+        <p className="text-center italic">{results}</p>
         </>
     );
 } 

@@ -6,7 +6,7 @@ import { FixedSizeList, ListChildComponentProps } from 'react-window';
 let maxStringLength = 70;
 
 const BGMList = (props: any) => {
-    const { tracks, bgm, listRef, selectedTrack, PlayTrack } = props;
+    const { tracks, bgm, listRef, selectedTrack, CheckTrackType, PlayTrack } = props;
 
     function CheckPlayed(index: number): string {
         var resultIndex = bgm.current.findIndex((track: { index: number; }) => track.index == index);
@@ -26,10 +26,10 @@ const BGMList = (props: any) => {
 
                             <ListItemText 
                                 className="" 
-                                primary={tracks.current[index].replace('.mp3', '').length > maxStringLength ? 
+                                primary={CheckTrackType(tracks.current[index]).length > maxStringLength ? 
                                 tracks.current[index].substring(0, maxStringLength-3).concat('...')
                                 : 
-                                tracks.current[index].replace('.mp3', '') } 
+                                CheckTrackType(tracks.current[index]) } 
                                 primaryTypographyProps={{fontSize: 15,
                                     fontWeight: 'small'}} 
                                     />

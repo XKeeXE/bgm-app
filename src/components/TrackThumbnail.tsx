@@ -9,7 +9,7 @@ function TrackThumbnail(props: any) {
     const [thumbnail, setThumbnail] = useState<string>(currentUrl);
     
     useEffect(() => {
-        if (currentUrl === undefined) { // will only happend when first starting the app
+        if (currentUrl === undefined) { // will only happen when first starting the app
             return;
         }
         noThumbnail.current = false;
@@ -31,9 +31,10 @@ function TrackThumbnail(props: any) {
         
     }, [currentUrl])
     return (
-        <div className="relative">
-            <img className="h-auto max-h-fit z-0" src={thumbnail} width={width} height={height} />
-            <div className={noThumbnail.current === true ? 'absolute top-10 left-5' : 'opacity-0'}>No Track Playing</div>
+        <div className="relative items-center text-center">
+            {noThumbnail.current ? <p className=' top-0'>No Track Playing</p> : ''}
+            <img className="h-auto max-h-fit z-0 ml-auto mr-auto" src={thumbnail} width={width} height={height} />
+            {/* <div className={noThumbnail.current ? 'absolute text-center self-center bg-white' : 'opacity-0'}>No Track Playing</div> */}
         </div>
     );
 }

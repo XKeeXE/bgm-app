@@ -1,13 +1,13 @@
 import { Button, Tooltip } from "@nextui-org/react";
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
 
-// WONT WORK IF TRACK SELECTED FROM BGM LIST
+// WONT WORK CORRECTLY IF TRACK SELECTED FROM BGM LIST
 const TrackPrevious = (props: any) => {
     const { bgm, bgmIndex, PlayTrack } = props;
     return (
         <>
-        <Tooltip content="SkipPrevious">
-            <Button variant="light" size="lg" aria-label="reverse" isIconOnly onClick={() => {
+        <Tooltip content="Previous">
+            <Button variant="light" size="lg" aria-label="previous" isIconOnly onClick={() => {
                 bgm.current[bgmIndex.current].played = false;
                 var currentTrack = bgm.current.findIndex((bgm: { played: boolean; }) => bgm.played == false); // find first track that is not played in current queue
                 var prevTrack = currentTrack - 1;

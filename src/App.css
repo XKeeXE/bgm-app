@@ -18,15 +18,3 @@
   border-radius: 4px;
   max-width: 70%;
 }
-
-.bgm-queue {
-  list-style-type:decimal-leading-zero;
-  font-size: small;
-  margin: auto;
-}
-
-.bgm-results {
-  font-style:italic;
-  margin: auto;
-  padding-left: 100px;
-}
