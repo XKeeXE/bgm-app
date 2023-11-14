@@ -3,6 +3,15 @@ import { useEffect, useState } from "react";
 let queue: string[] = [];
 let maxStringLength = 65;
 
+/**
+ * Shows the current queue with results
+ * @param props 
+ * currentUrl: state to read the current url of the track
+ * bgm: contains the current queue to play
+ * tracks: array of playable tracks
+ * CheckTrackType: function to remove the track format from the track title
+ * @returns 
+ */
 const BGMCurrentQueue = (props: any) => {
     const { currentUrl, bgm, tracks, CheckTrackType } = props;
     const [results, setResults] = useState<string>("None"); // <- lo que hace que este component haga re-render para que el queue se vea bien

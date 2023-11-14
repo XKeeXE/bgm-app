@@ -5,6 +5,11 @@ import { FixedSizeList, ListChildComponentProps } from 'react-window';
 
 let maxStringLength = 70;
 
+/**
+ * A list to show the current read file tracks
+ * @param props 
+ * @returns a list containing tracks
+ */
 const BGMList = (props: any) => {
     const { tracks, bgm, listRef, selectedTrack, CheckTrackType, PlayTrack } = props;
 

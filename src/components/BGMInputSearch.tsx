@@ -64,18 +64,18 @@ const BGMInputSearch = (props: any) => {
             return;
         }
         if (keyCode < 37 || keyCode > 40) { // if not arrow keys then focus to input and return
-            inputSearchRef.current.focus(); // for keys to be inserted into the input
+            inputSearchRef.current.focus(); // for when pressing a key to automatically insert into the input
             return;
         }
         inputSearchRef.current.blur(); // if arrow keys then blur input search so that arrow keys do not get inserted into the input
         if (result.current == undefined || result.current.length <= 1) { // when starting app and want to use arrow keys or if result array has 1 or 0 results then just return
             return;
         }
-        timer++
-        if (repeat == false) { // if the key is pressed for only one time then reset timer
+        timer++ // depending on how long the arrow key was pressed then manipulate the behaviour of the arrow keys search
+        if (repeat == false) { // when starting pressing the arrow keys then reset the timer to 0
             timer = 0;
         }
-        if (timer <= 10) { // if timer less than or equal to 15, add 1 or remove 1
+        if (timer <= 10) { // if timer less than or equal to 10, add 1 or subtract 1
             if (keyCode == 37 || keyCode == 38) { // if arrow key left or up
                 searchIndex.current = searchIndex.current-1; // subtract 1 to the search index
                 if (searchIndex.current < 0) { // if search index is less than 0 then put the index as the last index of the result length
@@ -87,23 +87,25 @@ const BGMInputSearch = (props: any) => {
                     searchIndex.current = 0; // set search index as first element
                 }
             }
-        } else if (timer > 10 && timer < 30) { // if timer more than 15 and less than 25, add 5 or remove 5
+        // ----------------------
+        } else if (timer > 10 && timer < 30) { // if timer more than 10 and less than 30, add 5 or subtract 5
             if (keyCode == 37 || keyCode == 38) { // if arrow key left or up
-                searchIndex.current = searchIndex.current-5; // subtract 1 to the search index
-                if (searchIndex.current < 0) {
-                    searchIndex.current = 0;
+                searchIndex.current = searchIndex.current-5; // subtract 5 to the search index
+                if (searchIndex.current < 0) { // if subtracted more than usual (ex: 2-5 = -3) then set search index as first element
+                    searchIndex.current = 0; // set search index as first element
                 }
             } else if (keyCode == 39 || keyCode == 40) { // if arrow key right or down
-                searchIndex.current = searchIndex.current+5;
-                if (searchIndex.current >= result.current.length) {
-                    searchIndex.current = result.current.length-1; // add 1 to the search index
+                searchIndex.current = searchIndex.current+5; // add 5 to the search index
+                if (searchIndex.current >= result.current.length) { // if added more than usual (ex: result.length = 20, searchIndex = 19, 19+5 = 24) then set search index as last element
+                    searchIndex.current = result.current.length-1; // set search index as last element
                 }
             }
-        } else { // if timer more than 30, then select first or last element
+        // ----------------------
+        } else { // if timer more than or equal to 30, then select first or last element
             if (keyCode == 37 || keyCode == 38) { // if arrow key left or up
-                searchIndex.current = 0;
+                searchIndex.current = 0; // set search index as first element
             } else if (keyCode == 39 || keyCode == 40) { // if arrow key right or down
-                searchIndex.current = result.current.length-1;
+                searchIndex.current = result.current.length-1;  // set search index as last element
             }
         }
         // console.log(timer);

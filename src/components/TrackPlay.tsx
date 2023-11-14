@@ -3,16 +3,27 @@ import ReactPlayer from "react-player/file";
 import TrackSeek from "./TrackSeek";
 
 /**
- * This component contains the ReactPlayer component which is used to play the track, it contains bgmPlayerRef to get the
- * referance of the player, bgmIndex which contains the current queue index, bgmPlayer which is used to get the current
- * seconds on the current track, and handleProgress to see the current played seconds. It also contains the TrackSeek
+ * This component contains the ReactPlayer component which is used to play the track and it also contains the TrackSeek
  * component to seek forward or backwards if the user wishes to.
+ * bgmPlayerRef: get the reference of ReactPlayer to get current track time, get the duration of the track, and to use seek
+ * trackDuration: state to get and set the track duration
+ * trackCurrentTime: state to get and set the track current time
+ * bgmPlayer: state to get and set the played amount and if its seeking
  * @param props 
+ * bgm: contains the current queue to play
+ * bgmIndex: current queue index
+ * currentSelectedTrack: the current selected track
+ * saveQueueTimer: the amount of times needed to auto save the queue
+ * playing: state to pause the track
+ * currentUrl: the current track in the directory path
+ * muteBGM: state to mute the track
+ * savedSettings: the settings saved
+ * setBGMJson: function to save the bgm in a text file
+ * PlayNextInQueue: function to play the next track in the queue
  * @returns 
  */
 const TrackPlay = (props: any) => {
     const { bgm, bgmIndex, currentSelectedTrack, saveQueueTimer, playing, currentUrl, muteBGM, savedSettings, SetBGMJson, PlayNextInQueue } = props;
-
     const bgmPlayerRef = useRef<any>();
     const [trackDuration, setTrackDuration] = useState("00:00");
     const [trackCurrentTime, setTrackCurrentTime] = useState("00:00");
@@ -27,13 +38,18 @@ const TrackPlay = (props: any) => {
         }
     }
 
-    useEffect(() => {
+    useEffect(() => { // if app already started, then calculate the current time and the duration of the track
         if (bgmPlayerRef.current != null) {
             setTrackCurrentTime(CalculateTime(bgmPlayerRef.current.getCurrentTime())); // state to set the current track time
             setTrackDuration(CalculateTime(bgmPlayerRef.current.getDuration())); // state to set the track duration
         }
     }, [bgmPlayer])
 
+    /**
+     * To calculate the time for the track
+     * @param time the amount in miliseconds
+     * @returns the track time in string (ex: 01:34)
+     */
     function CalculateTime(time: number) {
         let dateObj = new Date(time * 1000);
         let minutes = dateObj.getUTCMinutes();
@@ -62,11 +78,6 @@ const TrackPlay = (props: any) => {
             PlayNextInQueue(); // Must find next track in the current queue
         }}
         onProgress={handleProgress}/>
-        {/* Current time in track and the track duration under the progress bar */}
-        {/* <div className='flex bottom-0 absolute justify-evenly w-[70%] min-w-[100%] ' >
-            <p className='text-xs select-none'>{trackCurrentTime}</p>
-            <p className='text-xs select-none'>{trackDuration}</p>
-        </div> */}
         </>
     );
 }

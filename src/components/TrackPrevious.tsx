@@ -2,6 +2,12 @@ import { Button, Tooltip } from "@nextui-org/react";
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
 
 // WONT WORK CORRECTLY IF TRACK SELECTED FROM BGM LIST
+/**
+ * Will convert current track as false then play the previous track
+ * @param props 
+ * bgm: contains the current queue to play
+ * @returns a button to play the previous track
+ */
 const TrackPrevious = (props: any) => {
     const { bgm, bgmIndex, PlayTrack } = props;
     return (

@@ -4,7 +4,9 @@ import fs from 'fs';
 
 /**
  * Will save queue on a json called BGMQUEUE.txt
- * @param props bgm
+ * @param props 
+ * bgm: contains the current queue to play
+ * saveQueueTimer: the current timer to save the queue to set it to 0
  * @returns the Save Queue button
  */
 const BGMSaveQueue = (props: any) => {
