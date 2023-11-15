@@ -1,4 +1,5 @@
-import { ipcRenderer } from "electron";
+// import { ipcRenderer } from "electron";
+const { ipcRenderer } = require('electron');
 import { useEffect, useRef, useState } from "react";
 
 var jsmediatags = require("jsmediatags");
@@ -21,8 +22,8 @@ function TrackThumbnail(props: any) {
                     base64String += String.fromCharCode(image.data[index]);
                 }
                 var base64 = "data:" + image.format + ";base64," + window.btoa(base64String);
-                setThumbnail(base64);
                 ipcRenderer.send('track-thumbnail', base64);
+                setThumbnail(base64);
             },
             onError: function(error: any) {
                 console.log(':(', error.type, error.info);

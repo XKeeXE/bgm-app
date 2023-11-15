@@ -16,9 +16,9 @@ import BGMList from './components/BGMList';
 import BGMInputSearch from './components/BGMInputSearch';
 import TrackPrevious from './components/TrackPrevious';
 import { Card, CardBody } from '@nextui-org/react';
+import { ipcRenderer } from 'electron';
 
 let trackPath: string;
-let trackName = '';
 
 const queueFile = "BGMQUEUE.txt";
 const settingsFile = "Settings.txt";
@@ -101,8 +101,9 @@ function App() {
         // console.log(bgmIndex.current);   // <-- THE SAME, but works with every other component EXCEPT BGMLIST
         // console.log(index);              // <-- THE SAME, works with every component
         
-        trackName = tracks.current[index]; // will give the name of the track of the given original index, ex: TYPES.mp3
-        trackPath = savedSettings.path.concat(trackName); // will combine the path of the file with the track name, ex: E:/BGM/TYPES.mp3
+        let trackName = tracks.current[index]; // will give the name of the track of the given original index, ex: TYPES.mp3
+        let trackPath = savedSettings.path.concat(trackName); // will combine the path of the file with the track name, ex: E:/BGM/TYPES.mp3
+        let trackTitle = CheckTrackType(trackName)
         // if (ReactPlayer.canPlay(trackPath) == false) { // <- doesnt work with FILE:ERR_NOT_FOUND
         //     console.error(trackName + " cant be played");
         //     bgm.current[bgmIndex.current].played = true; <- wont even work
@@ -112,7 +113,8 @@ function App() {
         setSelectedTrack(index); // sets the selected item in the bgm list as the current track
         setCurrentUrl(trackPath); // will update the state and put the track path
         // setTrackTitle(CheckTrackType(trackName)); // sets the title as the current playing track
-        document.title = CheckTrackType(trackName) // put the app title as the current playing item
+        document.title = trackTitle // put the app title as the current playing item
+        ipcRenderer.send('track-title', trackTitle); // send to the track name to the main process
         listRef.current.scrollToItem(index, "center"); // in the bgm list scrolls to the current track
         var resultIndex = bgm.current.findIndex((track: { index: number; }) => track.index == index); // find the index that has index == originalTrackIndex
         console.log("currently in the queue number: #" + resultIndex); // number in the current queue
@@ -170,7 +172,7 @@ function App() {
                 <div className='relative bottom-2 align-middle flex justify-center'>
                     <BGMInputSearch tracks={tracks} listRef={listRef} currentSelectedTrack={currentSelectedTrack} setSelectedTrack={setSelectedTrack} CheckTrackType={CheckTrackType}/>
                     <TrackPrevious bgm={bgm} bgmIndex={bgmIndex} PlayTrack={PlayTrack}/>
-                    <TrackPause listRef={listRef} currentSelectedTrack={currentSelectedTrack} playing={playing} setPlaying={setPlaying}/>
+                    <TrackPause listRef={listRef} currentSelectedTrack={currentSelectedTrack} playing={playing} setPlaying={setPlaying} setSelectedTrack={setSelectedTrack}/>
                     <TrackSkip bgm={bgm} PlayTrack={PlayTrack}/>
                 </div>
                 <div className="absolute left-0 self-center">

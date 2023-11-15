@@ -1,21 +1,14 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './App-modal-window.tsx'
+import AppModalWindow from './AppModalWindow.tsx'
 import './index.css'
 import { NextUIProvider } from '@nextui-org/react'
 
 ReactDOM.createRoot(document.getElementById('modal-root')!).render(
   <React.StrictMode>
     <NextUIProvider>
-      <App />
+      <AppModalWindow />
     </NextUIProvider>
   </React.StrictMode>,
 )
 
-// Remove Preload scripts loading
-postMessage({ payload: 'removeLoading' }, '*')
-
-// Use contextBridge
-window.ipcRenderer.on('main-process-message', (_event, message) => {
-  console.log(message)
-})

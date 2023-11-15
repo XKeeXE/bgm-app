@@ -1,4 +1,4 @@
-import { app, BrowserWindow, globalShortcut } from 'electron'
+import { app, BrowserWindow, globalShortcut, ipcMain } from 'electron'
 import path from 'node:path'
 
 // The built directory structure
@@ -38,17 +38,16 @@ function createWindow() {
   modalWindow = new BrowserWindow({
     parent: win,
     modal: true,
-    width: 600,
-    height: 600,
-    minHeight: 600,
-    minWidth: 600,
-    fullscreenable: false,
+    width: 520,
+    height: 250,
+    transparent: true,
+    x: 1320,
+    y: 440,
+    autoHideMenuBar: true,
     maximizable: false,
     show: false,
-    closable: false,
-    minimizable: false,
     webPreferences: {
-      additionalArguments:['babymode'],
+      additionalArguments:['modalWindow'],
       webSecurity: false,
       nodeIntegration: true,
       contextIsolation: false,
@@ -62,11 +61,12 @@ function createWindow() {
   
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL)
-    modalWindow.loadURL(VITE_DEV_SERVER_URL + '/modal-window.html')
+    modalWindow.loadURL(VITE_DEV_SERVER_URL + 'modalWindow.html');
   } else {
     // win.loadFile('dist/index.html')
-    win.loadFile(path.join(process.env.DIST, 'index.html'))
-    modalWindow.loadFile(path.join(process.env.DIST, 'modal-window.html'))
+    win.loadFile(path.join(process.env.DIST, 'inex.html'))
+    modalWindow.loadFile(path.join(process.env.DIST, 'modalWindow.html'))
+    
   }
 }
 
@@ -88,16 +88,31 @@ app.on('activate', () => {
   }
 })
 
+function ModalWindowStuff() {
+  ipcMain.on('track-title', (e, title) => { // get the render process from App.tsx
+    modalWindow?.setTitle(title); // set the modal window title to the current track
+  })
+
+  ipcMain.on('track-thumbnail', (e, base64) => { // get the render process from TrackThumbnail.tsx
+    modalWindow?.webContents.send('track-thumbnail', base64); // set the thumbnail to the current track
+  })
+
+}
 
 app.whenReady().then(() => {
+  ModalWindowStuff();
+  modalWindow?.setMenu(null);
   globalShortcut.register('Alt+J', () => {
     if (win?.isMinimized() == true) {
       win?.show();
+      win?.focus();
       // win?.
-      // modalWindow?.hide();
+      modalWindow?.hide();
+      // modalWindow?.close();
     } else {
       win?.minimize();
-      // modalWindow?.show();
+      win?.hide();
+      modalWindow?.show();
     }
   })
 }).then(createWindow)
