@@ -8,7 +8,6 @@ const TrackSeek = (props: any) => {
   const handleSeekChange = (value: any) => {
     setBGMPlayer({...bgmPlayer, seeking: false});
     bgmPlayerRef.current?.seekTo(parseFloat(value));
-    
   };
   
   return (
@@ -18,29 +17,29 @@ const TrackSeek = (props: any) => {
     }} onMouseLeave={() => {
       setShowSlider(false);
     }}> 
-    <p className="pr-1 text-xs select-none">{trackCurrentTime}</p>
-    {showSlider ? 
-    <Slider
-      size="md"
-      color="foreground"
-      step={0.01}
-      value={bgmPlayer.played} 
-      hideThumb
-      maxValue={0.999999} 
-      className="max-w-md flex-none "
-      aria-label="seek slider"
-      onChange={handleSeekChange}/> 
-      : 
+      <p className="pr-1 text-xs select-none">{trackCurrentTime}</p>
+      {showSlider ? 
       <Slider
-      size="sm"
-      color="foreground"
-      step={0.01}
-      value={bgmPlayer.played} 
-      hideThumb
-      maxValue={0.999999} 
-      className="max-w-md flex-none bottom"
-      aria-label="seek progress"/> }
-      <p className="pl-1 text-xs select-none" >{trackDuration}</p>
+        size="md"
+        color="foreground"
+        step={0.01}
+        value={bgmPlayer.played} 
+        hideThumb
+        maxValue={0.999999} 
+        className="max-w-md flex-none"
+        aria-label="seek slider"
+        onChange={handleSeekChange}/> 
+        : 
+        <Slider
+        size="sm"
+        color="foreground"
+        step={0.01}
+        value={bgmPlayer.played} 
+        hideThumb
+        maxValue={0.999999} 
+        className="max-w-md flex-none bottom"
+        aria-label="seek progress"/> }
+        <p className="pl-1 text-xs select-none">{trackDuration}</p>
     </div>
     </>
   );

@@ -21,12 +21,11 @@ const VITE_DEV_SERVER_URL = process.env['VITE_DEV_SERVER_URL']
 function createWindow() {
   win = new BrowserWindow({
     icon: path.join(process.env.VITE_PUBLIC, 'electron-vite.svg'),
+    center: true,
     width: 1200,
     height: 600,
     minHeight: 600,
     minWidth: 600,
-    center: true,
-    
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       webSecurity: false,
@@ -38,14 +37,16 @@ function createWindow() {
   modalWindow = new BrowserWindow({
     parent: win,
     modal: true,
-    width: 520,
-    height: 250,
+    alwaysOnTop: true,
     transparent: true,
-    x: 1320,
-    y: 440,
     autoHideMenuBar: true,
     maximizable: false,
     show: false,
+    frame: false,
+    x: 1320,
+    y: 440,
+    width: 520,
+    height: 250,
     webPreferences: {
       additionalArguments:['modalWindow'],
       webSecurity: false,
@@ -89,21 +90,30 @@ app.on('activate', () => {
 })
 
 function ModalWindowStuff() {
+  
   ipcMain.on('track-title', (e, title) => { // get the render process from App.tsx
     modalWindow?.setTitle(title); // set the modal window title to the current track
+    modalWindow?.webContents.send('track-title', title) // set the title track as the current track
   })
-
   ipcMain.on('track-thumbnail', (e, base64) => { // get the render process from TrackThumbnail.tsx
     modalWindow?.webContents.send('track-thumbnail', base64); // set the thumbnail to the current track
   })
-
+  ipcMain.on('track-time', (e, currentTime, progress, duration) => {
+    modalWindow?.webContents.send('track-time', currentTime, progress, duration);
+  })
+  ipcMain.on('track-playing-main', (e, playing) => {
+    modalWindow?.webContents.send('track-playing-main', playing);
+  })
+  ipcMain.on('track-playing-modal', (e, playing) => {
+    win?.webContents.send('track-playing-modal', playing);
+  })
 }
 
 app.whenReady().then(() => {
   ModalWindowStuff();
-  modalWindow?.setMenu(null);
   globalShortcut.register('Alt+J', () => {
     if (win?.isMinimized() == true) {
+
       win?.show();
       win?.focus();
       // win?.

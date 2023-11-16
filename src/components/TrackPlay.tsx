@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import ReactPlayer from "react-player/file";
 import TrackSeek from "./TrackSeek";
+import { ipcRenderer } from "electron";
 
 /**
  * This component contains the ReactPlayer component which is used to play the track and it also contains the TrackSeek
@@ -37,11 +38,12 @@ const TrackPlay = (props: any) => {
             setBGMPlayer(state);
         }
     }
-
+    
     useEffect(() => { // if app already started, then calculate the current time and the duration of the track
         if (bgmPlayerRef.current != null) {
             setTrackCurrentTime(CalculateTime(bgmPlayerRef.current.getCurrentTime())); // state to set the current track time
             setTrackDuration(CalculateTime(bgmPlayerRef.current.getDuration())); // state to set the track duration
+            ipcRenderer.send('track-time', trackCurrentTime, bgmPlayer.played, trackDuration);
         }
     }, [bgmPlayer])
 

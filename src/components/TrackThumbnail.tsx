@@ -1,5 +1,6 @@
 // import { ipcRenderer } from "electron";
 const { ipcRenderer } = require('electron');
+import { Image } from "@nextui-org/react";
 import { useEffect, useRef, useState } from "react";
 
 var jsmediatags = require("jsmediatags");
@@ -34,7 +35,8 @@ function TrackThumbnail(props: any) {
     return (
         <div className="relative items-center text-center">
             {noThumbnail.current ? <p className=' top-0'>No Track Playing</p> : ''}
-            <img className="h-auto max-h-fit z-0 ml-auto mr-auto" src={thumbnail} width={width} height={height} />
+            {/* <img className="h-auto max-h-fit z-0 ml-auto mr-auto" src={thumbnail} width={width} height={height} /> */}
+            <Image className="z-0" src={thumbnail} width={width} height={height}/>
             {/* <div className={noThumbnail.current ? 'absolute text-center self-center bg-white' : 'opacity-0'}>No Track Playing</div> */}
         </div>
     );

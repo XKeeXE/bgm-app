@@ -1,1 +1,1 @@
-{"path":"E:/BGM/","volume":0.09}
+{"path":"E:/BGM/","volume":0.05}

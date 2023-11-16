@@ -45,7 +45,6 @@ function App() {
     const [muteBGM, setMuteBGM] = useState(false);
     const [showVolume, setShowVolume] = useState(false);
     const [currentUrl, setCurrentUrl] = useState<string>(trackPath);
-    // const [trackTitle, setTrackTitle] = useState<string>('None')
     
     const [savedSettings, setSavedSettings] = useState({
         path: 'E:/BGM/',
@@ -112,7 +111,6 @@ function App() {
         console.log("Now playing: " + tracks.current[index]);
         setSelectedTrack(index); // sets the selected item in the bgm list as the current track
         setCurrentUrl(trackPath); // will update the state and put the track path
-        // setTrackTitle(CheckTrackType(trackName)); // sets the title as the current playing track
         document.title = trackTitle // put the app title as the current playing item
         ipcRenderer.send('track-title', trackTitle); // send to the track name to the main process
         listRef.current.scrollToItem(index, "center"); // in the bgm list scrolls to the current track
