@@ -16,7 +16,7 @@ const TrackSkip = (props: any) => {
                     EndOfQueue()
                     return;
                 }
-                console.log(nextTrack);
+                // console.log(nextTrack);
                 console.log(bgm.current[nextTrack]);
                 PlayTrack(bgm.current[nextTrack].index); // play next unplayed track 
                 console.log("skipped");

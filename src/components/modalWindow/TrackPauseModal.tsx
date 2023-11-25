@@ -14,10 +14,10 @@ const TrackPauseModal = (props: any) => {
     return (
         <>
         <Button radius="full" size="lg" aria-label="pause" isIconOnly onClick={() => {
-                setPlaying(!playing); // if paused play, if playing pause
-                ipcRenderer.send('track-playing-modal', playing); // Playing: true | false
-            }}>{playing ? <PlayIcon/> : <PauseIcon/> }
-            </Button>
+            setPlaying(!playing); // if paused play, if playing pause
+            ipcRenderer.send('track-playing-modal', playing); // Playing: true | false
+        }}>{playing ? <PlayIcon/> : <PauseIcon/> }
+        </Button>
         </>
     )
 }

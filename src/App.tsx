@@ -17,6 +17,7 @@ import BGMInputSearch from './components/BGMInputSearch';
 import TrackPrevious from './components/TrackPrevious';
 import { Card, CardBody } from '@nextui-org/react';
 import { ipcRenderer } from 'electron';
+import BGMCheckDuplicate from './components/BGMCheckDuplicate';
 
 let trackPath: string;
 
@@ -40,6 +41,7 @@ function App() {
     const listRef = useRef<any>();
     const currentSelectedTrack = useRef<number>(-1);
     const saveQueueTimer = useRef(0);
+    const playedTracks = useRef<number[]>([]); // array of the tracks played
     const [selectedTrack, setSelectedTrack] = useState<number>(-1);
     const [playing, setPlaying] = useState<boolean>(true);
     const [muteBGM, setMuteBGM] = useState(false);
@@ -51,8 +53,7 @@ function App() {
         volume: 1
     });
     
-    const tracks = useRef(fs.readdirSync(savedSettings.path).map(item => item)); // read all the tracks from directory declared in the path
-        
+    const tracks = useRef(fs.readdirSync(savedSettings.path).map(item => item)); // read all the tracks from directory declared in the path    
     const bgm = useRef(tracks.current.map((_track, originalTrackIndex) => {
         return Object.assign(
             {index: originalTrackIndex}, // original index of the track
@@ -102,7 +103,7 @@ function App() {
         
         let trackName = tracks.current[index]; // will give the name of the track of the given original index, ex: TYPES.mp3
         let trackPath = savedSettings.path.concat(trackName); // will combine the path of the file with the track name, ex: E:/BGM/TYPES.mp3
-        let trackTitle = CheckTrackType(trackName)
+        let trackTitle = CheckTrackType(trackName) // track name without the format, (.mp3, .ogg, etc.)
         // if (ReactPlayer.canPlay(trackPath) == false) { // <- doesnt work with FILE:ERR_NOT_FOUND
         //     console.error(trackName + " cant be played");
         //     bgm.current[bgmIndex.current].played = true; <- wont even work
@@ -112,8 +113,13 @@ function App() {
         setSelectedTrack(index); // sets the selected item in the bgm list as the current track
         setCurrentUrl(trackPath); // will update the state and put the track path
         document.title = trackTitle // put the app title as the current playing item
-        ipcRenderer.send('track-title', trackTitle); // send to the track name to the main process
+        ipcRenderer.send('track-title', trackTitle); // send the track title to the main process
         listRef.current.scrollToItem(index, "center"); // in the bgm list scrolls to the current track
+        console.log(playedTracks.current[playedTracks.current.length-1]);
+        if (playedTracks.current.includes(index) == false) {
+            playedTracks.current.push(index);
+        }
+        // console.log(playedTracks.current);
         var resultIndex = bgm.current.findIndex((track: { index: number; }) => track.index == index); // find the index that has index == originalTrackIndex
         console.log("currently in the queue number: #" + resultIndex); // number in the current queue
         bgmIndex.current = resultIndex; // set the current bgmIndex as the result index for later use
@@ -129,6 +135,14 @@ function App() {
         // for every track in the json change the current bgm into the one in the json
         for (let index = 0; index < bgm.current.length; index++) {
             bgm.current[index] = jsonBGM[index];
+        }
+        playedTracks.current = [];
+        bgm.current.filter(CheckPlayedTracks);
+    }
+
+    function CheckPlayedTracks(track: any) {
+        if (track.played == true) {
+            playedTracks.current.push(track.index);
         }
     }
 
@@ -151,7 +165,7 @@ function App() {
                     <div className="md:max-2xl:flex md:max-[10px]:hidden">
                         <div className="w-max object-fill">
                             {/** To see the current queue and current thumbnail */}
-                            <BGMCurrentQueue currentUrl={currentUrl} bgm={bgm} tracks={tracks} CheckTrackType={CheckTrackType}/>
+                            <BGMCurrentQueue currentUrl={currentUrl} bgm={bgm} tracks={tracks} bgmIndex={bgmIndex} CheckTrackType={CheckTrackType}/>
                             <TrackThumbnail currentUrl={currentUrl} width={400} height={200}/>
                         </div>
                         <div className="right-side">
@@ -169,7 +183,7 @@ function App() {
             }}>
                 <div className='relative bottom-2 align-middle flex justify-center'>
                     <BGMInputSearch tracks={tracks} listRef={listRef} currentSelectedTrack={currentSelectedTrack} setSelectedTrack={setSelectedTrack} CheckTrackType={CheckTrackType}/>
-                    <TrackPrevious bgm={bgm} bgmIndex={bgmIndex} PlayTrack={PlayTrack}/>
+                    <TrackPrevious playedTracks={playedTracks} bgm={bgm} bgmIndex={bgmIndex} PlayTrack={PlayTrack}/>
                     <TrackPause listRef={listRef} currentSelectedTrack={currentSelectedTrack} playing={playing} setPlaying={setPlaying} setSelectedTrack={setSelectedTrack}/>
                     <TrackSkip bgm={bgm} PlayTrack={PlayTrack}/>
                 </div>
@@ -178,6 +192,7 @@ function App() {
                     <BGMShuffle bgm={bgm}/>
                     <BGMLoadQueue SetBGMJson={SetBGMJson} GetBGMJson={GetBGMJson} PlayNextInQueue={PlayNextInQueue}/>
                     <BGMSaveQueue bgm={bgm} saveQueueTimer={saveQueueTimer}/>
+                    <BGMCheckDuplicate tracks={tracks} CheckTrackType={CheckTrackType}/>
                 </div>
                 <BGMVolume muteBGM={muteBGM} setMuteBGM={setMuteBGM} showVolume={showVolume} setShowVolume={setShowVolume} savedSettings={savedSettings} setSavedSettings={setSavedSettings}/>
                 {/** TrackPlay contains ReactPlayer component which is used to play the track */}

@@ -13,7 +13,7 @@ let maxStringLength = 65;
  * @returns 
  */
 const BGMCurrentQueue = (props: any) => {
-    const { currentUrl, bgm, tracks, CheckTrackType } = props;
+    const { currentUrl, bgm, tracks, bgmIndex, CheckTrackType } = props;
     const [results, setResults] = useState<string>("None"); // <- lo que hace que este component haga re-render para que el queue se vea bien
     /**
      * lo tuve que poner todo en el useEffect para que se active cuando currentUrl haga update para que se pueda re-render el queue bien
@@ -64,12 +64,16 @@ const BGMCurrentQueue = (props: any) => {
             bgm.current[unplayedQueue[index]].played = false; // mark the track as played false so that they may be playable again when queue reaches track
         }
 
-        setResults(tempIndex + " / " + (bgm.current.length - numberPlayedTracks+1) + " result(s) displayed"); // <- el re-render hace que el queue haga display correctamente
         queue = bgmQueue.map(item => item) // map bgmQueue into queue to show it on the list
         // queue.shift(); // remove the first element as that would be the one playing in the current queue
         if (queue.length > 10) { // if queue length is more than 10 then pop last element
             queue.pop(); 
+            tempIndex = tempIndex-1 // subtract 1 from the tempIndex as it will appear as 11
         }
+        if (queue.length == 0) {
+            tempIndex = -1; // subtract 1 as there will be no queue to display 0
+        }
+        setResults(tempIndex+1 + " / " + (bgm.current.length - bgmIndex.current-1) + " result(s) displayed"); // <- el re-render hace que el queue haga display correctamente
     }, [currentUrl]);
     
     return (

@@ -17,7 +17,7 @@ const TrackProgress = (props: any) => {
 
     return (
         <>
-        <div className="">
+        <div className="flex w-96">
             <p className="pr-1 text-xs select-none">{trackCurrentTime}</p>
             <Progress
             size="sm"

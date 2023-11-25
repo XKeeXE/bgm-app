@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
@@ -8,6 +8,26 @@
   </head>
   <body>
     <div id="modal-root"></div>
+    <!-- <img src="test" width="300" height="300"></img> -->
+
+    <!-- <button onclick="">Test</button> -->
+    <!-- <script>
+      import { Avatar, Image } from "@nextui-org/react";
+      import { ipcRenderer } from "electron";
+      import { useEffect, useState } from "react";
+
+      const TrackThumbnailModal = (props) => {
+          const { width, height} = props;
+          const [modalThumbnail, setModalThumbnail] = useState();
+
+          useEffect(() => {
+              ipcRenderer.on('track-thumbnail', (e, base64) => {
+                  setModalThumbnail(base64);
+                })
+          }, [])
+        }
+
+    </script> -->
     <script type="module" src="./src/mainModalWindow.tsx"></script>
   </body>
 </html>

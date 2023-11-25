@@ -50,6 +50,7 @@ function createWindow() {
     webPreferences: {
       additionalArguments:['modalWindow'],
       webSecurity: false,
+      devTools: false,
       nodeIntegration: true,
       contextIsolation: false,
     }
@@ -107,6 +108,7 @@ function ModalWindowStuff() {
   ipcMain.on('track-playing-modal', (e, playing) => {
     win?.webContents.send('track-playing-modal', playing);
   })
+
 }
 
 app.whenReady().then(() => {

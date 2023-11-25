@@ -32,12 +32,14 @@ const BGMList = (props: any) => {
                             <ListItemText 
                                 className="" 
                                 primary={CheckTrackType(tracks.current[index]).length > maxStringLength ? 
-                                tracks.current[index].substring(0, maxStringLength-3).concat('...')
-                                : 
-                                CheckTrackType(tracks.current[index]) } 
+                                tracks.current[index].substring(0, maxStringLength-3).concat('...') : CheckTrackType(tracks.current[index])} 
+
                                 primaryTypographyProps={{fontSize: 15,
                                     fontWeight: 'small'}} 
-                                    />
+                                
+                                onContextMenu={() => {
+                                    navigator.clipboard.writeText(CheckTrackType(tracks.current[index]))
+                                }}/>
                         </div>
                     </ListItemButton>
                 </Tooltip>
@@ -46,7 +48,7 @@ const BGMList = (props: any) => {
     }
     return (
             <FixedSizeList
-            className=" ltr:bg-white overflow-hidden"
+            className=""
             direction="ltr"
             ref={listRef}
             height={400}

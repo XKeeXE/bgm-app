@@ -8,11 +8,14 @@ function App() {
     
     return (
         <>
-        <TrackTitle/>
-        <div className='flex '>
-            <TrackThumbnailModal width={230} height={230}/>
-            <TrackProgress/>
-            <TrackPauseModal/>
+        <div className='opacity-1'>
+            <TrackTitle/>
+            <div className='flex '>
+                <TrackThumbnailModal width={230} height={230}/>
+                <TrackProgress/>
+                <TrackPauseModal/>
+            </div>
+
         </div>
         </>
     )
