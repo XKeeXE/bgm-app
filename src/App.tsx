@@ -37,16 +37,16 @@ enum TYPES {
 }
 
 function App() {
-    const bgmIndex = useRef<number>(-1);
-    const listRef = useRef<any>();
-    const currentSelectedTrack = useRef<number>(-1);
-    const saveQueueTimer = useRef(0);
+    const bgmIndex = useRef<number>(-1); // index in the current queue
+    const listRef = useRef<any>(); // ref to the bgm list
+    const currentSelectedTrack = useRef<number>(-1); // index of the current select track
+    const saveQueueTimer = useRef(0); // auto save timer
     const playedTracks = useRef<number[]>([]); // array of the tracks played
-    const [selectedTrack, setSelectedTrack] = useState<number>(-1);
-    const [playing, setPlaying] = useState<boolean>(true);
-    const [muteBGM, setMuteBGM] = useState(false);
-    const [showVolume, setShowVolume] = useState(false);
-    const [currentUrl, setCurrentUrl] = useState<string>(trackPath);
+    const [selectedTrack, setSelectedTrack] = useState<number>(-1); // 
+    const [playing, setPlaying] = useState<boolean>(true); // to pause and resume ReactPlayer
+    const [muteBGM, setMuteBGM] = useState(false); // to mute and unmute ReactPlayer
+    const [showVolume, setShowVolume] = useState(false); // to show and hide volume
+    const [currentUrl, setCurrentUrl] = useState<string>(trackPath); // current url of the current playing track
     
     const [savedSettings, setSavedSettings] = useState({
         path: 'E:/BGM/',
@@ -106,7 +106,7 @@ function App() {
         let trackTitle = CheckTrackType(trackName) // track name without the format, (.mp3, .ogg, etc.)
         // if (ReactPlayer.canPlay(trackPath) == false) { // <- doesnt work with FILE:ERR_NOT_FOUND
         //     console.error(trackName + " cant be played");
-        //     bgm.current[bgmIndex.current].played = true; <- wont even work
+        //     bgm.current[bgmIndex.current].played = true; // <- wont even work
         //     return;
         // }
         console.log("Now playing: " + tracks.current[index]);
@@ -188,7 +188,6 @@ function App() {
                     <TrackSkip bgm={bgm} PlayTrack={PlayTrack}/>
                 </div>
                 <div className="absolute left-0 self-center">
-                    {/* <p className='text-xs'>{trackTitle}</p>  */}
                     <BGMShuffle bgm={bgm}/>
                     <BGMLoadQueue SetBGMJson={SetBGMJson} GetBGMJson={GetBGMJson} PlayNextInQueue={PlayNextInQueue}/>
                     <BGMSaveQueue bgm={bgm} saveQueueTimer={saveQueueTimer}/>
