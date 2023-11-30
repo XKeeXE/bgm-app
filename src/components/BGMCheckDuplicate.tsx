@@ -3,7 +3,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import { useRef } from "react";
 
 // An exception enum for those tracks that have {-#} in their title
-enum Exceptions {
+enum EXCEPTIONS {
     'The Rising of the SHIELD HERO OST - Campbell 1-1',
     '04 - 3-31',
     'Mission in Snowdriftland Soundtrack - 03 - World 1-2',
@@ -23,8 +23,8 @@ const BGMCheckDuplicate = (props: any) => {
                 checkBGM: for (let index = 0; index < tracks.current.length; index++) { // check the bgm list for duplicates
                     trackName = CheckTrackType(tracks.current[index]); // remove the type format from track name
                     if (trackName.match(regexp) != null) { // if a track contains {-#}, then it must be a duplicate
-                        for (let checkIndex = 0; checkIndex < Exceptions.length; checkIndex++) { // there are exceptions though where a track end with {-#} but no duplicate
-                            if (trackName.localeCompare(Exceptions[checkIndex]) == 0) { // if exception detected, then skip to the next track
+                        for (let exceptionIndex = 0; exceptionIndex < EXCEPTIONS.length; exceptionIndex++) { // there are exceptions though where a track end with {-#} but no duplicate
+                            if (trackName.localeCompare(EXCEPTIONS[exceptionIndex]) == 0) { // if exception detected, then skip to the next track
                                 continue checkBGM; // skip to the next track
                             }
                         }

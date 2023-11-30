@@ -15,7 +15,7 @@ const BGMSaveQueue = (props: any) => {
         <Tooltip content="Save Queue">
             <Button variant="light" size="lg" isIconOnly aria-label="save queue" onClick={() => {
                 let jsonBGM = JSON.stringify(bgm.current);
-                console.log(saveQueueTimer.current);
+                // console.log(saveQueueTimer.current);
                 saveQueueTimer.current = 0;
                 fs.writeFileSync('BGMQUEUE.txt', jsonBGM, 'utf8');
                 console.log("queue saved")
