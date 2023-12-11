@@ -1,6 +1,6 @@
 import './App.css'
-import { useRef, useState } from "react";
 import fs from 'fs'
+import { useRef, useState } from "react";
 import BGMShuffle from "./components/BGMShuffle";
 import TrackSkip from "./components/TrackSkip";
 import BGMLoadQueue from "./components/BGMLoadQueue";
@@ -202,6 +202,5 @@ function App() {
         </>
     );
 }
-
 
 export default App;
