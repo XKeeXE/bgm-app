@@ -40,7 +40,6 @@ const BGMVolume = (props: any) => {
                     {muteBGM ? <VolumeOff/> : <BGMVolumeSwitch/>}
                 </Button>
             </Tooltip>
-            {/* <div className="block bg-white w-20 h-4 right-0 absolute self-center z-10" animate-[hide-volume_0.3s_ease-in-out_1_both]  animate-[show-volume_0.3s_ease-in-out_1_both]/> */}
             <Slider 
                 className={"self-center translate-x-[100%] " + (showVolume ? " animate-[show-volume_0.1s_ease-in-out_0.08s_1_both]" : " animate-[hide-volume_0.1s_ease-in-out_1_both] ")}
                 aria-label="volume slider"

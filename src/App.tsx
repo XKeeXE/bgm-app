@@ -98,7 +98,7 @@ function App() {
      * @param index the index which reprensents the original track index from tracks array
     */
     function PlayTrack(index: number) {
-        // console.log(bgmIndex.current);   // <-- THE SAME, but works with every other component EXCEPT BGMLIST
+        // console.log(bgmIndex.current);   // <-- THE SAME, works with every other component EXCEPT BGMLIST
         // console.log(index);              // <-- THE SAME, works with every component
         
         let trackName = tracks.current[index]; // will give the name of the track of the given original index, ex: TYPES.mp3
