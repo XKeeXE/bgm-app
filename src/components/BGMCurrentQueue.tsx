@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 
-let queue: string[] = [];
 let maxStringLength = 65;
 
 /**
@@ -13,12 +12,14 @@ let maxStringLength = 65;
  * @returns 
  */
 const BGMCurrentQueue = (props: any) => {
-    const { currentUrl, bgm, tracks, bgmIndex, CheckTrackType } = props;
+    const { currentUrl, bgm, tracks, forceUpdate, playedTracks, CheckTrackType } = props;
     const [results, setResults] = useState<string>("None"); // <- lo que hace que este component haga re-render para que el queue se vea bien
+    const [queue, setQueue] = useState<string[]>([]);
     /**
      * lo tuve que poner todo en el useEffect para que se active cuando currentUrl haga update para que se pueda re-render el queue bien
      * ya que raw sin useEffect va a re-render infinitamente
     */
+
    useEffect(() => {
         const bgmQueue: any[] = []; // the array of tracks of the next 10 tracks if possible
         const unplayedQueue: number[] = [];
@@ -28,7 +29,6 @@ const BGMCurrentQueue = (props: any) => {
         let finalTrackIndex = 0; // named liked that because when for loop finishes will get the final index of the following 10 tracks
         var queueTracks: any; // declared as var for organization for find index and find
         let trackString: string;
-        // var trueFound = false;
         for (let index = 0; index < 11; index++) { // en vez de index < 10, se tuvo que cambiar a index < 11 para hacerle queue.shift y quitar el primero
             queueTracks = bgm.current.findIndex((bgm: { played: boolean; }) => bgm.played === false); // get index of queue of the track in current queue
             if (bgm.current.length - queueTracks < 0 || queueTracks == -1 ) { // bgm.length = 3000, if 3000-3000 < 0 or if all tracks have been played, break
@@ -43,6 +43,7 @@ const BGMCurrentQueue = (props: any) => {
             bgm.current[finalTrackIndex].played = true; // mark the bgm to played true to find next track in the current queue
             unplayedQueue.push(numberPlayedTracks); // store the tracks indexes that are in the current queue to use it later to revert the process of played true
             if (tracks.current[queueTracks.index] == undefined) { // if for some reason the track is undefined as it was removed or something
+                
                 trackString = "---{Undefined Track}---";
                 undefinedTimes = undefinedTimes+1;
                 trackString = trackString.concat(undefinedTimes.toString());
@@ -64,20 +65,22 @@ const BGMCurrentQueue = (props: any) => {
             bgm.current[unplayedQueue[index]].played = false; // mark the track as played false so that they may be playable again when queue reaches track
         }
 
-        queue = bgmQueue.map(item => item) // map bgmQueue into queue to show it on the list
+        // queue = bgmQueue.map(item => item)
         // queue.shift(); // remove the first element as that would be the one playing in the current queue
-        if (queue.length > 10) { // if queue length is more than 10 then pop last element
-            queue.pop(); 
+        if (bgmQueue.length > 10) { // if queue length is more than 10 then pop last element
+            bgmQueue.pop(); 
             tempIndex = tempIndex-1 // subtract 1 from the tempIndex as it will appear as 11
         }
-        if (queue.length == 0) {
+        if (bgmQueue.length == 0) {
             tempIndex = -1; // subtract 1 as there will be no queue to display 0
         }
-        setResults(tempIndex+1 + " / " + (bgm.current.length - bgmIndex.current-1) + " result(s) displayed"); // <- el re-render hace que el queue haga display correctamente
-    }, [currentUrl]);
+        setQueue(bgmQueue.map(item => item)) // map bgmQueue into queue to show it on the list
+        setResults(tempIndex+1 + " / " + (bgm.current.length - playedTracks.current.length) + " result(s) displayed"); // <- el re-render hace que el queue haga display correctamente
+    }, [currentUrl, forceUpdate]);
     
     return (
         <>
+        <p className="text-center italic">{results}</p>
         <div className="h-[198px]">
             {queue.length === 0 && <p className="text-center">No current queue found</p>}
             <ul className="text-sm list-decimal pl-6">
@@ -86,7 +89,6 @@ const BGMCurrentQueue = (props: any) => {
                 </li>)}
             </ul>
         </div>
-        <p className="text-center italic">{results}</p>
         </>
     );
 } 

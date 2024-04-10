@@ -1,4 +1,8 @@
+import { Textarea } from "@nextui-org/react";
 import { useCallback, useEffect, useRef, useState } from "react";
+
+import SearchIcon from '@mui/icons-material/Search';
+import { Paper } from "@mui/material";
 
 let timer = 0;
 
@@ -20,7 +24,8 @@ const BGMInputSearch = (props: any) => {
             )
         }));
         
-    const [viewInput, setViewInput] = useState(''); // to view the input text
+    const [viewInput, setViewInput] = useState<string>(''); // to view the input text
+    const [highlight, setHighlight] = useState<boolean>(false);
     
     function SelectTrack(selectTrack: number) {
         setSelectedTrack(selectTrack); // sets the selected track as the entered track
@@ -32,6 +37,11 @@ const BGMInputSearch = (props: any) => {
         setViewInput(inputSearch.current); 
         searchIndex.current = 0; // reset search index as 0
         // console.log(result.current);
+        if (inputSearch.current.length < 2) {
+            setHighlight(false);
+        } else {
+            setHighlight(true);
+        }
         result.current = searchTracks.current.filter((track: { title: string; }) => track.title.startsWith(inputSearch.current.toLowerCase()));
         if (result.current.length == 0) { // if the search did not start with the entered search
             result.current = searchTracks.current.filter((track: { title: string; }) => track.title.includes(inputSearch.current.toLowerCase()));
@@ -43,7 +53,7 @@ const BGMInputSearch = (props: any) => {
         if (inputSearch.current.length < 2) { // if nothing entered then just select the current track
             SelectTrack(currentSelectedTrack.current) // set the playing track as the selected track
             return;
-        }
+        } 
         // console.log(searchIndex.current);
         // if (result.current.length > 0) {
             //     SelectTrack(result.current[searchIndex.current].index);
@@ -55,16 +65,22 @@ const BGMInputSearch = (props: any) => {
     // For when the user wants to input search then it just needs to press a key that is not the restricted ones
     const handleUserKeyPress = useCallback((event: { keyCode: any; repeat: boolean }) => {
         const { keyCode, repeat } = event;
-        // console.log(keyCode);
         /**
          * List of restricted keys:
-         * tab, enter, shift, ctrl, alt, pause, caps, escape, page up, page down, end, home, print screen, insert, delete, window key, select, F#, num lock, scroll lock, and various others 
-         */
-        if (keyCode != 8 && keyCode <= 27 || keyCode >= 33 && keyCode <= 36 || keyCode >= 91 && keyCode <= 93 || keyCode >= 112 && keyCode <= 183) { // if restricted key return
+         * tab, shift, ctrl, alt, pause, caps, escape, page up, page down, end, home, print screen, insert, delete, window key, select, F#, num lock, scroll lock, and various others 
+        */
+        if (keyCode < 13 && keyCode > 13 || keyCode >= 33 && keyCode <= 36 || keyCode >= 91 && keyCode <= 93 || keyCode >= 112 && keyCode <= 183) { // if restricted key return
             return;
         }
-        if (keyCode < 37 || keyCode > 40) { // if not arrow keys then focus to input and return
+        if ((keyCode < 37 || keyCode > 40) && keyCode != 13 ) { // if not arrow keys then focus to input and return && if not enter
             inputSearchRef.current.focus(); // for when pressing a key to automatically insert into the input
+            return;
+        }
+        if (keyCode == 13 && result.current.length >= 1) { // if enter pressed and there are results, then set the current selected track as the first that is on the results
+            inputSearchRef.current.focus();
+            // console.log(result.current[0].index)
+            SelectTrack(result.current[0].index);
+            searchIndex.current = 0;
             return;
         }
         inputSearchRef.current.blur(); // if arrow keys then blur input search so that arrow keys do not get inserted into the input
@@ -121,9 +137,19 @@ const BGMInputSearch = (props: any) => {
     }, [handleUserKeyPress]);
     
     return (
-        <div className="absolute justify-center align-middle flex">
-            <input className="absolute opacity-0 top-96" ref={inputSearchRef} onChange={handleChange}/>
-            <p className="absolute bottom-0 text-center w-96 select-none">{viewInput}</p>
+        // <div className="absolute justify-center align-middle flex">
+        //     <input className="absolute opacity-0 top-96" ref={inputSearchRef} onChange={handleChange}/>
+        // <p className="absolute bottom-0 text-center w-96 select-none">{viewInput}</p>
+        // </div>
+        <div className="relative max-w-[680px] flex items-center">
+            <div className="w-[25px] h-[25px]">
+                <SearchIcon color={ highlight ? "inherit" : "disabled"}/>
+            </div>
+            <Textarea ref={inputSearchRef} maxRows={1} variant="underlined" onChange={handleChange} value={viewInput} style={{
+                // width: "50%"
+                textDecoration: 'none'
+            }}/>
+
         </div>
     );
 }

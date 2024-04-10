@@ -1,6 +1,6 @@
 import './App.css'
 import fs from 'fs'
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import BGMShuffle from "./components/BGMShuffle";
 import TrackSkip from "./components/TrackSkip";
 import BGMLoadQueue from "./components/BGMLoadQueue";
@@ -15,13 +15,20 @@ import TrackPlay from "./components/TrackPlay";
 import BGMList from './components/BGMList';
 import BGMInputSearch from './components/BGMInputSearch';
 import TrackPrevious from './components/TrackPrevious';
-import { Card, CardBody } from '@nextui-org/react';
+import { Card, CardBody, Divider } from '@nextui-org/react';
 import { ipcRenderer } from 'electron';
 import BGMCheckDuplicate from './components/BGMCheckDuplicate';
+import UIContextMenu from './components/UIContextMenu';
+import TrackLoop from './components/TrackLoop';
+import UISettings from './components/UISettings';
+
+var mp3Duration = require('mp3-duration');
+import pLimit from 'p-limit';
+import BGMTableList from './components/BGMTableList';
+import UINavbar from './components/UINavbar';
 
 let trackPath: string;
 
-const queueFile = "BGMQUEUE.txt";
 const settingsFile = "Settings.txt";
 
 function EndOfQueue() {
@@ -33,20 +40,25 @@ function EndOfQueue() {
 enum TYPES {
     '.mp3',
     '.ogg',
+    '.wav',
     length
 }
 
 function App() {
     const bgmIndex = useRef<number>(-1); // index in the current queue
-    const listRef = useRef<any>(); // ref to the bgm list
+    const listRef = useRef<any>(null); // ref to the bgm list
+    const virtuosoRef = useRef<any>(null); // ref to the table list
     const currentSelectedTrack = useRef<number>(-1); // index of the current select track
-    const saveQueueTimer = useRef(0); // auto save timer
+    // const saveQueueTimer = useRef(0); // auto save timer
     const playedTracks = useRef<number[]>([]); // array of the tracks played
-    const [selectedTrack, setSelectedTrack] = useState<number>(-1); // 
-    const [playing, setPlaying] = useState<boolean>(true); // to pause and resume ReactPlayer
-    const [muteBGM, setMuteBGM] = useState(false); // to mute and unmute ReactPlayer
-    const [showVolume, setShowVolume] = useState(false); // to show and hide volume
+    const [selectedTrack, setSelectedTrack] = useState<number>(0);
+    // const [playing, setPlaying] = useState<boolean>(true); // to pause and resume ReactPlayer
+    // const [muteBGM, setMuteBGM] = useState<boolean>(false); // to mute and unmute ReactPlayer
+    // const [showVolume, setShowVolume] = useState<boolean>(false); // to show and hide volume
     const [currentUrl, setCurrentUrl] = useState<string>(trackPath); // current url of the current playing track
+    const [language, setLanguage] = useState<string>(navigator.language);
+
+    const [forceUpdate, setForceUpdate] = useState(false);
     
     const [savedSettings, setSavedSettings] = useState({
         path: 'E:/BGM/',
@@ -57,9 +69,40 @@ function App() {
     const bgm = useRef(tracks.current.map((_track, originalTrackIndex) => {
         return Object.assign(
             {index: originalTrackIndex}, // original index of the track
+            {duration: '...'},
             {played: false} // has been played in current queue
             )
         }));
+
+    const ScrollToIndex = (index: number) => {
+        // console.log(virtuosoRef.current);
+        virtuosoRef.current && virtuosoRef.current.scrollToIndex({index: index, align: 'center'});
+    };
+
+    useEffect(() => {
+        // const limit = pLimit(100);
+        // const getMp3FilesDuration = async () => {
+        //     for (let index = 0; index < tracks.current.length; index++) {
+        //         console.log(index);
+        //         try {
+        //             const duration = await getDuration(savedSettings.path.concat(tracks.current[index]));
+        //             // mp3Durations.current.push(duration);
+        //             bgm.current[index].duration = CalculateTime(duration as number);
+        //             // console.log(duration);
+        //             // console.log(`Duration of ${track}: ${duration} seconds`);
+        //         } catch (err) {
+        //             // console.error(`Error getting duration for ${track}: ${err}`);
+        //         }
+        //     }
+        //   }; 
+        
+        // getMp3FilesDuration()
+        // Promise.all(tracks.current.map((track, index) => limit(() => getDuration(savedSettings.path.concat(track))).then((duration) => {
+        //     bgm.current[index].duration = CalculateTime(duration as number);
+        // })))
+        
+
+    }, [])
 
     /**
      * To remove track format from track title
@@ -74,6 +117,26 @@ function App() {
         }
         return track;
     }
+
+    function getDuration(filePath: string) {
+        return new Promise((resolve, reject) => {
+          mp3Duration(filePath, (err: any, duration: number) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve(duration);
+            }
+          });
+        });
+      }
+
+    function CalculateTime(time: number) {
+        let dateObj = new Date(time * 1000);
+        let minutes = dateObj.getUTCMinutes();
+        let seconds = dateObj.getSeconds();
+        
+        return (minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0')); // ex: 01:34
+    } 
 
     /**
      * Will find the next track that is still unplayed in the current queue and since every track
@@ -100,22 +163,22 @@ function App() {
     function PlayTrack(index: number) {
         // console.log(bgmIndex.current);   // <-- THE SAME, works with every other component EXCEPT BGMLIST
         // console.log(index);              // <-- THE SAME, works with every component
-        
         let trackName = tracks.current[index]; // will give the name of the track of the given original index, ex: TYPES.mp3
         let trackPath = savedSettings.path.concat(trackName); // will combine the path of the file with the track name, ex: E:/BGM/TYPES.mp3
         let trackTitle = CheckTrackType(trackName) // track name without the format, (.mp3, .ogg, etc.)
-        // if (ReactPlayer.canPlay(trackPath) == false) { // <- doesnt work with FILE:ERR_NOT_FOUND
-        //     console.error(trackName + " cant be played");
-        //     bgm.current[bgmIndex.current].played = true; // <- wont even work
-        //     return;
-        // }
         console.log("Now playing: " + tracks.current[index]);
         setSelectedTrack(index); // sets the selected item in the bgm list as the current track
         setCurrentUrl(trackPath); // will update the state and put the track path
         document.title = trackTitle // put the app title as the current playing item
         ipcRenderer.send('track-title', trackTitle); // send the track title to the main process
-        listRef.current.scrollToItem(index, "center"); // in the bgm list scrolls to the current track
-        console.log(playedTracks.current[playedTracks.current.length-1]);
+        // console.log(tableRef.current);
+        if (listRef != null) {
+            listRef.current.scrollToItem(index, "center"); // in the bgm list scrolls to the current track
+        }
+        if (virtuosoRef != null) {
+            ScrollToIndex(index);
+        }
+        // console.log(playedTracks.current[playedTracks.current.length-1]);
         if (playedTracks.current.includes(index) == false) {
             playedTracks.current.push(index);
         }
@@ -126,78 +189,32 @@ function App() {
         bgm.current[resultIndex].played = true; // set the current track as played ** had to be moved from TrackPlay as unplayable tracks got in the way **
     }
 
-    /**
-     * Will convert data from the json into the current bgm queue
-    */
-    function GetBGMJson() {
-        const data = fs.readFileSync(queueFile, 'utf8') // read the file and put it in data
-        let jsonBGM = JSON.parse(data); // parse the data into the json bgm variable
-        // for every track in the json change the current bgm into the one in the json
-        for (let index = 0; index < bgm.current.length; index++) {
-            bgm.current[index] = jsonBGM[index];
-        }
-        playedTracks.current = [];
-        bgm.current.filter(CheckPlayedTracks);
-    }
-
-    function CheckPlayedTracks(track: any) {
-        if (track.played == true) {
-            playedTracks.current.push(track.index);
-        }
-    }
-
-    /**
-     * Will set stringify current bgm into the json
-    */
-    function SetBGMJson() {
-        let jsonBGM = JSON.stringify(bgm.current);
-        fs.writeFileSync(queueFile, jsonBGM, 'utf8');
-    }
-
     return (
         <>
-        <div className="absolute top-0">
+        <div className='bg-gradient-to-b from-[#2e026d] to-[#15162c] min-h-screen'>
+            {/* <UISettings/> */}
             {/** Background stuff, like load previous settings and save current settings when closed */}
             <BGMLoadSettings settingsFile={settingsFile} savedSettings={savedSettings} setSavedSettings={setSavedSettings}/>
             <BGMSaveSettings settingsFile={settingsFile} savedSettings={savedSettings}/>
-            <Card className=''>
-                <CardBody>
-                    <div className="md:max-2xl:flex md:max-[10px]:hidden">
-                        <div className="w-max object-fill">
-                            {/** To see the current queue and current thumbnail */}
-                            <BGMCurrentQueue currentUrl={currentUrl} bgm={bgm} tracks={tracks} bgmIndex={bgmIndex} CheckTrackType={CheckTrackType}/>
-                            <TrackThumbnail currentUrl={currentUrl} width={400} height={200}/>
-                        </div>
-                        <div className="right-side">
-                            {/** The list of the tracks */}
-                            {tracks.current.length === 0 && <p>No BGM found</p>}
-                            <BGMList tracks={tracks} bgm={bgm} listRef={listRef} selectedTrack={selectedTrack} setSelectedTrack={setSelectedTrack} CheckTrackType={CheckTrackType} PlayTrack={PlayTrack}/>
-                        </div>
-                    </div>
-                    
-                </CardBody>
-            </Card>
-            {/** Buttons to manipulate the bgm */}
-            <div className="fixed bottom-0 bg-gray-500/50 opacity-0.1 w-full p-3 flex place-content-center justify-center align-middle" onMouseLeave={() => {
-                setShowVolume(false);
-            }}>
-                <div className='relative bottom-2 align-middle flex justify-center'>
+            <div className="md:max-2xl:flex md:max-[10px]:hidden">
+                <div className="relative w-max object-fill">
+                    {/** To see the current queue and current thumbnail */}
+                    <TrackThumbnail currentUrl={currentUrl} width={300} height={200}/>
+                    <BGMCurrentQueue currentUrl={currentUrl} bgm={bgm} tracks={tracks} forceUpdate={forceUpdate} playedTracks={playedTracks} CheckTrackType={CheckTrackType}/>
+                </div>
+                <div className="">
+                    {/** The list of the tracks */}
                     <BGMInputSearch tracks={tracks} listRef={listRef} currentSelectedTrack={currentSelectedTrack} setSelectedTrack={setSelectedTrack} CheckTrackType={CheckTrackType}/>
-                    <TrackPrevious playedTracks={playedTracks} bgm={bgm} bgmIndex={bgmIndex} PlayTrack={PlayTrack}/>
-                    <TrackPause listRef={listRef} currentSelectedTrack={currentSelectedTrack} playing={playing} setPlaying={setPlaying} setSelectedTrack={setSelectedTrack}/>
-                    <TrackSkip bgm={bgm} PlayTrack={PlayTrack}/>
+                    {tracks.current.length === 0 && <p>No BGM found</p>}
+                    {/* <BGMTableList tracks={tracks} bgm={bgm} forceUpdate={forceUpdate} setForceUpdate={setForceUpdate} playedTracks={playedTracks} virtuosoRef={virtuosoRef} 
+                    selectedTrack={selectedTrack} CheckTrackType={CheckTrackType} PlayTrack={PlayTrack}/> */}
+                    <BGMList tracks={tracks} bgm={bgm} forceUpdate={forceUpdate} setForceUpdate={setForceUpdate} playedTracks={playedTracks} listRef={listRef} 
+                    selectedTrack={selectedTrack} CheckTrackType={CheckTrackType} PlayTrack={PlayTrack}/>
                 </div>
-                <div className="absolute left-0 self-center">
-                    <BGMShuffle bgm={bgm}/>
-                    <BGMLoadQueue SetBGMJson={SetBGMJson} GetBGMJson={GetBGMJson} PlayNextInQueue={PlayNextInQueue}/>
-                    <BGMSaveQueue bgm={bgm} saveQueueTimer={saveQueueTimer}/>
-                    <BGMCheckDuplicate tracks={tracks} CheckTrackType={CheckTrackType}/>
-                </div>
-                <BGMVolume muteBGM={muteBGM} setMuteBGM={setMuteBGM} showVolume={showVolume} setShowVolume={setShowVolume} savedSettings={savedSettings} setSavedSettings={setSavedSettings}/>
-                {/** TrackPlay contains ReactPlayer component which is used to play the track */}
-                <TrackPlay bgm={bgm} bgmIndex={bgmIndex} currentSelectedTrack={currentSelectedTrack} saveQueueTimer={saveQueueTimer} playing={playing} currentUrl={currentUrl} 
-                muteBGM={muteBGM} savedSettings={savedSettings} SetBGMJson={SetBGMJson} EndOfQueue={EndOfQueue} PlayNextInQueue={PlayNextInQueue}/>
             </div>
+            <UINavbar bgm={bgm} tracks={tracks} savedSettings={savedSettings} setSavedSettings={setSavedSettings} bgmIndex={bgmIndex} currentUrl={currentUrl} virtuosoRef={virtuosoRef} 
+            listRef={listRef} language={language} setLanguage={setLanguage} playedTracks={playedTracks} currentSelectedTrack={currentSelectedTrack} setSelectedTrack={setSelectedTrack} forceUpdate={forceUpdate} setForceUpdate={setForceUpdate} 
+            ScrollToIndex={ScrollToIndex} CheckTrackType={CheckTrackType} PlayNextInQueue={PlayNextInQueue} PlayTrack={PlayTrack}/>
         </div>
         </>
     );

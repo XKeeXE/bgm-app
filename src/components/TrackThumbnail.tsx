@@ -1,7 +1,10 @@
 // import { ipcRenderer } from "electron";
 const { ipcRenderer } = require('electron');
+import { Paper } from "@mui/material";
 import { Image } from "@nextui-org/react";
 import { useEffect, useRef, useState } from "react";
+
+import defaultThumbnail from '../assets/NoTrackThumbnail.png';
 
 var jsmediatags = require("jsmediatags");
 
@@ -27,6 +30,7 @@ function TrackThumbnail(props: any) {
                 setThumbnail(base64);
             },
             onError: function(error: any) {
+                setThumbnail(defaultThumbnail);
                 console.log(':(', error.type, error.info);
             }
         })
@@ -34,10 +38,14 @@ function TrackThumbnail(props: any) {
     }, [currentUrl])
     return (
         <div className="relative items-center text-center">
-            {noThumbnail.current ? <p className=' top-0'>No Track Playing</p> : ''}
-            {/* <img className="h-auto max-h-fit z-0 ml-auto mr-auto" src={thumbnail} width={width} height={height} /> */}
-            <Image className="z-0" src={thumbnail} width={width} height={height}/>
-            {/* <div className={noThumbnail.current ? 'absolute text-center self-center bg-white' : 'opacity-0'}>No Track Playing</div> */}
+            <Paper style={{ width: width, maxWidth: width, height: height, maxHeight: height, backgroundColor: 'black', opacity: 1 }}>
+                {noThumbnail.current ? <p className=''>No Track Playing</p> : 
+                <img src={thumbnail} width={"100%"} style={{ 
+                    maxWidth: width, 
+                    maxHeight: height,
+                }}
+                />}
+            </Paper>
         </div>
     );
 }

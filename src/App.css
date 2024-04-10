@@ -18,3 +18,14 @@
   border-radius: 4px;
   max-width: 70%;
 }
+
+.contextmenu {
+  color: black;
+  /* background-color: green;  */
+  
+}
+
+.contextmenu__item {
+  color: black;
+  /* background-color: green; */
+}

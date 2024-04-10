@@ -1,9 +1,25 @@
-
-import { ListItem, ListItemButton, ListItemText } from "@mui/material";
-import { Divider, Tooltip } from "@nextui-org/react";
+import { ListItem, ListItemButton, ListItemText, TableCell, TableRow } from "@mui/material";
+import { Divider, PopoverContent, Popover, Tooltip } from "@nextui-org/react";
+import { useRef, useState } from "react";
 import { FixedSizeList, ListChildComponentProps } from 'react-window';
+import UIContextMenu from "./UIContextMenu";
+import { TableVirtuoso } from "react-virtuoso";
+var mp3Duration = require('mp3-duration');
 
 let maxStringLength = 70;
+
+interface Data {
+    title: string;
+    duration: number;
+}
+
+interface ColumnData {
+    dataKey: keyof Data;
+    label: string;
+    numeric?: boolean;
+    width: number;
+}
+
 
 /**
  * A list to show the current read file tracks
@@ -11,24 +27,26 @@ let maxStringLength = 70;
  * @returns a list containing tracks
  */
 const BGMList = (props: any) => {
-    const { tracks, bgm, listRef, selectedTrack, CheckTrackType, PlayTrack } = props;
+    const { tracks, forceUpdate, setForceUpdate, bgm, playedTracks, listRef, selectedTrack, CheckTrackType, PlayTrack } = props;
 
-    function CheckPlayed(index: number): string {
-        var resultIndex = bgm.current.findIndex((track: { index: number; }) => track.index == index);
-        return bgm.current[resultIndex].played
-    }
+    const selectedContext = useRef<number>(0);
+    const contextTrack = useRef<string>('');
+
+    // function CheckPlayed(index: number): string {
+    //     var resultIndex = bgm.current.findIndex((track: { index: number; }) => track.index == index);
+    //     return bgm.current[resultIndex].played
+    // }
 
     const Row = (props: ListChildComponentProps) => {
         const { style, index } = props;
         return (
             <ListItem style={style} key={index} dense={true}>
-                <Tooltip content={CheckPlayed(index).toString()} showArrow delay={500} placement="left-start">
+                {/* <Tooltip content={CheckPlayed(index).toString()} showArrow delay={500} placement="left-start"> */}
                     <ListItemButton className="overflow-hidden" selected={selectedTrack === index} onClick={() => {
                         PlayTrack(index); // play the track of the selected index
                     }}>
-                        <div className="hover:translate-x-2 w-[100%] ">
+                        <div className="hover:translate-x-2 w-[100%]">
                             <Divider/>
-
                             <ListItemText 
                                 className="" 
                                 primary={CheckTrackType(tracks.current[index]).length > maxStringLength ? 
@@ -38,27 +56,58 @@ const BGMList = (props: any) => {
                                     fontWeight: 'small'}} 
                                 
                                 onContextMenu={() => {
-                                    navigator.clipboard.writeText(CheckTrackType(tracks.current[index]))
+                                    selectedContext.current = index;
+                                    contextTrack.current = CheckTrackType(tracks.current[index]);
                                 }}/>
                         </div>
                     </ListItemButton>
-                </Tooltip>
+                {/* </Tooltip> */}
             </ListItem>
         );
     }
     return (
+        <>
+        <UIContextMenu tracks={tracks} bgm={bgm} forceUpdate={forceUpdate} setForceUpdate={setForceUpdate} playedTracks={playedTracks} selectedTrack={selectedTrack} selectedContext={selectedContext} contextTrack={contextTrack}>
             <FixedSizeList
-            className=""
-            direction="ltr"
-            ref={listRef}
-            height={400}
-            width={680}
-            itemSize={40}
-            itemCount={tracks.current.length}
-            overscanCount={5}>
+                className=""
+                style={{
+                    // width: '50vw',
+                    // minWidth: '500px'
+                    // height: '86vh'
+                }}
+                direction="ltr"
+                ref={listRef}
+                height={400}
+                width={680}
+                itemSize={40}
+                itemCount={tracks.current.length}
+                overscanCount={5}>
                 {Row}
             </FixedSizeList>
+        </UIContextMenu>
+        </>
     )
+    // function rowContent(_index: number, row: Data) {
+    //     return (
+    //       <>
+    //         {bgm.current.map((column) => (
+    //           <TableCell
+    //             key={column.dataKey}
+    //             align={column.numeric || false ? 'right' : 'left'}
+    //           >
+    //             {row[column.dataKey]}
+    //           </TableCell>
+    //         ))}
+    //       </>
+    //     );
+    //   }
+
+    // return (
+    //     <TableVirtuoso
+    //         data={Array.from({length: bgm.current.length}, (_, index) => ({
+
+    //         }))}/>
+    // )
 }
 
 export default BGMList;

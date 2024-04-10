@@ -22,9 +22,13 @@
     "jsmediatags": "^3.9.7",
     "list-react-files": "^0.2.0",
     "lodash": "^4.17.21",
+    "mp3-duration": "^1.1.0",
+    "p-limit": "^5.0.0",
+    "rctx-contextmenu": "^1.4.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-player": "^2.13.0",
+    "react-virtuoso": "^4.7.7",
     "react-window": "^1.8.9",
     "vite-tsconfig-paths": "^4.2.1"
   },

@@ -24,7 +24,7 @@ import { ipcRenderer } from "electron";
  * @returns 
  */
 const TrackPlay = (props: any) => {
-    const { bgm, bgmIndex, currentSelectedTrack, saveQueueTimer, playing, currentUrl, muteBGM, savedSettings, SetBGMJson, PlayNextInQueue } = props;
+    const { bgm, bgmIndex, currentSelectedTrack, saveQueueTimer, playing, currentUrl, muteBGM, loopTrack, savedSettings, ScrollToIndex, SetBGMJson, PlayNextInQueue } = props;
     const bgmPlayerRef = useRef<any>();
     const [trackDuration, setTrackDuration] = useState("00:00");
     const [trackCurrentTime, setTrackCurrentTime] = useState("00:00");
@@ -39,11 +39,13 @@ const TrackPlay = (props: any) => {
         }
     }
     
-    useEffect(() => { // if app already started, then calculate the current time and the duration of the track
+    useEffect(() => { // if app already started, then calculate the current time
         if (bgmPlayerRef.current != null) {
             setTrackCurrentTime(CalculateTime(bgmPlayerRef.current.getCurrentTime())); // state to set the current track time
-            setTrackDuration(CalculateTime(bgmPlayerRef.current.getDuration())); // state to set the track duration
+            // ScrollToIndex(currentSelectedTrack.current);
+            // setTrackDuration(CalculateTime(bgmPlayerRef.current.getDuration())); // state to set the track duration
             ipcRenderer.send('track-time', trackCurrentTime, bgmPlayer.played, trackDuration);
+            // console.log(bgmPlayerRef.current.getInternalPlayer());
         }
     }, [bgmPlayer])
 
@@ -64,7 +66,11 @@ const TrackPlay = (props: any) => {
         <>
         <TrackSeek bgmPlayerRef={bgmPlayerRef} trackCurrentTime={trackCurrentTime} trackDuration={trackDuration} bgmPlayer={bgmPlayer} setBGMPlayer={setBGMPlayer}/>
         <ReactPlayer ref={bgmPlayerRef} playing={playing} url={currentUrl} volume={savedSettings.volume} muted={muteBGM} progressInterval={200} width={0} height={0}
+        onError={() => {
+            PlayNextInQueue(); // cannot play the selected track so we skip to the next one
+        }}
         onStart={() => {
+            setTrackDuration(CalculateTime(bgmPlayerRef.current.getDuration())); // state to set the track duration
             console.log(bgm.current[bgmIndex.current])
             // if played x tracks auto save the queue and set the timer back to 0
             if (saveQueueTimer.current == 5) {
@@ -77,7 +83,11 @@ const TrackPlay = (props: any) => {
             console.log(currentUrl); // url of the current playing track
         }}
         onEnded={() => {
-            PlayNextInQueue(); // Must find next track in the current queue
+            if (loopTrack == false) {
+                PlayNextInQueue(); // Must find next track in the current queue
+            } else {
+                bgmPlayerRef.current?.seekTo(0);
+            }
         }}
         onProgress={handleProgress}/>
         </>

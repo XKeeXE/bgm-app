@@ -1,5 +1,5 @@
 import { Button, Tooltip } from "@nextui-org/react";
-import SearchIcon from '@mui/icons-material/Search';
+import YoutubeSearchedForIcon from '@mui/icons-material/YoutubeSearchedFor';
 import { useRef } from "react";
 
 // An exception enum for those tracks that have {-#} in their title
@@ -32,7 +32,7 @@ const BGMCheckDuplicate = (props: any) => {
                     }
                 }
                 console.log(result.current);
-            }}><SearchIcon/>
+            }}><YoutubeSearchedForIcon/>
             </Button>
         </Tooltip>
     )
