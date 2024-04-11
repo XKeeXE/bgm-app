@@ -1,7 +1,6 @@
 // import { ipcRenderer } from "electron";
 const { ipcRenderer } = require('electron');
 import { Paper } from "@mui/material";
-import { Image } from "@nextui-org/react";
 import { useEffect, useRef, useState } from "react";
 
 import defaultThumbnail from '../assets/NoTrackThumbnail.png';
