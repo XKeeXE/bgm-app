@@ -1,22 +1,28 @@
-import { Avatar, Image } from "@nextui-org/react";
+import { Image } from "@nextui-org/react";
 import { ipcRenderer } from "electron";
 import { useEffect, useState } from "react";
 
-const TrackThumbnailModal = (props: any) => {
-    const { width, height} = props;
-    const [modalThumbnail, setModalThumbnail] = useState();
+const TrackThumbnailModal = () => {
+    const [thumbnail, setThumbnail] = useState<string>('');
 
     useEffect(() => {
-        ipcRenderer.on('track-thumbnail', (e, base64) => {
-            setModalThumbnail(base64);
-          })
+        ipcRenderer.on('trackThumbnail', (_e, base64) => {
+            setThumbnail(base64);
+        })
+        return () => {
+            ipcRenderer.removeAllListeners('trackThumbnail');
+          };
     }, [])
     
     return (
         <>
-        <Avatar className="absolute opacity-0" src={modalThumbnail} size="lg"/>
-        <Image src={modalThumbnail} width={width}/>
-        <img className="absolute opacity-0" src={modalThumbnail} width={width} height={height}/>
+        <Image src={thumbnail} className="w-full h-full" style={{
+            // maxHeight: '50vw',
+            // width: '55vw',
+            minWidth: '280px',
+            maxHeight: '90vh',
+            maxWidth: '90vw',
+        }}/>
         </>
     )
 }

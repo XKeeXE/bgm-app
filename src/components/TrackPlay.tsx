@@ -42,10 +42,7 @@ const TrackPlay = (props: any) => {
     useEffect(() => { // if app already started, then calculate the current time
         if (bgmPlayerRef.current != null) {
             setTrackCurrentTime(CalculateTime(bgmPlayerRef.current.getCurrentTime())); // state to set the current track time
-            // ScrollToIndex(currentSelectedTrack.current);
-            // setTrackDuration(CalculateTime(bgmPlayerRef.current.getDuration())); // state to set the track duration
-            ipcRenderer.send('track-time', trackCurrentTime, bgmPlayer.played, trackDuration);
-            // console.log(bgmPlayerRef.current.getInternalPlayer());
+            ipcRenderer.send('trackProgressData', trackCurrentTime, bgmPlayer.played, trackDuration);
         }
     }, [bgmPlayer])
 

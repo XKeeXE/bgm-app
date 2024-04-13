@@ -10,6 +10,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        custom: ['IBMSansJPP']
+      },
       keyframes: {
         "scroll-text": {
           "100%": {transform: "translateX(100%)"},

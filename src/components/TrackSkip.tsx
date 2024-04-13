@@ -7,20 +7,13 @@ import SkipIcon from '@mui/icons-material/SkipNext';
  * @returns the skip button
  */
 const TrackSkip = (props: any) => {
-    const { bgm, PlayTrack, EndOfQueue } = props;
+    const { PlayNextInQueue } = props;
     return (
         <Tooltip content="Skip">
             <Button variant="light" size="lg" aria-label="skip" isIconOnly onClick={() => {
-                var nextTrack = bgm.current.findIndex((bgm: { played: boolean; }) => bgm.played == false); // find first track that is not played in current queue
-                if (nextTrack == -1) {
-                    EndOfQueue()
-                    return;
-                }
-                // console.log(nextTrack);
-                console.log(bgm.current[nextTrack]);
-                PlayTrack(bgm.current[nextTrack].index); // play next unplayed track 
-                console.log("skipped");
-            }}><SkipIcon/>
+                PlayNextInQueue();
+                console.log("Skipped");
+            }}><SkipIcon />
             </Button>
         </Tooltip>
     );

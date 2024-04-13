@@ -4,8 +4,6 @@ import PauseIcon from "@mui/icons-material/Pause";
 import { ipcRenderer } from "electron";
 import { useEffect } from "react";
 
-import languages from '../assets/languages.json';
-
 /**
  * Will receive playing and setPlaying states to change the Reactplayer playing state
  * @param props
@@ -16,22 +14,25 @@ import languages from '../assets/languages.json';
  */
 const TrackPause = (props: any) => {
     const { listRef, currentSelectedTrack, playing, ScrollToIndex, setPlaying, setSelectedTrack } = props;
+    
     useEffect(() => {
-        ipcRenderer.on('track-playing-modal', (e, data) => {
-            setPlaying(data);
-        })
+        ipcRenderer.on('updatePlaying', (_e, newState) => {
+            setPlaying(newState);
+        });
+        return () => {
+            ipcRenderer.removeAllListeners('updatePlaying');
+          };
     }, [])
     return (
         <Tooltip content={playing ? "Pause" : "Play"}>
             <Button radius="full" size="lg" aria-label="pause" variant="ghost" isIconOnly onClick={() => {
-                setPlaying(!playing); // if paused play, if playing pause
-                // ipcRenderer.send('track-playing-main', playing);
-                // listRef.current.scrollToItem(currentSelectedTrack.current, "center");
-                ScrollToIndex(currentSelectedTrack.current);
-                
+                // setPlaying(!playing); // if paused play, if playing pause
+                ipcRenderer.send('togglePlaying');
+                listRef.current.scrollToItem(currentSelectedTrack.current, "center");
+                // ScrollToIndex(currentSelectedTrack.current);
                 // setSelectedTrack(currentSelectedTrack.current);
                 console.log(playing); // Paused: true | false
-            }}>{playing ? <PauseIcon/> : <PlayIcon/> }
+            }}>{playing ? <PauseIcon /> : <PlayIcon/> }
             </Button>
         </Tooltip>
     );

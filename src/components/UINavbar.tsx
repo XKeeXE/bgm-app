@@ -1,4 +1,4 @@
-import { Divider } from "@nextui-org/react";
+import { Card, CardBody, Divider } from "@nextui-org/react";
 import BGMShuffle from "./BGMShuffle";
 import TrackPrevious from "./TrackPrevious";
 import TrackPause from "./TrackPause";
@@ -63,39 +63,38 @@ const UINavbar = (props: any) => {
 
     return (
         <>
-        <div className="fixed bottom-0 opacity-0.1 w-full p-3 flex place-content-center justify-center align-middle"
-        style={{
-            background: 'linear-gradient(to left, #1b1b1b, #1b1919, #1b1b1b)'
-        }}
-        onMouseLeave={() => {
-            setShowVolume(false);
+        <Card className="fixed bottom-0 w-[100vw]" shadow="none" style={{
+            background: 'linear-gradient(to left, #1b1b1b, #1b1919, #1b1b1b)',
+            zIndex: 10
         }}>
-            <Divider className="absolute top-0" style={{ 
-                background: '#212121'
-                }}/>
-            <div className='relative bottom-2 align-middle flex justify-center items-center w-[30%] max-w-[300px]'>
-                <div className='absolute left-0'>
-                    <BGMShuffle bgm={bgm} language={language} forceUpdate={forceUpdate} setForceUpdate={setForceUpdate}/>
-                    <Divider orientation="vertical" />
+            <CardBody className="relative">
+                <div className="flex place-content-center justify-center align-middle self-center w-full" onMouseLeave={() => {setShowVolume(false)}}>
+                    <div className='relative bottom-2 align-middle flex justify-center items-center w-[30%] max-w-[300px]'>
+                        <div className='absolute left-0'>
+                            <BGMShuffle bgm={bgm} language={language} forceUpdate={forceUpdate} setForceUpdate={setForceUpdate}/>
+                            <Divider orientation="vertical" />
+                        </div>
+                        <TrackPrevious playedTracks={playedTracks} bgm={bgm} bgmIndex={bgmIndex} language={language} PlayTrack={PlayTrack}/>
+                        <TrackPause listRef={listRef} currentSelectedTrack={currentSelectedTrack} playing={playing} language={language} ScrollToIndex={ScrollToIndex} 
+                        setPlaying={setPlaying} setSelectedTrack={setSelectedTrack}/>
+                        <TrackSkip bgm={bgm} PlayNextInQueue={PlayNextInQueue}/>
+                        <div className='absolute right-0'>
+                            <Divider orientation="vertical" />
+                            <TrackLoop loopTrack={loopTrack} language={language} setLoopTrack={setLoopTrack}/>
+                        </div>
+                    </div>
+                    <div className="absolute left-6 self-center flex">
+                        {/* <UISettings language={language} setLanguage={setLanguage}/> */}
+                        <BGMLoadQueue SetBGMJson={SetBGMJson} GetBGMJson={GetBGMJson} language={language} PlayNextInQueue={PlayNextInQueue}/>
+                        <BGMSaveQueue bgm={bgm} saveQueueTimer={saveQueueTimer} language={language}/>
+                        <BGMCheckDuplicate tracks={tracks} language={language} CheckTrackType={CheckTrackType}/>
+                    </div>
+                    <BGMVolume muteBGM={muteBGM} setMuteBGM={setMuteBGM} showVolume={showVolume} setShowVolume={setShowVolume} savedSettings={savedSettings} setSavedSettings={setSavedSettings}/>
+                    <TrackPlay bgm={bgm} bgmIndex={bgmIndex} currentSelectedTrack={currentSelectedTrack} saveQueueTimer={saveQueueTimer} playing={playing} currentUrl={currentUrl} 
+                    muteBGM={muteBGM} loopTrack={loopTrack} savedSettings={savedSettings} ScrollToIndex={ScrollToIndex} SetBGMJson={SetBGMJson} PlayNextInQueue={PlayNextInQueue}/>
                 </div>
-                <TrackPrevious playedTracks={playedTracks} bgm={bgm} bgmIndex={bgmIndex} language={language} PlayTrack={PlayTrack}/>
-                <TrackPause listRef={listRef} currentSelectedTrack={currentSelectedTrack} playing={playing} language={language} ScrollToIndex={ScrollToIndex} setPlaying={setPlaying} setSelectedTrack={setSelectedTrack}/>
-                <TrackSkip bgm={bgm} PlayTrack={PlayTrack}/>
-                <div className='absolute right-0'>
-                    <Divider orientation="vertical" />
-                    <TrackLoop loopTrack={loopTrack} language={language} setLoopTrack={setLoopTrack}/>
-                </div>
-            </div>
-            <div className="absolute left-6 self-center flex">
-                <UISettings language={language} setLanguage={setLanguage}/>
-                <BGMLoadQueue SetBGMJson={SetBGMJson} GetBGMJson={GetBGMJson} language={language} PlayNextInQueue={PlayNextInQueue}/>
-                <BGMSaveQueue bgm={bgm} saveQueueTimer={saveQueueTimer} language={language}/>
-                <BGMCheckDuplicate tracks={tracks} language={language} CheckTrackType={CheckTrackType}/>
-            </div>
-            <BGMVolume muteBGM={muteBGM} setMuteBGM={setMuteBGM} showVolume={showVolume} setShowVolume={setShowVolume} savedSettings={savedSettings} setSavedSettings={setSavedSettings}/>
-            <TrackPlay bgm={bgm} bgmIndex={bgmIndex} currentSelectedTrack={currentSelectedTrack} saveQueueTimer={saveQueueTimer} playing={playing} currentUrl={currentUrl} 
-            muteBGM={muteBGM} loopTrack={loopTrack} savedSettings={savedSettings} ScrollToIndex={ScrollToIndex} SetBGMJson={SetBGMJson} PlayNextInQueue={PlayNextInQueue}/>
-        </div>
+            </CardBody>
+        </Card>
         </>
     )
 }

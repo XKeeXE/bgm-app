@@ -37,6 +37,8 @@ const BGMList = (props: any) => {
     //     return bgm.current[resultIndex].played
     // }
 
+    
+
     const Row = (props: ListChildComponentProps) => {
         const { style, index } = props;
         return (
@@ -48,12 +50,14 @@ const BGMList = (props: any) => {
                         <div className="hover:translate-x-2 w-[100%]">
                             <Divider/>
                             <ListItemText 
-                                className="" 
+                                className="font-custom" 
+                                // primary={CheckTrackType(tracks.current[index])} 
                                 primary={CheckTrackType(tracks.current[index]).length > maxStringLength ? 
                                 tracks.current[index].substring(0, maxStringLength-3).concat('...') : CheckTrackType(tracks.current[index])} 
 
-                                primaryTypographyProps={{fontSize: 15,
-                                    fontWeight: 'small'}} 
+                                // primaryTypographyProps={{fontSize: 15, fontFamily: ''
+                                //     fontWeight: 'small'}} 
+                                disableTypography
                                 
                                 onContextMenu={() => {
                                     selectedContext.current = index;
@@ -67,11 +71,12 @@ const BGMList = (props: any) => {
     }
     return (
         <>
-        <UIContextMenu tracks={tracks} bgm={bgm} forceUpdate={forceUpdate} setForceUpdate={setForceUpdate} playedTracks={playedTracks} selectedTrack={selectedTrack} selectedContext={selectedContext} contextTrack={contextTrack}>
+        <UIContextMenu tracks={tracks} bgm={bgm} forceUpdate={forceUpdate} setForceUpdate={setForceUpdate} playedTracks={playedTracks} 
+        PlayTrack={PlayTrack} selectedTrack={selectedTrack} selectedContext={selectedContext} contextTrack={contextTrack}>
             <FixedSizeList
-                className=""
+                className="overflow-ellipsis"
                 style={{
-                    // width: '50vw',
+                    width: '60vw',
                     // minWidth: '500px'
                     // height: '86vh'
                 }}
@@ -79,7 +84,7 @@ const BGMList = (props: any) => {
                 ref={listRef}
                 height={400}
                 width={680}
-                itemSize={40}
+                itemSize={50}
                 itemCount={tracks.current.length}
                 overscanCount={5}>
                 {Row}
@@ -87,27 +92,6 @@ const BGMList = (props: any) => {
         </UIContextMenu>
         </>
     )
-    // function rowContent(_index: number, row: Data) {
-    //     return (
-    //       <>
-    //         {bgm.current.map((column) => (
-    //           <TableCell
-    //             key={column.dataKey}
-    //             align={column.numeric || false ? 'right' : 'left'}
-    //           >
-    //             {row[column.dataKey]}
-    //           </TableCell>
-    //         ))}
-    //       </>
-    //     );
-    //   }
-
-    // return (
-    //     <TableVirtuoso
-    //         data={Array.from({length: bgm.current.length}, (_, index) => ({
-
-    //         }))}/>
-    // )
 }
 
 export default BGMList;

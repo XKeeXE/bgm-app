@@ -15,7 +15,7 @@ import TrackPlay from "./components/TrackPlay";
 import BGMList from './components/BGMList';
 import BGMInputSearch from './components/BGMInputSearch';
 import TrackPrevious from './components/TrackPrevious';
-import { Card, CardBody, Divider } from '@nextui-org/react';
+import { Card, CardBody, CardFooter, CardHeader, Divider, Spacer } from '@nextui-org/react';
 import { ipcRenderer } from 'electron';
 import BGMCheckDuplicate from './components/BGMCheckDuplicate';
 import UIContextMenu from './components/UIContextMenu';
@@ -26,6 +26,8 @@ var mp3Duration = require('mp3-duration');
 import pLimit from 'p-limit';
 import BGMTableList from './components/BGMTableList';
 import UINavbar from './components/UINavbar';
+import BGMQueueTracker from './components/BGMQueueTracker';
+import UICloseButton from './components/UICloseButton';
 
 let trackPath: string;
 
@@ -44,6 +46,13 @@ enum TYPES {
     length
 }
 
+// interface LanguageTranslations {
+//     [key: string]: string;
+// }
+
+// const data: { [key: string]: LanguageTranslations } = require('./assets/languages.json');
+
+
 function App() {
     const bgmIndex = useRef<number>(-1); // index in the current queue
     const listRef = useRef<any>(null); // ref to the bgm list
@@ -52,12 +61,16 @@ function App() {
     // const saveQueueTimer = useRef(0); // auto save timer
     const playedTracks = useRef<number[]>([]); // array of the tracks played
     const [selectedTrack, setSelectedTrack] = useState<number>(0);
+    const currentTrackTitle = useRef<string>('No Track Playing');
     // const [playing, setPlaying] = useState<boolean>(true); // to pause and resume ReactPlayer
     // const [muteBGM, setMuteBGM] = useState<boolean>(false); // to mute and unmute ReactPlayer
     // const [showVolume, setShowVolume] = useState<boolean>(false); // to show and hide volume
     const [currentUrl, setCurrentUrl] = useState<string>(trackPath); // current url of the current playing track
     const [language, setLanguage] = useState<string>(navigator.language);
-
+    // const [openModal, setOpenModal] = useState<boolean>(true);
+    // const [darkMode, setDarkMode] = useState<boolean>(window.matchMedia('(prefers-color-scheme: dark)').matches);
+    
+    
     const [forceUpdate, setForceUpdate] = useState(false);
     
     const [savedSettings, setSavedSettings] = useState({
@@ -71,15 +84,77 @@ function App() {
             {index: originalTrackIndex}, // original index of the track
             {duration: '...'},
             {played: false} // has been played in current queue
-            )
-        }));
-
+        )
+    }));
+    
     const ScrollToIndex = (index: number) => {
         // console.log(virtuosoRef.current);
         virtuosoRef.current && virtuosoRef.current.scrollToIndex({index: index, align: 'center'});
     };
+    
+    // function getTranslatedText(key: string): string {
+    //     const languageTranslations: LanguageTranslations | undefined = data[language];
+        
+    //     if (languageTranslations) {
+    //       return languageTranslations[key] || 'Text not found';
+    //     } else {
+    //       return 'Language not found';
+    //     }
+    // }
 
+    
+    /**
+     * To remove track format from track title
+     * @param track the track title
+     * @returns either the unmodified track or the track without the format
+    */
+   function CheckTrackType(track: string) {
+        for (let index = 0; index < TYPES.length; index++) {
+            if (track.includes(TYPES[index], track.length-4) == true) {
+                return track.replace(TYPES[index], '');
+            }
+        }
+        return track;
+    }
+    
+    function getDuration(filePath: string) {
+        return new Promise((resolve, reject) => {
+            mp3Duration(filePath, (err: any, duration: number) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(duration);
+                }
+            });
+        });
+    }
+    
+    function CalculateTime(time: number) {
+        let dateObj = new Date(time * 1000);
+        let minutes = dateObj.getUTCMinutes();
+        let seconds = dateObj.getSeconds();
+        
+        return (minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0')); // ex: 01:34
+    } 
+    
+    /**
+     * Will find the next track that is still unplayed in the current queue.
+     * @returns if next track gives undefined it means end of queue
+    */
+    function PlayNextInQueue() {
+        var nextTrack = bgm.current.find((bgm: { played: boolean; }) => bgm.played === false); // find track
+        console.log(nextTrack);
+        if (nextTrack === undefined) {
+            EndOfQueue();
+            return;
+        }
+        bgmIndex.current = nextTrack?.index as number;
+        PlayTrack(bgmIndex.current);
+    }
+    
     useEffect(() => {
+        ipcRenderer.send('sendPlayNextInQueue', PlayNextInQueue.toString());
+ 
         // const limit = pLimit(100);
         // const getMp3FilesDuration = async () => {
         //     for (let index = 0; index < tracks.current.length; index++) {
@@ -98,61 +173,11 @@ function App() {
         
         // getMp3FilesDuration()
         // Promise.all(tracks.current.map((track, index) => limit(() => getDuration(savedSettings.path.concat(track))).then((duration) => {
-        //     bgm.current[index].duration = CalculateTime(duration as number);
-        // })))
-        
-
-    }, [])
-
-    /**
-     * To remove track format from track title
-     * @param track the track title
-     * @returns either the unmodified track or the track without the format
-     */
-    function CheckTrackType(track: string) {
-        for (let index = 0; index < TYPES.length; index++) {
-            if (track.includes(TYPES[index], track.length-4) == true) {
-                return track.replace(TYPES[index], '');
-            }
-        }
-        return track;
-    }
-
-    function getDuration(filePath: string) {
-        return new Promise((resolve, reject) => {
-          mp3Duration(filePath, (err: any, duration: number) => {
-            if (err) {
-              reject(err);
-            } else {
-              resolve(duration);
-            }
-          });
-        });
-      }
-
-    function CalculateTime(time: number) {
-        let dateObj = new Date(time * 1000);
-        let minutes = dateObj.getUTCMinutes();
-        let seconds = dateObj.getSeconds();
-        
-        return (minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0')); // ex: 01:34
-    } 
-
-    /**
-     * Will find the next track that is still unplayed in the current queue and since every track
-     * has the original track index inside it get it and play the track.
-     * @returns if next track gives undefined which means end of queue as all track has been played
-    */
-    function PlayNextInQueue() {
-       var nextTrack = bgm.current.find((bgm: { played: boolean; }) => bgm.played === false); // find track
-       console.log(nextTrack);
-       if (nextTrack === undefined) {
-           EndOfQueue();
-           return;
-        }
-        bgmIndex.current = nextTrack?.index as number;
-        PlayTrack(bgmIndex.current);
-    }
+            //     bgm.current[index].duration = CalculateTime(duration as number);
+            // })))
+            
+            
+        }, [])
     
     /**
      * Will play the track by putting the name of the original track index and adding it the
@@ -169,14 +194,15 @@ function App() {
         console.log("Now playing: " + tracks.current[index]);
         setSelectedTrack(index); // sets the selected item in the bgm list as the current track
         setCurrentUrl(trackPath); // will update the state and put the track path
+        currentTrackTitle.current = trackTitle;
         document.title = trackTitle // put the app title as the current playing item
-        ipcRenderer.send('track-title', trackTitle); // send the track title to the main process
+        ipcRenderer.send('trackTitle', trackTitle); // send the track title to the main process
         // console.log(tableRef.current);
         if (listRef != null) {
             listRef.current.scrollToItem(index, "center"); // in the bgm list scrolls to the current track
         }
         if (virtuosoRef != null) {
-            ScrollToIndex(index);
+            // ScrollToIndex(index);
         }
         // console.log(playedTracks.current[playedTracks.current.length-1]);
         if (playedTracks.current.includes(index) == false) {
@@ -185,23 +211,30 @@ function App() {
         // console.log(playedTracks.current);
         var resultIndex = bgm.current.findIndex((track: { index: number; }) => track.index == index); // find the index that has index == originalTrackIndex
         console.log("currently in the queue number: #" + resultIndex); // number in the current queue
-        bgmIndex.current = resultIndex; // set the current bgmIndex as the result index for later use
+        bgmIndex.current = resultIndex; // set the current bgmIndex as the result index for later use 
+        //bg-gradient-to-b from-[#2e026d] to-[#15162c]
+        //before:bg-white/10 border-white/20 border-1 overflow-hidden py-1 absolute before:rounded-xl rounded-large bottom-1 w-[calc(100%_-_8px)] shadow-small ml-1 z-10
         bgm.current[resultIndex].played = true; // set the current track as played ** had to be moved from TrackPlay as unplayable tracks got in the way **
     }
 
     return (
         <>
-        <div className='bg-gradient-to-b from-[#2e026d] to-[#15162c] min-h-screen'>
-            {/* <UISettings/> */}
+        <div className='relative min-h-screen'>
             {/** Background stuff, like load previous settings and save current settings when closed */}
+            {/* <UICloseButton/> */}
             <BGMLoadSettings settingsFile={settingsFile} savedSettings={savedSettings} setSavedSettings={setSavedSettings}/>
             <BGMSaveSettings settingsFile={settingsFile} savedSettings={savedSettings}/>
-            <div className="md:max-2xl:flex md:max-[10px]:hidden">
-                <div className="relative w-max object-fill">
-                    {/** To see the current queue and current thumbnail */}
-                    <TrackThumbnail currentUrl={currentUrl} width={300} height={200}/>
-                    <BGMCurrentQueue currentUrl={currentUrl} bgm={bgm} tracks={tracks} forceUpdate={forceUpdate} playedTracks={playedTracks} CheckTrackType={CheckTrackType}/>
+            <div className="md:max-2xl:flex md:max-[10px]:hidden flex">
+                <div className='w-full h-full ml-4 mt-4'>
+                    <Card className=' min-h-[200px] min-w-[300px]' isFooterBlurred>
+                        <TrackThumbnail currentUrl={currentUrl} width={300} height={200}/>
+                        <CardFooter className='absolute bg-black/40 bottom-0 z-10 border-t-1 border-default-600 dark:border-default-100'>
+                            <p>{currentTrackTitle.current}</p>
+                        </CardFooter>
+                    </Card>
+                    <BGMQueueTracker currentUrl={currentUrl} bgm={bgm} tracks={tracks} forceUpdate={forceUpdate} playedTracks={playedTracks} CheckTrackType={CheckTrackType}/>
                 </div>
+                <Spacer x={4}/>
                 <div className="">
                     {/** The list of the tracks */}
                     <BGMInputSearch tracks={tracks} listRef={listRef} currentSelectedTrack={currentSelectedTrack} setSelectedTrack={setSelectedTrack} CheckTrackType={CheckTrackType}/>
@@ -213,8 +246,9 @@ function App() {
                 </div>
             </div>
             <UINavbar bgm={bgm} tracks={tracks} savedSettings={savedSettings} setSavedSettings={setSavedSettings} bgmIndex={bgmIndex} currentUrl={currentUrl} virtuosoRef={virtuosoRef} 
-            listRef={listRef} language={language} setLanguage={setLanguage} playedTracks={playedTracks} currentSelectedTrack={currentSelectedTrack} setSelectedTrack={setSelectedTrack} forceUpdate={forceUpdate} setForceUpdate={setForceUpdate} 
-            ScrollToIndex={ScrollToIndex} CheckTrackType={CheckTrackType} PlayNextInQueue={PlayNextInQueue} PlayTrack={PlayTrack}/>
+            listRef={listRef} language={language} setLanguage={setLanguage} playedTracks={playedTracks} currentSelectedTrack={currentSelectedTrack} setSelectedTrack={setSelectedTrack} 
+            forceUpdate={forceUpdate} setForceUpdate={setForceUpdate} ScrollToIndex={ScrollToIndex} CheckTrackType={CheckTrackType} 
+            PlayNextInQueue={PlayNextInQueue} PlayTrack={PlayTrack}/>
         </div>
         </>
     );

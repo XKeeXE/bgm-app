@@ -1,14 +1,13 @@
-// import { ipcRenderer } from "electron";
 const { ipcRenderer } = require('electron');
-import { Paper } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
+import { Image } from '@nextui-org/react';
 
 import defaultThumbnail from '../assets/NoTrackThumbnail.png';
 
 var jsmediatags = require("jsmediatags");
 
 function TrackThumbnail(props: any) {
-    const { currentUrl, width, height } = props;
+    const { currentUrl } = props;
     const noThumbnail = useRef<boolean>(true); // To indicate that there is no thumbnail because there is no track playing
     const [thumbnail, setThumbnail] = useState<string>(currentUrl);
     
@@ -25,27 +24,22 @@ function TrackThumbnail(props: any) {
                     base64String += String.fromCharCode(image.data[index]);
                 }
                 var base64 = "data:" + image.format + ";base64," + window.btoa(base64String);
-                ipcRenderer.send('track-thumbnail', base64);
+                ipcRenderer.send('trackThumbnail', base64);
                 setThumbnail(base64);
             },
             onError: function(error: any) {
                 setThumbnail(defaultThumbnail);
+                ipcRenderer.send('trackThumbnail', defaultThumbnail);
                 console.log(':(', error.type, error.info);
             }
         })
         
     }, [currentUrl])
     return (
-        <div className="relative items-center text-center">
-            <Paper style={{ width: width, maxWidth: width, height: height, maxHeight: height, backgroundColor: 'black', opacity: 1 }}>
-                {noThumbnail.current ? <p className=''>No Track Playing</p> : 
-                <img src={thumbnail} width={"100%"} style={{ 
-                    maxWidth: width, 
-                    maxHeight: height,
-                }}
-                />}
-            </Paper>
-        </div>
+        <Image className="w-full h-full object-cover" removeWrapper src={thumbnail} style={{
+            maxHeight: '50vh',
+            maxWidth: '50vw'
+        }}/>
     );
 }
 

@@ -137,15 +137,11 @@ const BGMInputSearch = (props: any) => {
     }, [handleUserKeyPress]);
     
     return (
-        // <div className="absolute justify-center align-middle flex">
-        //     <input className="absolute opacity-0 top-96" ref={inputSearchRef} onChange={handleChange}/>
-        // <p className="absolute bottom-0 text-center w-96 select-none">{viewInput}</p>
-        // </div>
-        <div className="relative max-w-[680px] flex items-center">
+        <div className="relative max-w-[55vw] flex items-center ml-2">
             <div className="w-[25px] h-[25px]">
                 <SearchIcon color={ highlight ? "inherit" : "disabled"}/>
             </div>
-            <Textarea ref={inputSearchRef} maxRows={1} variant="underlined" onChange={handleChange} value={viewInput} style={{
+            <Textarea className="" ref={inputSearchRef} maxRows={1} variant="underlined" onChange={handleChange} value={viewInput} style={{
                 // width: "50%"
                 textDecoration: 'none'
             }}/>

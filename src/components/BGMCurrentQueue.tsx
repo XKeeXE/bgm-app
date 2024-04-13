@@ -1,3 +1,5 @@
+import { Card, CardBody, CardHeader, Textarea } from "@nextui-org/react";
+import { ipcRenderer } from "electron";
 import { useEffect, useState } from "react";
 
 let maxStringLength = 65;
@@ -12,15 +14,14 @@ let maxStringLength = 65;
  * @returns 
  */
 const BGMCurrentQueue = (props: any) => {
-    const { currentUrl, bgm, tracks, forceUpdate, playedTracks, CheckTrackType } = props;
-    const [results, setResults] = useState<string>("None"); // <- lo que hace que este component haga re-render para que el queue se vea bien
+    const { currentUrl, bgm, tracks, forceUpdate, setResults, playedTracks, CheckTrackType } = props;
     const [queue, setQueue] = useState<string[]>([]);
     /**
      * lo tuve que poner todo en el useEffect para que se active cuando currentUrl haga update para que se pueda re-render el queue bien
      * ya que raw sin useEffect va a re-render infinitamente
     */
 
-   useEffect(() => {
+    useEffect(() => {
         const bgmQueue: any[] = []; // the array of tracks of the next 10 tracks if possible
         const unplayedQueue: number[] = [];
         var tempIndex = 0; // times the for loop occured [min=1, max=10], 0 if none
@@ -50,11 +51,11 @@ const BGMCurrentQueue = (props: any) => {
             } else {
                 trackString = CheckTrackType(tracks.current[queueTracks.index]); // else remove format from the track title
             }
-            if (trackString.length > maxStringLength) { // if track has max string length of 63 put ... after it. Ex: TestTrack
-                let tempString = '';
-                tempString = trackString.substring(0, maxStringLength-3) // remove only the last 3 strings. ex: TestTr
-                trackString = tempString.concat("..."); // concat ... to the track string. ex: TestTr...
-            }
+            // if (trackString.length > maxStringLength) { // if track has max string length of 63 put ... after it. Ex: TestTrack
+            //     let tempString = '';
+            //     tempString = trackString.substring(0, maxStringLength-3) // remove only the last 3 strings. ex: TestTr
+            //     trackString = tempString.concat("..."); // concat ... to the track string. ex: TestTr...
+            // }
             bgmQueue.push(trackString); // put the string of the tracks into the queue
             // console.log(bgmQueue);
             tempIndex = index; // number of times the loop occurred [min=1, max=10]
@@ -74,21 +75,20 @@ const BGMCurrentQueue = (props: any) => {
         if (bgmQueue.length == 0) {
             tempIndex = -1; // subtract 1 as there will be no queue to display 0
         }
+        let tracksInQueue = bgm.current.length - playedTracks.current.length;
         setQueue(bgmQueue.map(item => item)) // map bgmQueue into queue to show it on the list
-        setResults(tempIndex+1 + " / " + (bgm.current.length - playedTracks.current.length) + " result(s) displayed"); // <- el re-render hace que el queue haga display correctamente
+        setResults(tempIndex+1 + " / " + (tracksInQueue) + " result(s) displayed"); // <- el re-render hace que el queue haga display correctamente
+        ipcRenderer.send('tracksQueue', tracksInQueue);
     }, [currentUrl, forceUpdate]);
     
     return (
         <>
-        <p className="text-center italic">{results}</p>
-        <div className="h-[198px]">
-            {queue.length === 0 && <p className="text-center">No current queue found</p>}
-            <ul className="text-sm list-decimal pl-6">
-                {queue.map((item) => 
-                <li key={item}>{item}
-                </li>)}
-            </ul>
-        </div>
+        {queue.length === 0 && <p className="text-center">No current queue found</p>}
+        <ul className="list-decimal font-custom list-inside  text-[2vh]">
+            {queue.map((item) => 
+            <li className="text-clip" key={item}>{item}
+            </li>)}
+        </ul>
         </>
     );
 } 

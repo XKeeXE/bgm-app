@@ -1,31 +1,12 @@
-:root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-text-size-adjust: 100%;
-}
-
-.track-thumbnail {
-  border: 1px solid #ddd;
-  background-color: black;
-  border-radius: 4px;
-  max-width: 70%;
-}
-
 .contextmenu {
-  color: black;
-  /* background-color: green;  */
-  
+    background: linear-gradient(135deg, #2f026df6, #15162cee) !important;
 }
 
-.contextmenu__item {
-  color: black;
-  /* background-color: green; */
+.contextmenu__item:hover {
+    background-color: #29057780 !important; 
+}
+
+@font-face {
+  font-family: 'IBMSansJP';
+  src: url('IBMPlexSansJP-Medium.ttf') format('tff');
 }

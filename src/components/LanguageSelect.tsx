@@ -1,15 +1,11 @@
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@nextui-org/react";
-import languages from '../assets/languages.json';
-
 import PuertoRicoFlag from './svgIconsFlags/PuertoRicoFlag';
 import UnitedStatesFlag from './svgIconsFlags/UnitedStatesFlag';
 import JapanFlag from './svgIconsFlags/JapanFlag';
 import { useEffect } from "react";
 
-// @ts-ignore
 const LanguageSelect = (props: any) => {
-    
-    const { language, setLanguage } = props;
+    const { language, setLanguage, getTranslatedText } = props;
     
     const CheckLanguage = () => {
         switch(language) {
@@ -29,56 +25,30 @@ const LanguageSelect = (props: any) => {
         }
     }, [])
 
-    // const LanugageSelector = (langCode, icon, langJson) => {
-    //     // <DropdownItem 
-    //     //         key="es"
-    //     //         startContent={<PuertoRicoFlag/>}
-    //     //         >
-    //     //             {languages[language].spanish}
-    //     // </DropdownItem>
-    // }
-
     return (
         <>
         <Dropdown>
             <DropdownTrigger>
-                <Button isIconOnly>
+                <Button variant="light" size="sm" isIconOnly aria-label="language" disableAnimation>
                     <CheckLanguage/>
                 </Button>
-                
             </DropdownTrigger>
 
             <DropdownMenu aria-label="language-menu" onAction={(key) => setLanguage(key)}>
-                <DropdownItem 
-                    key="es"
-                    startContent={<PuertoRicoFlag/>}
-                    >
-                        
-                        {/* {languages[language].spanish}  */}
+                <DropdownItem key="es" startContent={<PuertoRicoFlag/>}>
+                    {getTranslatedText('spanish')}
                 </DropdownItem>
 
-                <DropdownItem 
-                    key="en"
-                    startContent={<UnitedStatesFlag/>}
-                    >
-                        {/* {languages[language].english} */}
+                <DropdownItem key="en" startContent={<UnitedStatesFlag/>}>
+                    {getTranslatedText('english')}
                 </DropdownItem>
 
-                <DropdownItem 
-                    key="ja"
-                    startContent={<JapanFlag/>}
-                    >
-                        {/* {languages[language].japanese} */}
+                <DropdownItem key="ja" startContent={<JapanFlag/>}>
+                    {getTranslatedText('japanese')}
                 </DropdownItem>
 
             </DropdownMenu>
         </Dropdown>
-        
-        {/* <select value={language} onChange={(e) => {setLanguage(e.target.value)}}>
-            <option value="es"><PuertoRicoFlag/>{languages[language].spanish}</option>
-            <option value="en"><UnitedStatesFlag/>{languages[language].english}</option>
-            <option value="jp"><JapanFlag/>{languages[language].japanese}</option>
-        </select> */}
         </>
     )
 }

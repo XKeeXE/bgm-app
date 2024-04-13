@@ -2,12 +2,12 @@ import { ContextMenu, ContextMenuItem, ContextMenuTrigger } from "rctx-contextme
 import LibraryAddIcon from '@mui/icons-material/LibraryAdd';
 import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 import InfoIcon from '@mui/icons-material/Info';
-import { useEffect } from "react";
+import PlayIcon from "@mui/icons-material/PlayArrow";
 
 var mp3Duration = require('mp3-duration');
 
 const UIContextMenu = (props: any) => {
-    const { children, bgm, forceUpdate, setForceUpdate, playedTracks, selectedTrack, selectedContext, contextTrack } = props;
+    const { children, bgm, forceUpdate, setForceUpdate, playedTracks, PlayTrack, selectedTrack, selectedContext, contextTrack } = props;
 
     function StackTrack(contextIndex: number) {
         if (selectedTrack.current == contextIndex) {
@@ -46,7 +46,7 @@ const UIContextMenu = (props: any) => {
             { children }
         </ContextMenuTrigger>
 
-        <ContextMenu id="track-context">
+        <ContextMenu id="track-context" className="">
             <ContextMenuItem onClick={() => {
                 StackTrack(selectedContext.current);
                 // console.log(selectedContext.current);
@@ -54,10 +54,8 @@ const UIContextMenu = (props: any) => {
             </ContextMenuItem>
 
             <ContextMenuItem onClick={() => {
-                console.log("test")
-
-                console.log(bgm.current);
-            }}>Reset
+                PlayTrack(selectedContext.current);
+            }}><PlayIcon/> Play
             </ContextMenuItem>
 
             <ContextMenuItem onClick={() => {
@@ -68,23 +66,23 @@ const UIContextMenu = (props: any) => {
             </ContextMenuItem>
 
             <ContextMenuItem onClick={() => {
-                // console.log("-----")
-                // console.log("Title: " + contextTrack.current);
-                // console.log("Played: " + bgm.current[bgm.current.findIndex((track: { index: number; }) => track.index == selectedContext.current)].played);
-                // console.log("Track original index: " + bgm.current[selectedContext.current].index);
-                // console.log("Current queue number: " + playedTracks.current.length);
-                // console.log("Track index in current BGM: " + bgm.current.findIndex((track: { index: number; }) => track.index == selectedContext.current));
-                // if (playedTracks.current.indexOf(selectedContext.current) != -1) {
-                //     console.log("Index in played: " + playedTracks.current.indexOf(selectedContext.current));
-                // } else {
-                //     console.log("Index in played: None")
-                // }
-                // console.log("-----")
+                console.log("-----")
+                console.log("Title: " + contextTrack.current);
+                console.log("Played: " + bgm.current[bgm.current.findIndex((track: { index: number; }) => track.index == selectedContext.current)].played);
+                console.log("Track original index: " + bgm.current[selectedContext.current].index);
+                console.log("Current queue number: " + playedTracks.current.length);
+                console.log("Track index in current BGM: " + bgm.current.findIndex((track: { index: number; }) => track.index == selectedContext.current));
+                if (playedTracks.current.indexOf(selectedContext.current) != -1) {
+                    console.log("Index in played: " + playedTracks.current.indexOf(selectedContext.current));
+                } else {
+                    console.log("Index in played: None")
+                }
+                console.log("-----")
                 // mp3Duration("E:/BGM/" + contextTrack.current + ".mp3", function (err: { message: any; }, duration: number) {
-                //     // if (err) return console.log(err.message);
-                //     console.log('Your file is ' + duration + ' seconds long');
+                    // if (err) return console.log(err.message);
+                    // console.log('Your file is ' + duration + ' seconds long');
                 // });
-                console.log(bgm.current[bgm.current.findIndex((track: { index: number; }) => track.index == selectedContext.current)])
+                // console.log(bgm.current[bgm.current.findIndex((track: { index: number; }) => track.index == selectedContext.current)])
             }}><InfoIcon/> Properties
             </ContextMenuItem>
 

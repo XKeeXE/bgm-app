@@ -22,15 +22,18 @@ function createWindow() {
   win = new BrowserWindow({
     icon: path.join(process.env.VITE_PUBLIC, 'electron-vite.svg'),
     center: true,
-    width: 1200,
-    height: 600,
-    minHeight: 600,
-    minWidth: 600,
+    width: 1000,
+    height: 620,
+    minHeight: 620,
+    minWidth: 860,
+    // transparent: true,
+    // frame: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       webSecurity: false,
       nodeIntegration: true,
       contextIsolation: false,
+      
     },
   })
   
@@ -45,8 +48,10 @@ function createWindow() {
     frame: false,
     x: 1320,
     y: 440,
-    width: 520,
+    width: 600,
     height: 250,
+    minWidth: 600,
+    minHeight: 250,
     webPreferences: {
       additionalArguments:['modalWindow'],
       webSecurity: false,
@@ -91,24 +96,60 @@ app.on('activate', () => {
 })
 
 function ModalWindowStuff() {
-  
-  ipcMain.on('track-title', (e, title) => { // get the render process from App.tsx
-    modalWindow?.setTitle(title); // set the modal window title to the current track
-    modalWindow?.webContents.send('track-title', title) // set the title track as the current track
-  })
-  ipcMain.on('track-thumbnail', (e, base64) => { // get the render process from TrackThumbnail.tsx
-    modalWindow?.webContents.send('track-thumbnail', base64); // set the thumbnail to the current track
-  })
-  ipcMain.on('track-time', (e, currentTime, progress, duration) => {
-    modalWindow?.webContents.send('track-time', currentTime, progress, duration);
-  })
-  ipcMain.on('track-playing-main', (e, playing) => {
-    modalWindow?.webContents.send('track-playing-main', playing);
-  })
-  ipcMain.on('track-playing-modal', (e, playing) => {
-    win?.webContents.send('track-playing-modal', playing);
-  })
 
+    let playing = false;
+    let looping = false;
+    
+    // ipcMain.on('quit-app', () => {app.quit(); win = null});
+
+    // ipcMain.on('minimizeModal', () => {
+    //     // window.
+    // })
+
+    ipcMain.on('closeApp', () => {
+        // console.log('test');
+        app.quit();
+    })
+
+    ipcMain.on('togglePlaying', () => {
+        playing = !playing;
+        BrowserWindow.getAllWindows().forEach(window => {
+            window.webContents.send('updatePlaying', playing);
+        });
+    })
+    
+    ipcMain.on('toggleLoop', () => {
+        looping = !looping;
+        BrowserWindow.getAllWindows().forEach(window => {
+            window.webContents.send('updateLoop', looping);
+        });
+    })
+  
+    ipcMain.on('trackTitle', (_e, title) => { // get the render process from App.tsx
+        modalWindow?.setTitle(title); // set the modal window title to the current track
+        modalWindow?.webContents.send('trackTitle', title) // set the title track as the current track
+    })
+
+    ipcMain.on('trackThumbnail', (_e, base64) => { // get the render process from TrackThumbnail.tsx
+        modalWindow?.webContents.send('trackThumbnail', base64); // set the thumbnail to the current track
+    })
+
+    ipcMain.on('tracksQueue', (_e, results) => {
+        modalWindow?.webContents.send('tracksQueue', results);
+    })
+
+    ipcMain.on('trackProgressData', (_e, currentTime, progress, duration) => {
+        modalWindow?.webContents.send('trackProgressData', currentTime, progress, duration);
+    })
+
+    ipcMain.on('playNextInQueue', (_e, PlayNextInQueueString) => {
+        try {
+            const PlayNextInQueue = new Function('return (' + PlayNextInQueueString + ')')();
+            PlayNextInQueue()();
+          } catch (error) {
+            console.error('Error executing function:', error);
+          }
+    })
 }
 
 app.whenReady().then(() => {
@@ -125,6 +166,7 @@ app.whenReady().then(() => {
       win?.minimize();
       win?.hide();
       modalWindow?.show();
+      
     }
   })
 }).then(createWindow)

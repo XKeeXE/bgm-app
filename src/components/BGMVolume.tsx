@@ -30,7 +30,7 @@ const BGMVolume = (props: any) => {
 
     return (
         <>
-        <div className="absolute right-0 self-center w-[20%] flex align-middle justify-center max-w-[200px]" onMouseEnter={() => { // inspired by Youtube
+        {/* <div className="absolute right-0 self-center w-[20%] flex align-middle justify-center max-w-[200px]" onMouseEnter={() => { // inspired by Youtube
             setShowVolume(true); // set show volume as true to show input
         }}>
             <Tooltip content={savedSettings.volume.toFixed(2)}>
@@ -52,7 +52,30 @@ const BGMVolume = (props: any) => {
                 value={savedSettings.volume}
                 onChange={handleVolumeChange}>
             </Slider>
+        </div> */}
+
+        <div className="absolute right-6 self-center flex w-[15%] min-w-[100px] items-center">
+            <Tooltip content={savedSettings.volume.toFixed(2)}>
+                <Button className="" variant="light" isIconOnly aria-label="volume button" onClick={() => {
+                    setMuteBGM(!muteBGM); // mute the bgm
+                }}>
+                    {muteBGM ? <VolumeOff/> : <BGMVolumeSwitch/>}
+                </Button>
+            </Tooltip>
+            <Slider 
+                // className={"self-center translate-x-[100%] " + (showVolume ? " animate-[show-volume_0.1s_ease-in-out_0.08s_1_both]" : " animate-[hide-volume_0.1s_ease-in-out_1_both] ")}
+                aria-label="volume slider"
+                hideThumb
+                color="foreground"
+                size="md"
+                step={0.01} 
+                maxValue={1}
+                minValue={0}
+                value={savedSettings.volume}
+                onChange={handleVolumeChange}>
+            </Slider>
         </div>
+
         </>
     );
 }

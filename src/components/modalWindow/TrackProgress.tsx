@@ -8,16 +8,20 @@ const TrackProgress = (props: any) => {
     const [trackProgress, setTrackProgress] = useState(0.0);
 
     useEffect(() => {
-        ipcRenderer.on('track-time', (e, currentTime, progress, duration) => {
+        ipcRenderer.on('trackProgressData', (_e, currentTime, progress, duration) => {
             trackDuration.current = duration;
             setTrackCurrentTime(currentTime);
             setTrackProgress(progress);
         })
+        return () => {
+            ipcRenderer.removeAllListeners('trackProgressData');
+        }; 
+        
     }, [])
 
     return (
         <>
-        <div className="flex w-96">
+        <div className="flex w-[40vw]">
             <p className="pr-1 text-xs select-none">{trackCurrentTime}</p>
             <Progress
             size="sm"
