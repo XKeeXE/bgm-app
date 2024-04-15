@@ -15,7 +15,7 @@ const TracksQueue = () => {
     }, [])
 
     return (
-        <p>{results + " Tracks"}</p>
+        <p className="  text-sm">{results + " Tracks"}</p>
     )
 
 }

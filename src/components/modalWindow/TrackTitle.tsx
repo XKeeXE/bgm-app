@@ -1,7 +1,7 @@
 import { ipcRenderer } from "electron";
 import { useEffect, useState } from "react";
 
-const TrackTitle = (props: any) => {
+const TrackTitle = () => {
     const [trackTitle, setTrackTitle] = useState('No current track');
     useEffect(() => {
         ipcRenderer.on('trackTitle', (_e, title) => {
@@ -13,7 +13,7 @@ const TrackTitle = (props: any) => {
     }, [])
 
     return (
-        <p className='text-xs'>{trackTitle}</p>
+        <p className='text-xs font-custom font-semibold'>{trackTitle}</p>
     )
 }
 

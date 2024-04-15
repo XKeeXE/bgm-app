@@ -13,6 +13,9 @@ const TrackPrevious = (props: any) => {
         <>
         <Tooltip content="Previous">
             <Button variant="light" size="lg" aria-label="previous" isIconOnly onClick={() => {
+                if (playedTracks.current.length == 0) {
+                    return;
+                }
                 bgm.current[bgmIndex.current].played = false;
                 console.log(bgm.current[bgmIndex.current]);
                 // var currentTrack = bgm.current.findIndex((bgm: { played: boolean; }) => bgm.played == false); // find first track that is not played in current queue
@@ -20,9 +23,6 @@ const TrackPrevious = (props: any) => {
                 // if (prevTrack == -1) {
                 //     return;
                 // }
-                if (playedTracks.current.length == 0) {
-                    return;
-                }
                 playedTracks.current.pop(); // pop current playing track
                 console.log(playedTracks.current[playedTracks.current.length-1]);
                 // PlayTrack(bgm.current[prevTrack].index); // play next unplayed track 

@@ -16,7 +16,7 @@ const TrackThumbnailModal = () => {
     
     return (
         <>
-        <Image src={thumbnail} className="w-full h-full" style={{
+        <Image src={thumbnail} className="w-full h-full object-cover" style={{
             // maxHeight: '50vw',
             // width: '55vw',
             minWidth: '280px',

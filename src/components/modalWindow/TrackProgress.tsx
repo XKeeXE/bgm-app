@@ -2,7 +2,7 @@ import { Progress } from "@nextui-org/react";
 import { ipcRenderer } from "electron";
 import { useEffect, useRef, useState } from "react";
 
-const TrackProgress = (props: any) => {
+const TrackProgress = () => {
     const trackDuration = useRef('00:00');
     const [trackCurrentTime, setTrackCurrentTime] = useState('00:00');
     const [trackProgress, setTrackProgress] = useState(0.0);
@@ -21,17 +21,23 @@ const TrackProgress = (props: any) => {
 
     return (
         <>
-        <div className="flex w-[40vw]">
-            <p className="pr-1 text-xs select-none">{trackCurrentTime}</p>
+        <div className="relative flex w-[100%]" style={{
+            // background: 'red',
+        }}>
+            <p className="absolute left-0 top-1 text-xs select-none">{trackCurrentTime}</p>
             <Progress
             size="sm"
+            // className="w-full"
+            style={{
+                width: '100%',
+            }}
             classNames={{
                 indicator: 'bg-white'
             }}
             value={trackProgress}
             maxValue={0.999999}
             aria-label="progress"/>
-            <p className="pl-1 text-xs select-none">{trackDuration.current}</p>
+            <p className="absolute right-0 top-1 text-xs select-none">{trackDuration.current}</p>
         </div>
         </>
     )

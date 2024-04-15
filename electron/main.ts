@@ -47,7 +47,7 @@ function createWindow() {
     show: false,
     frame: false,
     x: 1320,
-    y: 440,
+    y: 850,
     width: 600,
     height: 250,
     minWidth: 600,
@@ -99,6 +99,8 @@ function ModalWindowStuff() {
 
     let playing = false;
     let looping = false;
+
+    let funcSaveQueue: () => void;
     
     // ipcMain.on('quit-app', () => {app.quit(); win = null});
 
@@ -142,13 +144,20 @@ function ModalWindowStuff() {
         modalWindow?.webContents.send('trackProgressData', currentTime, progress, duration);
     })
 
-    ipcMain.on('playNextInQueue', (_e, PlayNextInQueueString) => {
-        try {
-            const PlayNextInQueue = new Function('return (' + PlayNextInQueueString + ')')();
-            PlayNextInQueue()();
-          } catch (error) {
-            console.error('Error executing function:', error);
-          }
+    // ipcMain.on('playNextInQueue', (_e, PlayNextInQueueString) => {
+    //     try {
+    //         const PlayNextInQueue = new Function('return (' + PlayNextInQueueString + ')')();
+    //         PlayNextInQueue()();
+    //       } catch (error) {
+    //         console.error('Error executing function:', error);
+    //       }
+    // })
+    ipcMain.on('sendSaveQueue', (_e, SaveQueue) => {
+        funcSaveQueue = eval('(' + SaveQueue + ')');
+    })
+
+    ipcMain.on('callSaveQueue', (_e) => {
+        funcSaveQueue();
     })
 }
 

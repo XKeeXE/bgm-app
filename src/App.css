@@ -8,5 +8,5 @@
 
 @font-face {
   font-family: 'IBMSansJP';
-  src: url('IBMPlexSansJP-Medium.ttf') format('tff');
+  src: url('./assets/IBMPlexSansJP-Medium.ttf') format('tff');
 }
