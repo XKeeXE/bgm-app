@@ -26,10 +26,10 @@ const TrackPause = (props: any) => {
     return (
         <Tooltip content={playing ? "Pause" : "Play"}>
             <Button radius="full" size="lg" aria-label="pause" variant="ghost" isIconOnly onClick={() => {
-                // setPlaying(!playing); // if paused play, if playing pause
-                ipcRenderer.send('togglePlaying');
-                listRef.current.scrollToItem(currentSelectedTrack.current, "center");
-                // ScrollToIndex(currentSelectedTrack.current);
+                setPlaying(!playing); // if paused play, if playing pause
+                // ipcRenderer.send('togglePlaying');
+                // listRef.current.scrollToItem(currentSelectedTrack.current, "center");
+                ScrollToIndex(currentSelectedTrack.current);
                 // setSelectedTrack(currentSelectedTrack.current);
                 console.log(playing); // Paused: true | false
             }}>{playing ? <PauseIcon /> : <PlayIcon/> }

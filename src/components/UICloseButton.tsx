@@ -5,7 +5,7 @@ import { ipcRenderer } from "electron";
 const UICloseButton = () => {
     return (
         <>
-        <Button className="absolute right-0 top-0" radius="full" variant="light" size="sm" isIconOnly aria-label="clear" onClick={() => {
+        <Button className="absolute right-0 top-0 z-10" radius="full" variant="light" size="sm" isIconOnly aria-label="clear" onClick={() => {
             ipcRenderer.send('closeApp');
         }}><CloseIcon/>
         </Button>

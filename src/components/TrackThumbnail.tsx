@@ -36,9 +36,8 @@ function TrackThumbnail(props: any) {
         
     }, [currentUrl])
     return (
-        <Image className="w-full h-full object-cover" removeWrapper src={thumbnail} style={{
-            maxHeight: '50vh',
-            maxWidth: '50vw'
+        <Image className="w-full h-full object-cover " removeWrapper src={thumbnail} style={{
+            height: 'auto',
         }}/>
     );
 }

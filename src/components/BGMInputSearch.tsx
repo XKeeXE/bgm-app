@@ -12,7 +12,7 @@ let timer = 0;
  * @returns hidden text input and text
  */
 const BGMInputSearch = (props: any) => {
-    const { tracks, listRef, currentSelectedTrack, setSelectedTrack, CheckTrackType } = props;
+    const { tracks, ScrollToIndex, currentSelectedTrack, CheckTrackType } = props;
     const inputSearchRef = useRef<any>(); // get the input text ref
     const inputSearch = useRef<any>(''); // the string to search for in the track list
     const result = useRef<any>(); // an array of track titles
@@ -26,11 +26,6 @@ const BGMInputSearch = (props: any) => {
         
     const [viewInput, setViewInput] = useState<string>(''); // to view the input text
     const [highlight, setHighlight] = useState<boolean>(false);
-    
-    function SelectTrack(selectTrack: number) {
-        setSelectedTrack(selectTrack); // sets the selected track as the entered track
-        listRef.current.scrollToItem(selectTrack, "center"); // scrolls in the bgm list to the selected track
-    }
     
     const handleChange = (e: { target: { value: string; }; }) => {
         inputSearch.current = e.target.value;
@@ -51,7 +46,7 @@ const BGMInputSearch = (props: any) => {
             }
         }
         if (inputSearch.current.length < 2) { // if nothing entered then just select the current track
-            SelectTrack(currentSelectedTrack.current) // set the playing track as the selected track
+            ScrollToIndex(currentSelectedTrack.current) // set the playing track as the selected track
             return;
         } 
         // console.log(searchIndex.current);
@@ -59,7 +54,7 @@ const BGMInputSearch = (props: any) => {
             //     SelectTrack(result.current[searchIndex.current].index);
             
             // }
-        SelectTrack(result.current[searchIndex.current].index);
+        ScrollToIndex(result.current[searchIndex.current].index);
     }
     
     // For when the user wants to input search then it just needs to press a key that is not the restricted ones
@@ -79,7 +74,7 @@ const BGMInputSearch = (props: any) => {
         if (keyCode == 13 && result.current.length >= 1) { // if enter pressed and there are results, then set the current selected track as the first that is on the results
             inputSearchRef.current.focus();
             // console.log(result.current[0].index)
-            SelectTrack(result.current[0].index);
+            ScrollToIndex(result.current[0].index);
             searchIndex.current = 0;
             return;
         }
@@ -126,7 +121,7 @@ const BGMInputSearch = (props: any) => {
         }
         // console.log(timer);
         // console.log(searchIndex)
-        SelectTrack(result.current[searchIndex.current].index)
+        ScrollToIndex(result.current[searchIndex.current].index)
     }, []);
 
     useEffect(() => {
@@ -137,14 +132,11 @@ const BGMInputSearch = (props: any) => {
     }, [handleUserKeyPress]);
     
     return (
-        <div className="relative max-w-[55vw] flex items-center ml-2">
-            <div className="w-[25px] h-[25px]">
+        <div className="relative max-w-[55vw] flex items-center">
+            <div className="w-[25px] h-[25px] border-b-1 border-gray-600 ">
                 <SearchIcon color={ highlight ? "inherit" : "disabled"}/>
             </div>
-            <Textarea className="" ref={inputSearchRef} maxRows={1} variant="underlined" onChange={handleChange} value={viewInput} style={{
-                // width: "50%"
-                textDecoration: 'none'
-            }}/>
+            <input className="w-full bg-background/5 border-b-1 border-gray-600 outline-none focus:border-b-slate-100" ref={inputSearchRef} onChange={handleChange} value={viewInput}/>
 
         </div>
     );

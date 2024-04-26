@@ -7,20 +7,18 @@ import PlayIcon from "@mui/icons-material/PlayArrow";
 var mp3Duration = require('mp3-duration');
 
 const UIContextMenu = (props: any) => {
-    const { children, bgm, forceUpdate, setForceUpdate, playedTracks, PlayTrack, selectedTrack, selectedContext, contextTrack } = props;
+    const { children, bgm, currentTrackTitle, forceUpdate, setForceUpdate, playedTracks, PlayTrack, TranslateTrackToBGM, selectedTrack, selectedContext, contextTrack } = props;
 
     function StackTrack(contextIndex: number) {
-        if (selectedTrack.current == contextIndex) {
+        if (selectedTrack.current == contextIndex || currentTrackTitle.current == contextTrack.current) {
             console.log("same track");
             return;
         }
 
         console.log("Stacked: " + contextTrack.current);
-        // console.log(contextIndex);
         var resultIndex = bgm.current.findIndex((track: { index: number; }) => track.index == contextIndex);
         var tempBGM = JSON.parse(JSON.stringify(bgm.current));
         var stackingTrack = bgm.current[resultIndex]; // the selected track via stack
-        // var lastTrack = tempBGM[bgm.current.length-1];
         for (let index = 0; index < bgm.current.length-1; index++) { // loop through all the tracks
             if (contextIndex == bgm.current[index].index) { // stop at the selected track
                 // console.log("stopped at index: " + index);
@@ -28,15 +26,12 @@ const UIContextMenu = (props: any) => {
             }
             tempBGM[index+1] = bgm.current[index]; // replace the track[#1234] with track[#1233]
         }
-        // tempBGM[bgm.current.length-1] = lastTrack;
         tempBGM[0] = stackingTrack;
         tempBGM[0].played = false;
         bgm.current = tempBGM;
-        // console.log(playedTracks.current);
         if (playedTracks.current.indexOf(contextIndex) != -1) { // if track was played
             playedTracks.current.splice(playedTracks.current.indexOf(contextIndex), 1); // remove the track from the played tracks array
         }
-        // console.log(playedTracks.current);
         setForceUpdate(!forceUpdate);
     }
 
@@ -68,8 +63,8 @@ const UIContextMenu = (props: any) => {
             <ContextMenuItem onClick={() => {
                 console.log("-----")
                 console.log("Title: " + contextTrack.current);
-                console.log("Played: " + bgm.current[bgm.current.findIndex((track: { index: number; }) => track.index == selectedContext.current)].played);
-                console.log("Track original index: " + bgm.current[selectedContext.current].index);
+                console.log("Played: " + TranslateTrackToBGM(selectedContext.current).played);
+                console.log("Track original index: " + selectedContext.current);
                 console.log("Current queue number: " + playedTracks.current.length);
                 console.log("Track index in current BGM: " + bgm.current.findIndex((track: { index: number; }) => track.index == selectedContext.current));
                 if (playedTracks.current.indexOf(selectedContext.current) != -1) {

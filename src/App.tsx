@@ -1,6 +1,6 @@
 import './App.css'
 import fs from 'fs'
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState} from "react";
 import BGMShuffle from "./components/BGMShuffle";
 import TrackSkip from "./components/TrackSkip";
 import BGMLoadQueue from "./components/BGMLoadQueue";
@@ -56,19 +56,20 @@ enum TYPES {
 function App() {
     const bgmIndex = useRef<number>(-1); // index in the current queue
     const listRef = useRef<any>(null); // ref to the bgm list
-    const virtuosoRef = useRef<any>(null); // ref to the table list
+    const tableRef = useRef<any>(null); // ref to the table list
+    const rowRef = useRef([]);
     const currentSelectedTrack = useRef<number>(-1); // index of the current select track
     // const saveQueueTimer = useRef(0); // auto save timer
-    const playedTracks = useRef<number[]>([]); // array of the tracks played
+    const playedTracks = useRef<any>([]); // array of the tracks played
     const [selectedTrack, setSelectedTrack] = useState<number>(0);
     const currentTrackTitle = useRef<string>('No Track Playing');
-    // const [playing, setPlaying] = useState<boolean>(true); // to pause and resume ReactPlayer
-    // const [muteBGM, setMuteBGM] = useState<boolean>(false); // to mute and unmute ReactPlayer
-    // const [showVolume, setShowVolume] = useState<boolean>(false); // to show and hide volume
+    // const [playing, setPlaying] = usevalue<boolean>(true); // to pause and resume ReactPlayer
+    // const [muteBGM, setMuteBGM] = usevalue<boolean>(false); // to mute and unmute ReactPlayer
+    // const [showVolume, setShowVolume] = usevalue<boolean>(false); // to show and hide volume
     const [currentUrl, setCurrentUrl] = useState<string>(trackPath); // current url of the current playing track
     const [language, setLanguage] = useState<string>(navigator.language);
-    // const [openModal, setOpenModal] = useState<boolean>(true);
-    // const [darkMode, setDarkMode] = useState<boolean>(window.matchMedia('(prefers-color-scheme: dark)').matches);
+    // const [openModal, setOpenModal] = usevalue<boolean>(true);
+    // const [darkMode, setDarkMode] = usevalue<boolean>(window.matchMedia('(prefers-color-scheme: dark)').matches);
     
     
     const [forceUpdate, setForceUpdate] = useState(false);
@@ -88,8 +89,19 @@ function App() {
     }));
     
     const ScrollToIndex = (index: number) => {
-        // console.log(virtuosoRef.current);
-        virtuosoRef.current && virtuosoRef.current.scrollToIndex({index: index, align: 'center'});
+        if (tableRef.current == undefined) {
+            return;
+        }
+
+        const row: any = rowRef.current[index];
+        const rows: any = rowRef.current;
+        for (let rowsIndex = 0; tracks.current.length > rowsIndex; rowsIndex++) {
+            rows[rowsIndex].style.background = '';
+        }
+        if (row) {
+            row.style.background = 'rgba(255, 255, 255, 0.1)';
+            row.scrollIntoView({ behavior: 'auto', block: 'center' });
+        }
     };
     
     // function getTranslatedText(key: string): string {
@@ -101,23 +113,6 @@ function App() {
     //       return 'Language not found';
     //     }
     // }
-
-    function PlayPrevious() {
-        if (playedTracks.current.length == 0) {
-            return;
-        }
-        bgm.current[bgmIndex.current].played = false;
-        console.log(bgm.current[bgmIndex.current]);
-        // var currentTrack = bgm.current.findIndex((bgm: { played: boolean; }) => bgm.played == false); // find first track that is not played in current queue
-        // var prevTrack = currentTrack - 1;
-        // if (prevTrack == -1) {
-        //     return;
-        // }
-        playedTracks.current.pop(); // pop current playing track
-        console.log(playedTracks.current[playedTracks.current.length-1]);
-        // PlayTrack(bgm.current[prevTrack].index); // play next unplayed track 
-        PlayTrack(playedTracks.current[playedTracks.current.length-1]);
-    }
 
     /**
      * To remove track format from track title
@@ -149,7 +144,6 @@ function App() {
         let dateObj = new Date(time * 1000);
         let minutes = dateObj.getUTCMinutes();
         let seconds = dateObj.getSeconds();
-        
         return (minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0')); // ex: 01:34
     } 
     
@@ -158,7 +152,7 @@ function App() {
      * @returns if next track gives undefined it means end of queue
     */
     function PlayNextInQueue() {
-        var nextTrack = bgm.current.find((bgm: { played: boolean; }) => bgm.played === false); // find track
+        var nextTrack = TranslateTrackToBGM(false) // find track
         console.log(nextTrack);
         if (nextTrack === undefined) {
             EndOfQueue();
@@ -167,9 +161,26 @@ function App() {
         bgmIndex.current = nextTrack?.index as number;
         PlayTrack(bgmIndex.current);
     }
-    
+
+    /**
+     * Will translate the inserted index and convert it into a bgm index
+     * @param value either number or boolean
+     * @returns the BGM
+     */
+    function TranslateTrackToBGM(value: number | boolean) {
+        if (typeof value === 'number') {
+            return bgm.current.find((track: { index: number; }) => track.index == value);
+        } else if (typeof value === 'boolean') {
+            return bgm.current.find((track: { played: boolean; }) => track.played == false);
+        }
+    }
+
+    function FindTrackToBGM(index: number) {
+        return bgm.current.findIndex((track: { index: number; }) => track.index == index);
+    }
+
     useEffect(() => {
-        ipcRenderer.send('sendPlayNextInQueue', PlayNextInQueue.toString());
+        // ipcRenderer.send('sendPlayNextInQueue', PlayNextInQueue.toString());
  
         // const limit = pLimit(100);
         // const getMp3FilesDuration = async () => {
@@ -209,23 +220,15 @@ function App() {
         let trackTitle = CheckTrackType(trackName) // track name without the format, (.mp3, .ogg, etc.)
         console.log("Now playing: " + tracks.current[index]);
         setSelectedTrack(index); // sets the selected item in the bgm list as the current track
-        setCurrentUrl(trackPath); // will update the state and put the track path
+        setCurrentUrl(trackPath); // will update the value and put the track path
+        ScrollToIndex(index);
         currentTrackTitle.current = trackTitle;
         document.title = trackTitle // put the app title as the current playing item
         ipcRenderer.send('trackTitle', trackTitle); // send the track title to the main process
-        // console.log(tableRef.current);
-        if (listRef != null) {
-            listRef.current.scrollToItem(index, "center"); // in the bgm list scrolls to the current track
-        }
-        if (virtuosoRef != null) {
-            // ScrollToIndex(index);
-        }
-        // console.log(playedTracks.current[playedTracks.current.length-1]);
         if (playedTracks.current.includes(index) == false) {
             playedTracks.current.push(index);
         }
-        // console.log(playedTracks.current);
-        var resultIndex = bgm.current.findIndex((track: { index: number; }) => track.index == index); // find the index that has index == originalTrackIndex
+        var resultIndex = FindTrackToBGM(index);
         console.log("currently in the queue number: #" + resultIndex); // number in the current queue
         bgmIndex.current = resultIndex; // set the current bgmIndex as the result index for later use 
         //bg-gradient-to-b from-[#2e026d] to-[#15162c]
@@ -240,9 +243,9 @@ function App() {
             {/* <UICloseButton/> */}
             <BGMLoadSettings settingsFile={settingsFile} savedSettings={savedSettings} setSavedSettings={setSavedSettings}/>
             <BGMSaveSettings settingsFile={settingsFile} savedSettings={savedSettings}/>
-            <div className="md:max-2xl:flex md:max-[10px]:hidden flex">
+            <div className="flex flex-row">
                 <div className='w-full h-full ml-4 mt-4'>
-                    <Card className=' min-h-[200px] min-w-[300px]' isFooterBlurred>
+                    <Card className=' min-h-[200px] min-w-[290px] md:max-w-[300px] lg:max-w-[400px]' isFooterBlurred>
                         <TrackThumbnail currentUrl={currentUrl} width={300} height={200}/>
                         <CardFooter className='absolute bg-black/40 bottom-0 z-10 border-t-1 border-default-600 dark:border-default-100'>
                             <p>{currentTrackTitle.current}</p>
@@ -250,19 +253,19 @@ function App() {
                     </Card>
                     <BGMQueueTracker currentUrl={currentUrl} bgm={bgm} tracks={tracks} forceUpdate={forceUpdate} playedTracks={playedTracks} CheckTrackType={CheckTrackType}/>
                 </div>
-                <Spacer x={4}/>
-                <div className="">
+  
+                <div className="flex flex-col">
                     {/** The list of the tracks */}
-                    <BGMInputSearch tracks={tracks} listRef={listRef} currentSelectedTrack={currentSelectedTrack} setSelectedTrack={setSelectedTrack} CheckTrackType={CheckTrackType}/>
+                    <BGMInputSearch tracks={tracks} ScrollToIndex={ScrollToIndex} currentSelectedTrack={currentSelectedTrack} setSelectedTrack={setSelectedTrack} CheckTrackType={CheckTrackType}/>
                     {tracks.current.length === 0 && <p>No BGM found</p>}
-                    {/* <BGMTableList tracks={tracks} bgm={bgm} forceUpdate={forceUpdate} setForceUpdate={setForceUpdate} playedTracks={playedTracks} virtuosoRef={virtuosoRef} 
+                    <BGMTableList tracks={tracks} bgm={bgm} currentTrackTitle={currentTrackTitle} forceUpdate={forceUpdate} setForceUpdate={setForceUpdate} playedTracks={playedTracks} 
+                    tableRef={tableRef} rowRef={rowRef} selectedTrack={selectedTrack} CheckTrackType={CheckTrackType} PlayTrack={PlayTrack} TranslateTrackToBGM={TranslateTrackToBGM}/>
+                    {/* <BGMList tracks={tracks} bgm={bgm} currentTrackTitle={currentTrackTitle} forceUpdate={forceUpdate} setForceUpdate={setForceUpdate} playedTracks={playedTracks} listRef={listRef} 
                     selectedTrack={selectedTrack} CheckTrackType={CheckTrackType} PlayTrack={PlayTrack}/> */}
-                    <BGMList tracks={tracks} bgm={bgm} forceUpdate={forceUpdate} setForceUpdate={setForceUpdate} playedTracks={playedTracks} listRef={listRef} 
-                    selectedTrack={selectedTrack} CheckTrackType={CheckTrackType} PlayTrack={PlayTrack}/>
                 </div>
             </div>
-            <UINavbar bgm={bgm} tracks={tracks} savedSettings={savedSettings} setSavedSettings={setSavedSettings} bgmIndex={bgmIndex} currentUrl={currentUrl} virtuosoRef={virtuosoRef} 
-            listRef={listRef} language={language} setLanguage={setLanguage} playedTracks={playedTracks} currentSelectedTrack={currentSelectedTrack} setSelectedTrack={setSelectedTrack} 
+            <UINavbar bgm={bgm} tracks={tracks} savedSettings={savedSettings} setSavedSettings={setSavedSettings} bgmIndex={bgmIndex} currentUrl={currentUrl} 
+            language={language} setLanguage={setLanguage} playedTracks={playedTracks} currentSelectedTrack={currentSelectedTrack} setSelectedTrack={setSelectedTrack} 
             forceUpdate={forceUpdate} setForceUpdate={setForceUpdate} ScrollToIndex={ScrollToIndex} CheckTrackType={CheckTrackType} 
             PlayNextInQueue={PlayNextInQueue} PlayTrack={PlayTrack}/>
         </div>

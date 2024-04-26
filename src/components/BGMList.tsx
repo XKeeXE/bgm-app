@@ -8,13 +8,14 @@ var mp3Duration = require('mp3-duration');
 
 let maxStringLength = 70;
 
-interface Data {
+interface TrackData {
     title: string;
     duration: number;
+    played: boolean;
 }
 
 interface ColumnData {
-    dataKey: keyof Data;
+    dataKey: keyof TrackData;
     label: string;
     numeric?: boolean;
     width: number;
@@ -27,7 +28,7 @@ interface ColumnData {
  * @returns a list containing tracks
  */
 const BGMList = (props: any) => {
-    const { tracks, forceUpdate, setForceUpdate, bgm, playedTracks, listRef, selectedTrack, CheckTrackType, PlayTrack } = props;
+    const { tracks, bgm, currentTrackTitle, forceUpdate, setForceUpdate, playedTracks, listRef, selectedTrack, CheckTrackType, PlayTrack } = props;
 
     const selectedContext = useRef<number>(0);
     const contextTrack = useRef<string>('');
@@ -71,9 +72,9 @@ const BGMList = (props: any) => {
     }
     return (
         <>
-        <UIContextMenu tracks={tracks} bgm={bgm} forceUpdate={forceUpdate} setForceUpdate={setForceUpdate} playedTracks={playedTracks} 
+        <UIContextMenu tracks={tracks} bgm={bgm} currentTrackTitle={currentTrackTitle} forceUpdate={forceUpdate} setForceUpdate={setForceUpdate} playedTracks={playedTracks} 
         PlayTrack={PlayTrack} selectedTrack={selectedTrack} selectedContext={selectedContext} contextTrack={contextTrack}>
-            <FixedSizeList
+            {/* <FixedSizeList
                 className="overflow-ellipsis"
                 style={{
                     width: '60vw',
@@ -88,7 +89,22 @@ const BGMList = (props: any) => {
                 itemCount={tracks.current.length}
                 overscanCount={5}>
                 {Row}
-            </FixedSizeList>
+            </FixedSizeList> */}
+            <div className="h-[78vh] w-[50vw] overflow-y-auto">
+                <ul className=" ">
+                    {tracks.current.map((track: any, index: number) => (
+                        <li key={track} className=" whitespace-nowrap overflow-hidden " onClick={() => {
+                            PlayTrack(index);
+                        }} onContextMenu={() => {
+                            selectedContext.current = index;
+                            contextTrack.current = tracks.current[index];
+                        }}>
+                            {CheckTrackType(track)}
+                        </li>
+                    ))}
+                </ul>
+
+            </div>
         </UIContextMenu>
         </>
     )

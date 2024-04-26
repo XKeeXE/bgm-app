@@ -24,9 +24,10 @@ import { ipcRenderer } from "electron";
  * @returns 
  */
 const TrackPlay = (props: any) => {
-    const { bgm, bgmIndex, currentSelectedTrack, saveQueueTimer, playing, currentUrl, muteBGM, loopTrack, savedSettings, ScrollToIndex, SetBGMJson, PlayNextInQueue } = props;
+    const { bgm, bgmIndex, currentSelectedTrack, saveQueueTimer, playing, currentUrl, muteBGM, loopTrack, savedSettings, forceUpdate, setForceUpdate, SetBGMJson, PlayNextInQueue } = props;
     const bgmPlayerRef = useRef<any>();
     const [trackDuration, setTrackDuration] = useState("00:00");
+    const timeLoaded = useRef<string>("00:00");
     const [trackCurrentTime, setTrackCurrentTime] = useState("00:00");
     const [bgmPlayer, setBGMPlayer] = useState({
         played: 0,
@@ -45,6 +46,11 @@ const TrackPlay = (props: any) => {
             ipcRenderer.send('trackProgressData', trackCurrentTime, bgmPlayer.played, trackDuration);
         }
     }, [bgmPlayer])
+
+    // useEffect(() => {
+    //     setForceUpdate(!forceUpdate)
+
+    // }, [trackDuration])
 
     /**
      * To calculate the time for the track
@@ -75,6 +81,7 @@ const TrackPlay = (props: any) => {
                 SetBGMJson(); // save it into the json
                 console.log("auto saved")
             }
+            bgm.current[bgmIndex.current].duration = CalculateTime(bgmPlayerRef.current.getDuration());
             currentSelectedTrack.current = bgm.current[bgmIndex.current].index;
             saveQueueTimer.current++; // add 1 into the timer
             console.log(currentUrl); // url of the current playing track

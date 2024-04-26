@@ -27,7 +27,26 @@ const TrackPrevious = (props: any) => {
                 console.log(playedTracks.current[playedTracks.current.length-1]);
                 // PlayTrack(bgm.current[prevTrack].index); // play next unplayed track 
                 PlayTrack(playedTracks.current[playedTracks.current.length-1]);
-                console.log("prevTrack");
+
+                // if (playedTracks.current.length == 0) {
+                //     return;
+                // }
+                // bgm.current[bgmIndex.current].played = false;
+                // console.log(bgm.current[bgmIndex.current]);
+                // // var currentTrack = bgm.current.findIndex((bgm: { played: boolean; }) => bgm.played == false); // find first track that is not played in current queue
+                // // var prevTrack = currentTrack - 1;
+                // // if (prevTrack == -1) {
+                // //     return;
+                // // }
+                // playedTracks.current.pop(); // pop current playing track
+                // console.log(playedTracks.current.length);
+                // console.log(playedTracks.current)
+                // console.log(playedTracks.current[playedTracks.current.length - 1]);
+                // // console.log(bgm.current[playedTracks.current[playedTracks.current.length-1]]);
+                // // PlayTrack(bgm.current[prevTrack].index); // play next unplayed track 
+                // // PlayTrack(playedTracks.current[playedTracks.current.length-1]);
+                // PlayTrack(playedTracks.current[playedTracks.current.length-1].index);
+                // console.log("prevTrack");
             }}><SkipPreviousIcon/>
             </Button>
         </Tooltip>

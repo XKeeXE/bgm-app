@@ -1,186 +1,137 @@
-import * as React from 'react';
-// import Table from '@mui/material/Table';
-// import TableBody from '@mui/material/TableBody';
-// import TableCell from '@mui/material/TableCell';
-// import TableContainer from '@mui/material/TableContainer';
-// import TableHead from '@mui/material/TableHead';
-// import TableRow from '@mui/material/TableRow';
-// import Paper from '@mui/material/Paper';
-import { TableVirtuoso, TableComponents, Virtuoso } from 'react-virtuoso';
 import UIContextMenu from './UIContextMenu';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
+import NumbersIcon from '@mui/icons-material/Numbers';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import { getKeyValue, Spinner, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/react';
-import { useAsyncList } from '@react-stately/data';
+import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
+
+import CheckBoxBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckBoxTrueIcon from '@mui/icons-material/CheckBox';
 
 const BGMTableList = (props: any) => {
-    const { tracks, bgm, virtuosoRef, forceUpdate, setForceUpdate, playedTracks, selectedTrack, CheckTrackType, PlayTrack } = props;
+    const { tracks, bgm, tableRef, rowRef, currentTrackTitle, forceUpdate, setForceUpdate, playedTracks, selectedTrack, CheckTrackType, PlayTrack, TranslateTrackToBGM } = props;
     const selectedContext = useRef<number>(0);
     const contextTrack = useRef<string>('');
 
-	const [isLoading, setIsLoading] = useState(true);
+    const [hideColumns, setHideColumns] = useState<boolean[]>([false, false, false, false]);
+
+    const updatedHideColumns = hideColumns.map((value, index) => {
+        if (index === 2) {
+          return true;
+        } else {
+          return value;
+        }
+      });
 
     interface Data {
         id: number;
         title: string;
         duration: number;
-        played: boolean;
+        played: JSX.Element;
     }
     
     interface ColumnData {
         width: number;
-        label: string;
+        label: string | JSX.Element;
         dataKey: keyof Data;
-        // played: boolean
     }
     
     function createData(
         id: number,
         title: string,
         duration: number,
-        played: boolean,
+        played: JSX.Element,
     ): Data {
       return { id, title, duration, played };
     }
     
     const columns: ColumnData[] = [
       {
-        width: 0,
-        label: '#',
+        width: 5,
+        label: <NumbersIcon/>,
         dataKey: 'id',
       },
       {
-        width: 200,
-        label: 'Title',
+        width: 400,
+        label: 'TITLE',
         dataKey: 'title',
       },
       {
         width: 120,
-        label: 'Duration',
+        label: <AccessTimeIcon/>,
         dataKey: 'duration',
       },
     
       {
         width: 120,
-        label: 'Played',
+        label: <PlaylistAddCheckIcon/>,
         dataKey: 'played',
       },
     ];
     
     const rows: Data[] = Array.from(tracks.current, (_, index) => {
-      return createData(index, CheckTrackType(tracks.current[index]), bgm.current[index].duration, bgm.current[index].played.toString());
+        return createData(index, CheckTrackType(tracks.current[index]), TranslateTrackToBGM(index).duration, TranslateTrackToBGM(index).played ? <CheckBoxTrueIcon/> : <CheckBoxBlankIcon/>);
     });
 
-	let list = useAsyncList({
-		async load({signal, cursor}) {
-	
-		  if (cursor) {
-			setIsLoading(false);
-		  }
-	
-		  // If no cursor is available, then we're loading the first page.
-		  // Otherwise, the cursor is the next URL to load, as returned from the previous page.
-		  const res = await fetch(cursor || 'https://swapi.py4e.com/api/people/?search=', {signal});
-		  let json = await res.json();
-	
-		  return {
-			items: json.results,
-			cursor: json.next,
-		  };
-		},
-	  });
-    
-    // const VirtuosoTableComponents: TableComponents<Data> = {
-    //   Scroller: React.forwardRef<HTMLDivElement>((props, ref) => (
-    //     <TableContainer component={Paper} {...props} ref={ref} />
-    //   )),
-    //   Table: (props) => (
-    //     <Table {...props} sx={{ borderCollapse: 'separate', tableLayout: 'fixed' }} />
-    //   ),
-    //   TableHead,
-    //   TableRow: ({ item: _item, ...props }) => <TableRow hover {...props} />,
-    //   TableBody: React.forwardRef<HTMLTableSectionElement>((props, ref) => (
-    //     <TableBody {...props} ref={ref} />
-    //   )),
-    // };
-    
-    // function fixedHeaderContent() {
-    //   return (
-    //     <TableRow>
-    //       {columns.map((column) => (
-    //         <TableCell
-    //           key={column.dataKey}
-    //           variant="head"
-    //         //   align={column.numeric || false ? 'right' : 'left'}
-    //           style={{ width: column.width }}
-    //           sx={{
-    //             backgroundColor: 'background.paper',
-    //           }}
-    //         >
-    //           {column.label}
-    //         </TableCell>
-    //       ))}
-    //     </TableRow>
-    //   );
-    // }
-    
-    // function rowContent(index: number, row: Data) {
-    //   return (
-    //     <>
-    //       {columns.map((column) => (
-    //         <TableCell
-    //             key={column.dataKey}
-    //             onClick={() => {
-    //                 PlayTrack(index);
-    //             }}
-    //             onContextMenu={() => {
-    //                 selectedContext.current = index;
-    //                 contextTrack.current = CheckTrackType(tracks.current[index]);
-    //             }}>
-    //             {row[column.dataKey]}
-    //         </TableCell>
-    //       ))}
-    //     </>
-    //   );
-    // }
-    // return (
-    //     <UIContextMenu tracks={tracks} bgm={bgm} forceUpdate={forceUpdate} setForceUpdate={setForceUpdate} playedTracks={playedTracks} selectedTrack={selectedTrack} selectedContext={selectedContext} contextTrack={contextTrack}>
-    //         <Paper style={{ height: 400, width: '100%' }}>
-    //             <TableVirtuoso
-    //                 ref={virtuosoRef}
-    //                 data={rows}
-    //                 components={VirtuosoTableComponents}
-    //                 fixedHeaderContent={fixedHeaderContent}
-    //                 itemContent={rowContent}/>
-    //         </Paper>
-    //     </UIContextMenu>
-    // )
-
 	return (
-		<Table aria-label="Example static collection table">
-      		<TableHeader>
-        		{columns.map((column) => 
-					<TableColumn key={column.dataKey}>{column.dataKey}</TableColumn>
-				)}
-      		</TableHeader>
-      	<TableBody 
-			isLoading={isLoading}
-			items={list.items}
-			loadingContent={<Spinner color="white" />}>
-	  		{rows.map((row) => (
-            	<TableRow key={row.id} onClick={() => {
-                    	PlayTrack(row.id);
-               		}}
-                	onContextMenu={() => {
-                    	selectedContext.current = row.id;
-                    	contextTrack.current = CheckTrackType(tracks.current[row.id]);
-                	}}>
-						{(columnKey) => <TableCell>{getKeyValue(row, columnKey)}</TableCell>}
-            	</TableRow>
-          	))}
-      </TableBody>
-    </Table>
+        <div className=' overflow-hidden h-[80vh] md:h-[82vh] lg:h-[85vh] overflow-y-auto select-none'>
+            <UIContextMenu tracks={tracks} bgm={bgm} currentTrackTitle={currentTrackTitle} forceUpdate={forceUpdate} setForceUpdate={setForceUpdate} playedTracks={playedTracks} 
+            PlayTrack={PlayTrack} selectedTrack={selectedTrack} selectedContext={selectedContext} contextTrack={contextTrack} TranslateTrackToBGM={TranslateTrackToBGM}>
+                <table ref={tableRef} className='table-fixed'>
+                    {/* <colgroup>
+                        {columns.map(column => (
+                            <col style={{
+                                maxWidth: column.width + 'px',
+                                width: column.width + 'px'
+                                
+                            }}/>
+                        ))}
+                    </colgroup> */}
+                    <thead>
+                        <tr>
+                            {columns.map((column, index) => (
+                                <th key={column.dataKey} onClick={() => {
+                                    console.log(index);
+                                }} style={{
+                                    // visibility: 'hidden',
+                                }}>
+                                    {column.label}
+                                </th>
+                            ))}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {rows.map(row => (
+                            <tr key={row.id} className='hover:bg-background/40 border-b-1 border-gray-600 first:border-t-1 last:border-0' id={`row-${row.id}`} ref={(element) => rowRef.current[row.id] = element} onClick={() => {
+                                PlayTrack(row.id);
+                            }} onContextMenu={() => {
+                                console.log(row.id);
+                                selectedContext.current = row.id;
+                                contextTrack.current = CheckTrackType(tracks.current[row.id]);
+                            }}>
+                                <td className='text-xs text-center' style={{
+                                    // display: hideColumns[0] ? '' : 'none'
+                                    // visibility: hideColumns[1] ? 'visible' : 'hidden'
+                                }}>
+                                    {row.id}
+                                </td>
+                                <td className='text-xs text-ellipsis overflow-hidden whitespace-nowrap max-w-[300px] md:max-w-[300px] lg:max-w-[400px] xl:max-w-[600px]' style={{
+                                    // visibility: hideColumns[1] ? 'hidden' : 'visible'
+                                }}>
+                                    {row.title}
+                                </td>
+                                <td>
+                                    {row.duration}
+                                </td>
+                                <td>
+                                    {row.played}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </UIContextMenu>
+        </div>
 	)
 }
 

@@ -17,7 +17,7 @@ import UISettings from "./UISettings";
 const queueFile = "BGMQUEUE.txt";
 
 const UINavbar = (props: any) => {
-    const { bgm, tracks, savedSettings, setSavedSettings, bgmIndex, currentUrl, virtuosoRef, listRef, 
+    const { bgm, tracks, savedSettings, setSavedSettings, bgmIndex, currentUrl, listRef, 
         language, setLanguage, playedTracks, currentSelectedTrack, setSelectedTrack, forceUpdate, setForceUpdate, 
         ScrollToIndex, CheckTrackType, PlayNextInQueue, PlayTrack } = props;
     
@@ -91,7 +91,8 @@ const UINavbar = (props: any) => {
                     </div>
                     <BGMVolume muteBGM={muteBGM} setMuteBGM={setMuteBGM} showVolume={showVolume} setShowVolume={setShowVolume} savedSettings={savedSettings} setSavedSettings={setSavedSettings}/>
                     <TrackPlay bgm={bgm} bgmIndex={bgmIndex} currentSelectedTrack={currentSelectedTrack} saveQueueTimer={saveQueueTimer} playing={playing} currentUrl={currentUrl} 
-                    muteBGM={muteBGM} loopTrack={loopTrack} savedSettings={savedSettings} ScrollToIndex={ScrollToIndex} SetBGMJson={SetBGMJson} PlayNextInQueue={PlayNextInQueue}/>
+                    muteBGM={muteBGM} loopTrack={loopTrack} savedSettings={savedSettings} forceUpdate={forceUpdate} setForceUpdate={setForceUpdate} ScrollToIndex={ScrollToIndex} 
+                    SetBGMJson={SetBGMJson} PlayNextInQueue={PlayNextInQueue}/>
                 </div>
             </CardBody>
         </Card>
