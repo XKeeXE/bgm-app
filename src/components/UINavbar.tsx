@@ -13,6 +13,7 @@ import { useRef, useState } from "react";
 
 import fs from 'fs'
 import UISettings from "./UISettings";
+import BGMReset from "./BGMReset";
 
 const queueFile = "BGMQUEUE.txt";
 
@@ -88,6 +89,7 @@ const UINavbar = (props: any) => {
                         <BGMLoadQueue SetBGMJson={SetBGMJson} GetBGMJson={GetBGMJson} language={language} PlayNextInQueue={PlayNextInQueue}/>
                         <BGMSaveQueue bgm={bgm} saveQueueTimer={saveQueueTimer} language={language}/>
                         <BGMCheckDuplicate tracks={tracks} language={language} CheckTrackType={CheckTrackType}/>
+                        <BGMReset bgm={bgm} playedTracks={playedTracks}/>
                     </div>
                     <BGMVolume muteBGM={muteBGM} setMuteBGM={setMuteBGM} showVolume={showVolume} setShowVolume={setShowVolume} savedSettings={savedSettings} setSavedSettings={setSavedSettings}/>
                     <TrackPlay bgm={bgm} bgmIndex={bgmIndex} currentSelectedTrack={currentSelectedTrack} saveQueueTimer={saveQueueTimer} playing={playing} currentUrl={currentUrl} 

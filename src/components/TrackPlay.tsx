@@ -47,11 +47,6 @@ const TrackPlay = (props: any) => {
         }
     }, [bgmPlayer])
 
-    // useEffect(() => {
-    //     setForceUpdate(!forceUpdate)
-
-    // }, [trackDuration])
-
     /**
      * To calculate the time for the track
      * @param time the amount in miliseconds
@@ -65,6 +60,17 @@ const TrackPlay = (props: any) => {
         return (minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0')); // ex: 01:34
     } 
 
+    // async function CalculateTime(time: number): Promise<string> {
+    //     return new Promise((resolve, _reject) => {
+    //         setTimeout(() => {
+    //             let dateObj = new Date(time * 1000);
+    //             let minutes = dateObj.getUTCMinutes();
+    //             let seconds = dateObj.getSeconds();
+    //             resolve(minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0'));
+    //         }, 0);
+    //     });
+    // }
+
     return (
         <>
         <TrackSeek bgmPlayerRef={bgmPlayerRef} trackCurrentTime={trackCurrentTime} trackDuration={trackDuration} bgmPlayer={bgmPlayer} setBGMPlayer={setBGMPlayer}/>
@@ -72,8 +78,9 @@ const TrackPlay = (props: any) => {
         onError={() => {
             PlayNextInQueue(); // cannot play the selected track so we skip to the next one
         }}
-        onStart={() => {
-            setTrackDuration(CalculateTime(bgmPlayerRef.current.getDuration())); // state to set the track duration
+        onStart={async () => {
+            timeLoaded.current = CalculateTime(bgmPlayerRef.current.getDuration());
+            setTrackDuration(timeLoaded.current); // state to set the track duration
             console.log(bgm.current[bgmIndex.current])
             // if played x tracks auto save the queue and set the timer back to 0
             if (saveQueueTimer.current == 5) {
@@ -81,7 +88,8 @@ const TrackPlay = (props: any) => {
                 SetBGMJson(); // save it into the json
                 console.log("auto saved")
             }
-            bgm.current[bgmIndex.current].duration = CalculateTime(bgmPlayerRef.current.getDuration());
+            bgm.current[bgmIndex.current].duration = timeLoaded.current;
+            setForceUpdate(!forceUpdate);
             currentSelectedTrack.current = bgm.current[bgmIndex.current].index;
             saveQueueTimer.current++; // add 1 into the timer
             console.log(currentUrl); // url of the current playing track

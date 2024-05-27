@@ -60,7 +60,7 @@ function App() {
     const rowRef = useRef([]);
     const currentSelectedTrack = useRef<number>(-1); // index of the current select track
     // const saveQueueTimer = useRef(0); // auto save timer
-    const playedTracks = useRef<any>([]); // array of the tracks played
+    const playedTracks = useRef<number[]>([]); // array of the tracks played
     const [selectedTrack, setSelectedTrack] = useState<number>(0);
     const currentTrackTitle = useRef<string>('No Track Playing');
     // const [playing, setPlaying] = usevalue<boolean>(true); // to pause and resume ReactPlayer
