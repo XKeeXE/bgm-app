@@ -1,39 +1,112 @@
-import { Button, Divider, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Switch, Tooltip } from "@nextui-org/react";
-import SettingsIcon from '@mui/icons-material/Settings';
-import Languages from '../assets/languages.json';
-import LanguageSelect from '../components/LanguageSelect';
-import { useState } from "react";
-import Drawer from "@mui/material/Drawer";
-import { Box, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
+import {  useContext, useEffect, useRef } from "react";
+import { UI } from "./types/types";
+import { BGMContext } from "../App";
+import { Darkmode, Directory, DownloadTrack, InsertFile, Language } from "./Icons";
 
-const UISettings = (props: any) => {
-    const {} = props;
-    const [open, setOpen] = useState<boolean>(false);
+//  : <Brightness fontSize='large' />,
+
+const UISettings = () => {
+
+    const { LoadTracks } = useContext(BGMContext);
+    
+    useEffect(() => {
+        window.api.newHome((bgm, path) => {
+            console.log(`New path: ${path}`)
+            LoadTracks(bgm);
+        })
+    }, [])
+
+    const settingsRef = useRef<HTMLDivElement>(null);
+
+    const items: UI[] = [{
+        key: 'Darkmode',
+        tooltip: 'Change Theme',
+        icon: <Darkmode fontSize='large'/>,
+        onClick: function (): void {
+            window.api.darkmode();
+        }
+    },
+    {
+        key: 'Language',
+        tooltip: 'Change language',
+        icon: <Language fontSize='large' />,
+        onClick: function (): void {
+            console.log('test');
+        }
+    },
+    {
+        key: "Download",
+        tooltip: "Download Track",
+        icon: <DownloadTrack fontSize="large" />,
+        onClick: function (): void {
+            console.log('clicklab;e');
+    
+        }
+    },
+    {
+        key: "File",
+        tooltip: "Move file",
+        icon: <InsertFile fontSize='large' />,
+        onClick: function (): void {
+            console.log('clicklab;e');
+    
+        }
+    },
+    {
+        key: 'Home',
+        tooltip: 'Directory',
+        icon: <Directory fontSize='large' />,
+        onClick: function (): void {
+            window.api.selectHome();
+        }
+    }]
+    
+    function CurrentTransform() {
+        const currentTransform = getComputedStyle(settingsRef.current!).transform;
+        const regex = /matrix\(1, 0, 0, 1, ([+-]?(?=\.\d|\d)(?:\d+)?(?:\.?\d*))(?:[Ee]([+-]?\d+))?, 0\)/i;
+        return currentTransform.match(regex)![1];
+    }
+
+    function Animation(transformA: number|string, transformB: number|string) {
+        return (
+            settingsRef.current!.animate(
+                [
+                    { transform: `translateX(${transformA}px)` },
+                    { transform: `translateX(${transformB}px)` }
+                ],
+                {
+                    duration: 220,
+                    fill: 'forwards'
+                }
+            )
+        )
+    }
+
+    function handleShowSettings() {
+        // setIsVisible(true);
+        Animation(-50, 0);
+    };
+
+    function handleHideSettings() {
+        // setIsVisible(false);
+        Animation(CurrentTransform(), -50);        
+    };
 
     return (
         <>
-		<Dropdown closeOnSelect={false} showArrow>
-				<DropdownTrigger>
-					{/* <Tooltip content={"settings"}> */}
-						<Button variant="light" size="lg" isIconOnly aria-label="settings" onClick={() => {
-							
-						}}><SettingsIcon/>
-						</Button>
-        			{/* </Tooltip> */}
-				</DropdownTrigger>
-
-				<DropdownMenu aria-label="Static Actions">
-					<DropdownItem key="new">New file</DropdownItem>
-					{/* <DropdownItem key="copy">Copy link</DropdownItem> */}
-					<DropdownItem key="edit"><Switch defaultSelected aria-label="Automatic updates"/></DropdownItem>
-				</DropdownMenu>
-		</Dropdown>
-        {/* <Tooltip content={"Settings"}>
-            <Button variant="light" size="lg" isIconOnly aria-label="settings" onClick={toggleDrawer(true)}>
-                <SettingsIcon/>
-            </Button>
-        </Tooltip>
-         */}
+        <div className="min-w-[50px] "/>
+        <div className="settings-background absolute min-w-[50px] min-h-screen z-50" onMouseEnter={(handleShowSettings)} onMouseLeave={(handleHideSettings)}>
+            <div ref={settingsRef} className={`settings relative translate-x-[-50px] min-h-screen toolbar`}>
+                <ul className=" flex flex-col items-center">
+                    {items.map(item => (
+                        <li key={item.key} className="relative tooltip first:mt-2 mb-4 cursor-pointer rounded-full border-2 border-dashed p-[2px]" onClick={item.onClick}>
+                            <span className="tooltiptext left-[135%]">{item.tooltip}</span>
+                            {item.icon}
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        </div>
         </>
     )
 }

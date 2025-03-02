@@ -11,25 +11,15 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        custom: ['IBMSansJPP']
+        renogare: ['Renogare']
       },
-      keyframes: {
-        "scroll-text": {
-          "100%": {transform: "translateX(100%)"},
-          "-100%": {transform: "translateX(-100%)"} 
-        },
-        "show-volume": {
-          "100%": {transform: "translateX(0px)"}
-        },
-        "hide-volume": {
-          "0%": {transform: "translateX(0px)"}
-        },
-      },
-      animation:{
-        "scroll-text":"scroll-text 15s linear infinite"
+      screens: {
+        'h-sm': { 'raw': '(min-height: 640px)' },
+        'h-md': { 'raw': '(min-height: 768px)' },
+        'h-lg': { 'raw': '(min-height: 1024px)'}
       }
     },
   },
   darkMode: "class",
-  plugins: [nextui()],
+  plugins: [nextui(), require('tailwind-scrollbar') ({nocompatible: true})],
 };

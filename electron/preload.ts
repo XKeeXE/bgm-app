@@ -1,26 +1,85 @@
 import { contextBridge, ipcRenderer } from 'electron'
+import { track } from '../src/components/types/types';
 
-// --------- Expose some API to the Renderer process ---------
-contextBridge.exposeInMainWorld('ipcRenderer', withPrototype(ipcRenderer))
+contextBridge.exposeInMainWorld(
+    "api", {
+        // General
+        quit: () => {
+            ipcRenderer.send('quit');
+        },
 
-// `exposeInMainWorld` can't detect attributes and methods of `prototype`, manually patching it.
-function withPrototype(obj: Record<string, any>) {
-  const protos = Object.getPrototypeOf(obj)
+        // Main
+        loadTracks: () => {
+            return ipcRenderer.invoke('load-tracks');
+        },
 
-  for (const [key, value] of Object.entries(protos)) {
-    if (Object.prototype.hasOwnProperty.call(obj, key)) continue
+        playTrack: (trackPath: string) => {
+            ipcRenderer.send('play-track', trackPath);
+        },
+        seekTrack: (time: number) => {
+            ipcRenderer.send('seek-track', time);
+        },
 
-    if (typeof value === 'function') {
-      // Some native APIs, like `NodeJS.EventEmitter['on']`, don't work in the Renderer process. Wrapping them into a function.
-      obj[key] = function (...args: any) {
-        return value.call(obj, ...args)
-      }
-    } else {
-      obj[key] = value
+        saveQueue: (bgm: Map<number, track>) => {
+            ipcRenderer.send('save-queue', bgm)
+        },
+        loadQueue: () => {
+            return ipcRenderer.invoke('load-queue'); 
+        },
+        readThumbnails: () => {
+            return ipcRenderer.invoke('read-thumbnail');
+        },
+
+        changeVolume: (volume: number) => {
+            ipcRenderer.send('volume-player', volume);
+        },
+
+
+        // Player
+        onTrackStarted: (callback: any) => {
+            ipcRenderer.on('started', (_e, duration: number) => {
+                callback(duration);
+            });
+        },
+        onProgress: (callback: any) => {
+            ipcRenderer.on('playback', (_e, currentTime: number) => {
+                callback(currentTime);
+            });
+        },
+        onTrackEnded: (callback: any) => {
+            ipcRenderer.on('ended', () => {
+                callback();
+            });
+        },
+
+
+        pausePlayer: (pause: boolean) => {
+            ipcRenderer.send('pause-player', pause);
+        },
+        mutePlayer: (mute: boolean) => {
+            ipcRenderer.send('mute-player', mute);
+        },
+        loopPlayer: (loop: boolean) => {
+            ipcRenderer.send('loop-player', loop);
+
+        },
+        
+
+        // Settings
+        darkmode: () => {
+            return ipcRenderer.invoke('darkmode');
+        },
+        selectHome: () => {
+            ipcRenderer.send('select-home');
+        }, 
+        newHome: (callback: any) => {
+            ipcRenderer.on('new-home', (_e, bgm: Map<number, track>, path: string) => {
+                callback(bgm, path);
+            });
+        }
+        
     }
-  }
-  return obj
-}
+);
 
 // --------- Preload scripts loading ---------
 function domReady(condition: DocumentReadyState[] = ['complete', 'interactive']) {

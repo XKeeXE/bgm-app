@@ -1,1 +1,1 @@
-{"path":"E:/BGM/","volume":0.07}
+{"language":"en","homePath":"E:\\BGM","darkMode":true,"viewportHeight":620,"viewportWidth":860,"volume":0.07,"maxSaveTimer":5}

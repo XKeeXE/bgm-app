@@ -1,137 +1,345 @@
-import UIContextMenu from './UIContextMenu';
-import { useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
+import {
+    createColumnHelper,
+    flexRender,
+    getCoreRowModel,
+    Row,
+    useReactTable,
+  } from '@tanstack/react-table'
+import { useVirtualizer } from '@tanstack/react-virtual'
 
-import NumbersIcon from '@mui/icons-material/Numbers';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
+import * as Icons from './Icons';
 
-import CheckBoxBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
-import CheckBoxTrueIcon from '@mui/icons-material/CheckBox';
+import { track, UI } from './types/types';
+import { BGMContext } from '../App';
+import { ContextMenu, ContextMenuItem, ContextMenuTrigger } from 'rctx-contextmenu';
+import BGMInputSearch from './BGMInputSearch';
 
-const BGMTableList = (props: any) => {
-    const { tracks, bgm, tableRef, rowRef, currentTrackTitle, forceUpdate, setForceUpdate, playedTracks, selectedTrack, CheckTrackType, PlayTrack, TranslateTrackToBGM } = props;
-    const selectedContext = useRef<number>(0);
-    const contextTrack = useRef<string>('');
-
-    const [hideColumns, setHideColumns] = useState<boolean[]>([false, false, false, false]);
-
-    const updatedHideColumns = hideColumns.map((value, index) => {
-        if (index === 2) {
-          return true;
-        } else {
-          return value;
-        }
-      });
-
-    interface Data {
-        id: number;
-        title: string;
-        duration: number;
-        played: JSX.Element;
+const nullTrack: track = {
+    id: -1,
+    url: '',
+    title: '',
+    queue: {
+        pos: -1,
+        played: false
     }
-    
-    interface ColumnData {
-        width: number;
-        label: string | JSX.Element;
-        dataKey: keyof Data;
-    }
-    
-    function createData(
-        id: number,
-        title: string,
-        duration: number,
-        played: JSX.Element,
-    ): Data {
-      return { id, title, duration, played };
-    }
-    
-    const columns: ColumnData[] = [
-      {
-        width: 5,
-        label: <NumbersIcon/>,
-        dataKey: 'id',
-      },
-      {
-        width: 400,
-        label: 'TITLE',
-        dataKey: 'title',
-      },
-      {
-        width: 120,
-        label: <AccessTimeIcon/>,
-        dataKey: 'duration',
-      },
-    
-      {
-        width: 120,
-        label: <PlaylistAddCheckIcon/>,
-        dataKey: 'played',
-      },
-    ];
-    
-    const rows: Data[] = Array.from(tracks.current, (_, index) => {
-        return createData(index, CheckTrackType(tracks.current[index]), TranslateTrackToBGM(index).duration, TranslateTrackToBGM(index).played ? <CheckBoxTrueIcon/> : <CheckBoxBlankIcon/>);
+}
+
+const BGMTableList = (props: {
+    data: track[],
+}) => {
+    const { data } = props;
+    const { bgm, bgmQueue, queueTracker, currentTrack, PlayTrack, ForceUpdate, ResetQueue, ScrollToIndex } = useContext(BGMContext);
+
+    const selectedContext = useRef<track>(nullTrack);
+
+    const [viewport, setViewport] = useState({
+        width: 0,
+        height: 0,
     });
+    const [searchingID, setSearchingID] = useState<number>(-1);
+    const searching = useRef<boolean>(false);
+    const tableDivRef = useRef<HTMLDivElement>(null)
+
+    function TableInfo(header: React.ReactNode, className?: string): JSX.Element {
+        return (<div className={className}>
+                    {header}
+                </div>)
+    }
+
+    const columnHelper = createColumnHelper<track>()
+
+    const columns = [
+        columnHelper.accessor('id', {
+            header: () => TableInfo(<Icons.Number/>),
+            maxSize: 80,
+            enableResizing: false,
+            cell: row => TableInfo(row.getValue(), 'font-bold text-center')
+            }),
+        columnHelper.accessor('title', {
+            header: () => TableInfo('TITLE', 'flex items-start'),
+            cell: row => <span className='overflow-hidden line-clamp-1 '>{row.getValue()}</span>,
+            enableResizing: false,
+            minSize: viewport.width,
+        }),
+        // columnHelper.accessor('duration', {
+        //     id: 'duration',
+        //     header: () => TableInfo(<Icons.Duration/>, 'flex items-start'),
+        //     cell: row => TableInfo(row.getValue(), ''),
+        //     maxSize: 80,
+        //     enableResizing: false,
+        // }),
+        columnHelper.accessor('queue.pos', {
+            id: 'pos',
+            header: () => TableInfo(<Icons.QueuePos/>),
+            cell: row => TableInfo(row.getValue(), ' text-center'),
+            enableResizing: false,
+            maxSize: 60,
+        }),
+        columnHelper.accessor('queue.played', {
+            id: 'played',
+            header: () =>  TableInfo(<Icons.Played/>),
+            cell: row => TableInfo(row.getValue() ? <Icons.PlayedTrue/> : <Icons.PlayedFalse/>, 'flex justify-center'),
+            enableResizing: false,
+            maxSize: 60,
+        }),
+    ]
+
+    const table = useReactTable({
+        data,
+        columns,
+        getCoreRowModel: getCoreRowModel(),
+    })
+
+    const { rows } = table.getRowModel()
+    
+    const rowVirtualizer = useVirtualizer({
+    count: rows.length,
+    estimateSize: () => 32, // Estimate row height for accurate scrollbar dragging
+    getScrollElement: () => tableDivRef.current,
+    measureElement: element => element?.getBoundingClientRect().height,
+    overscan: 1,
+    })
+
+    useEffect(() => {
+        function handleViewportChange() {
+            // console.log(window.innerHeight);
+            setViewport({width: window.innerWidth-538, height: window.innerHeight-140});
+        }
+        handleViewportChange();
+        const resizeObserver = new ResizeObserver(handleViewportChange);
+        if (tableDivRef.current) {
+            resizeObserver.observe(tableDivRef.current);
+        }
+
+        function handleTrackScroll(e: CustomEvent) {
+            const { index } = e.detail
+            let offset = index as number // For some weird reason the scrollToIndex is not in the center
+            if (index < bgm.size) {
+                offset -= 2
+            }
+            rowVirtualizer.scrollToIndex(offset+2, {
+                align: 'center',
+                behavior: 'auto'
+            })
+        }
+        window.addEventListener('handleTrackScroll', handleTrackScroll as EventListener);
+        window.addEventListener('scroll', handleTrackScroll as EventListener)
+        return () => {
+            window.removeEventListener('handleTrackScroll', handleTrackScroll as EventListener);
+            if (tableDivRef.current) {
+                resizeObserver.unobserve(tableDivRef.current);
+            }
+        };
+    }, [])
+
+    useEffect(() => {
+        ScrollToIndex(currentTrack.id)
+    }, [currentTrack])
+
+    const items: UI[] = [{
+        key: 'Queue',
+        tooltip: 'Add to queue',
+        icon: <Icons.Queue/>,
+        onClick: function (): void {
+            let track: track;
+            // const selectedTrack = bgm.get(selectedContext)!;
+            selectedContext.current.queue.played = false;
+            let currentPos = selectedContext.current.queue.pos; // We have to change the pos mid way so we know the exact pos
+            
+            if (queueTracker.current == -1) { // Add it to the bottom of the queue
+                for (let index = 0; index < bgm.size; index++) {
+                    track = bgm.get(index)!;
+                    if (track.queue.pos < currentPos) { // Ignore all previous that come before the selected track queue pos
+                        continue;
+                    } 
+                    if (track.queue.pos == currentPos) { // Set the selected track to the bottom of the queue
+                        selectedContext.current.queue.pos = bgm.size-1 
+                        continue;
+                    }
+                    track.queue.pos -= 1
+                }
+                ForceUpdate();
+                return;
+            }
+            queueTracker.current++;
+            // TODO loop the queuetracker to see if the item was added, if it was then just organize the pos, else do below
+            for (let index = 0; index < bgm.size; index++) {
+                track = bgm.get(index)!;
+                if (track.queue.pos > currentPos) { // Ignore all tracks that are in the front of the selected track queue pos
+                    continue;
+                } 
+                if (track.queue.pos == currentPos) { // Set the selected track to the position of the queue tracker
+                    selectedContext.current.queue.pos = queueTracker.current;
+                    continue;
+                }
+                if (queueTracker.current > track.queue.pos) { // Ignore the previous inserted tracks in the queue
+                    continue;
+                }
+                
+                track.queue.pos += 1
+            }
+            ForceUpdate();
+            ResetQueue(bgm.values());
+            console.log(`Queued: \n${selectedContext.current.title}`);
+            console.log(selectedContext.current)
+        }
+    }, 
+    {
+        key: 'Stack',
+        tooltip: '',
+        icon: <Icons.Stack/>,
+        onClick: function (): void {
+            queueTracker.current = 0;
+            let track: track;
+            let currentPos = selectedContext.current.queue.pos; // We have to change the pos mid way so we know the exact pos
+            selectedContext.current.queue.played = false;
+            for (let index = 0; index < bgm.size; index++) {
+                track = bgm.get(index)!;
+                if (track.queue.pos == currentPos) { // Send the selected track to the front of the queue
+                    selectedContext.current.queue.pos = 0;
+                    continue;
+                }
+                if (track.queue.pos > currentPos) { // If the queue pos is higher than the selected track then skip it
+                    continue;
+                }
+                track.queue.pos += 1;
+            }
+            ForceUpdate();
+            ResetQueue(bgm.values());
+            console.log(`Stacked: \n${selectedContext.current.title}`);
+            console.log(selectedContext.current)
+        }
+    }, 
+    {
+        key: 'Play',
+        tooltip: '',
+        icon: <Icons.PlayTrack/>,
+        onClick: function (): void {
+            PlayTrack(selectedContext.current);
+        }
+    }, 
+    {
+        key: 'Clipboard',
+        tooltip: '',
+        icon: <Icons.Clipboard/>,
+        onClick: function (): void {
+            const clipboardedTrack = selectedContext.current.title;
+            console.log(`Copied \n${clipboardedTrack}`);
+            navigator.clipboard.writeText(clipboardedTrack);
+        }
+    },
+    {
+        key: 'Info',
+        tooltip: '',
+        icon: <Icons.Info/>,
+        onClick: function (): void {
+            console.log(selectedContext);
+        }
+    }]
 
 	return (
-        <div className=' overflow-hidden h-[80vh] md:h-[82vh] lg:h-[85vh] overflow-y-auto select-none'>
-            <UIContextMenu tracks={tracks} bgm={bgm} currentTrackTitle={currentTrackTitle} forceUpdate={forceUpdate} setForceUpdate={setForceUpdate} playedTracks={playedTracks} 
-            PlayTrack={PlayTrack} selectedTrack={selectedTrack} selectedContext={selectedContext} contextTrack={contextTrack} TranslateTrackToBGM={TranslateTrackToBGM}>
-                <table ref={tableRef} className='table-fixed'>
-                    {/* <colgroup>
-                        {columns.map(column => (
-                            <col style={{
-                                maxWidth: column.width + 'px',
-                                width: column.width + 'px'
-                                
-                            }}/>
-                        ))}
-                    </colgroup> */}
-                    <thead>
-                        <tr>
-                            {columns.map((column, index) => (
-                                <th key={column.dataKey} onClick={() => {
-                                    console.log(index);
-                                }} style={{
-                                    // visibility: 'hidden',
-                                }}>
-                                    {column.label}
-                                </th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {rows.map(row => (
-                            <tr key={row.id} className='hover:bg-background/40 border-b-1 border-gray-600 first:border-t-1 last:border-0' id={`row-${row.id}`} ref={(element) => rowRef.current[row.id] = element} onClick={() => {
-                                PlayTrack(row.id);
-                            }} onContextMenu={() => {
-                                console.log(row.id);
-                                selectedContext.current = row.id;
-                                contextTrack.current = CheckTrackType(tracks.current[row.id]);
-                            }}>
-                                <td className='text-xs text-center' style={{
-                                    // display: hideColumns[0] ? '' : 'none'
-                                    // visibility: hideColumns[1] ? 'visible' : 'hidden'
-                                }}>
-                                    {row.id}
-                                </td>
-                                <td className='text-xs text-ellipsis overflow-hidden whitespace-nowrap max-w-[300px] md:max-w-[300px] lg:max-w-[400px] xl:max-w-[600px]' style={{
-                                    // visibility: hideColumns[1] ? 'hidden' : 'visible'
-                                }}>
-                                    {row.title}
-                                </td>
-                                <td>
-                                    {row.duration}
-                                </td>
-                                <td>
-                                    {row.played}
-                                </td>
+    <>
+    <div tabIndex={-1}
+    className={`overflow-x-auto w-full`}
+    ref={tableDivRef}
+    style={{
+        minHeight: `${viewport.height}px`,
+        maxHeight: `${viewport.height}px`
+    }}>
+        <BGMInputSearch searching={searching} setSearchingID={setSearchingID}/>
+        <ContextMenuTrigger id="track-context">
+            <table className='' style={{ display: 'grid' }}>
+                <thead className=''
+                style={{
+                    display: 'grid',
+                    top: 0,
+                    zIndex: 1,
+                    }}
+                onContextMenu={() => {
+                    selectedContext.current = nullTrack; // MUST FIX THIS TO NOT OPEN CONTEXT
+                }}
+                >   
+                {table.getHeaderGroups().map((headerGroup) => (
+                    <tr key={headerGroup.id} >
+                        {headerGroup.headers.map((header) => {
+                        return (
+                            <th className='relative select-none pt-[2px] pb-[4px]'
+                            key={header.id}
+                            colSpan={header.colSpan}
+                            style={{ width: header.getSize() }}
+                            >
+                            {header.isPlaceholder
+                                ? null
+                                : flexRender(
+                                    header.column.columnDef.header,
+                                    header.getContext()
+                                    )}
+                                {header.column.getCanResize() && (
+                                <div
+                                    onMouseDown={header.getResizeHandler()}
+                                    onTouchStart={header.getResizeHandler()}
+                                    className={`resizer ${
+                                    header.column.getIsResizing() ? 'isResizing' : ''
+                                    }`}
+                                ></div>
+                                )}
+                            </th>
+                        )
+                        })}
+                    </tr>
+                    ))}
+                </thead>
+                <tbody style={{ 
+                    display: 'grid',
+                    height: `${rowVirtualizer.getTotalSize()}px`, //tells scrollbar how big the table is
+                    position: 'relative', //needed for absolute positioning of rows
+                }}>
+                    {rowVirtualizer.getVirtualItems().map(virtualRow => {
+                        const row = rows[virtualRow.index] as Row<track>
+                        return (
+                            <tr className={`absolute cursor-pointer select-none  ${row.index === searchingID || row.index === currentTrack.id ? ' bg-blue-100 hover:border-blue-300 ' : ' hover:bg-slate-200'}`} 
+                                data-index={virtualRow.index} //needed for dynamic row height measurement
+                                ref={node => rowVirtualizer.measureElement(node)} //measure dynamic row height
+                                key={row.id}
+                                style={{
+                                    transform: `translateY(${virtualRow.start}px)`, //this should always be a `style` as it changes on scroll
+                                }}
+                                onClick={() => {
+                                    bgmQueue.current.remove(bgm.get(row.index)!);
+                                    PlayTrack(bgm.get(row.index)!);
+                                }}
+                                onContextMenu={() => {
+                                    selectedContext.current = bgm.get(row.index)!;
+                                }}
+                                >
+                                {row.getVisibleCells().map(cell => {
+                                    return (
+                                    <td
+                                        key={cell.id}
+                                        style={{
+                                            width: cell.column.getSize(),
+                                        }}
+                                    >
+                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                    </td>
+                                    )
+                                })}
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </UIContextMenu>
-        </div>
+                        )
+                    })}
+                </tbody>
+            </table>
+        </ContextMenuTrigger>
+    </div>
+    <ContextMenu id="track-context" className="rounded-sm">
+        {items.map((item, index) => (
+            <ContextMenuItem key={item.key} onClick={item.onClick} className={`${index === 2 ? 'border-b-1' : ''} `}>
+                <span className='flex flex-row gap-2'>{item.icon}{item.key}</span>
+            </ContextMenuItem>
+        ))}
+    </ContextMenu>
+    </>
 	)
 }
 

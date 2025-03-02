@@ -1,12 +1,41 @@
 {
   "name": "bgm-app",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "author": "Patch",
+  "description": "Plays background music",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build && electron-builder",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "postinstall": "patch-package",
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
+  },
+  "build": {
+    "appId": "com.patch.bgmapp",
+    "productName": "BGM App",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+        "dist-electron/**/*",
+        "dist/**/*",
+        "node_modules/**/*"
+    ],
+    "asar": true,
+    "win": {
+      "target": "nsis"
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+    
   },
   "dependencies": {
     "@electron/remote": "^2.1.2",
@@ -16,41 +45,54 @@
     "@mui/material": "^5.14.11",
     "@mui/x-data-grid": "^6.16.0",
     "@nextui-org/react": "^2.2.0",
-    "@nextui-org/use-infinite-scroll": "^2.1.2",
     "@react-stately/data": "^3.11.2",
+    "@tanstack/react-table": "^8.20.5",
+    "@tanstack/react-virtual": "^3.10.7",
     "@types/react-window": "^1.8.6",
     "bootstrap": "^5.3.2",
+    "electron-squirrel-startup": "^1.0.1",
     "framer-motion": "^10.16.4",
-    "get-audio-duration": "^4.0.1",
     "jsmediatags": "^3.9.7",
-    "list-react-files": "^0.2.0",
+    "load-esm": "^1.0.1",
     "lodash": "^4.17.21",
-    "mp3-duration": "^1.1.0",
-    "p-limit": "^5.0.0",
+    "music-metadata": "^10.8.3",
+    "patch-package": "^8.0.0",
+    "play-sound": "^1.1.6",
     "rctx-contextmenu": "^1.4.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-player": "^2.13.0",
-    "react-virtuoso": "^4.7.7",
-    "react-window": "^1.8.9",
+    "react-virtualized": "^9.22.5",
+    "react-window": "^1.8.10",
     "vite-tsconfig-paths": "^4.2.1"
   },
   "devDependencies": {
+    "@electron-forge/cli": "^7.5.0",
+    "@electron-forge/maker-deb": "^7.5.0",
+    "@electron-forge/maker-rpm": "^7.5.0",
+    "@electron-forge/maker-squirrel": "^7.5.0",
+    "@electron-forge/maker-zip": "^7.5.0",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.5.0",
+    "@electron-forge/plugin-fuses": "^7.5.0",
+    "@electron/fuses": "^1.8.0",
     "@types/bootstrap": "^5.2.7",
+    "@types/jsmediatags": "^3.9.6",
     "@types/react": "^18.2.21",
     "@types/react-dom": "^18.2.7",
     "@typescript-eslint/eslint-plugin": "^6.6.0",
     "@typescript-eslint/parser": "^6.6.0",
     "@vitejs/plugin-react": "^4.0.4",
     "autoprefixer": "^10.4.16",
-    "electron": "^26.1.0",
-    "electron-builder": "^24.6.4",
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8",
+    "electron-packager": "^17.1.2",
     "eslint": "^8.48.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.3",
     "postcss": "^8.4.31",
     "postcss-loader": "^7.3.3",
     "sass": "^1.69.2",
+    "tailwind-scrollbar": "^3.1.0",
     "tailwindcss": "^3.3.5",
     "typescript": "^5.2.2",
     "vite": "^4.4.9",

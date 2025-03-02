@@ -20,6 +20,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "electron"],
+  "include": ["src", "electron", "dist-electron/worker.js"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
