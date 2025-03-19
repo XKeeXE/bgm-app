@@ -1,1 +1,1 @@
-{"language":"en","homePath":"E:\\BGM","darkMode":true,"viewportHeight":620,"viewportWidth":860,"volume":0.03,"maxSaveTimer":5}
+{"language":"en","homePath":"E:\\BGM","darkMode":true,"viewportHeight":620,"viewportWidth":860,"volume":0.06,"maxSaveTimer":5}

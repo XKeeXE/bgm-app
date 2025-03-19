@@ -6,7 +6,7 @@ import { BGMContext } from "../App";
 
 const UINavbar = () => {
 
-    const { bgm, currentTrack, queueTracker, playedQueue, focus, PlayTrack, PlayNextInQueue, ForceUpdate, ScrollToIndex, ResetQueue, LoopTrack, ConsoleLog } = useContext(BGMContext);
+    const { bgm, currentTrack, queueTracker, playedQueue, focus, PlayTrack, PlayNextInQueue, ForceUpdate, ResetQueue, LoopTrack, ConsoleLog } = useContext(BGMContext);
     const [player, setPlayer] = useState({
         paused: false,
         muted: false,

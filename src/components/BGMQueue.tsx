@@ -17,7 +17,7 @@ interface trackQueued {
 }
 
 const BGMQueue = () => {
-    const { bgm, bgmQueue, currentTrack, forceUpdate, ForceUpdate, ResetQueue, ConsoleLog} = useContext(BGMContext);
+    const { bgm, bgmQueue, currentTrack, forceUpdate, ForceUpdate, ResetQueue} = useContext(BGMContext);
 
     const [tempQueue, setTempQueue] = useState<trackQueued[]>([]);
     const result = useRef<string>('None');
