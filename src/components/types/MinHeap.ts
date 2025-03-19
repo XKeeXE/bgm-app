@@ -122,8 +122,27 @@ class MinHeap {
     }
 
     getNextTenTracks() {
-        // Return the first 10 elements or the length of the heap if less than 10
-        return this.heap.slice(0, Math.min(10, this.heap.length));
+        const result = [];
+        const tempHeap = [...this.heap]; // Create a copy of the original heap
+    
+        // Continue until we have 10 tracks or we run out of tracks
+        while (result.length < 10 && tempHeap.length > 0) {
+            // Find the index of the track with the smallest queue.pos
+            let minIndex = 0;
+            for (let j = 1; j < tempHeap.length; j++) {
+                if (tempHeap[j].queue.pos < tempHeap[minIndex].queue.pos) {
+                    minIndex = j;
+                }
+            }
+    
+            // Add the smallest track to the result
+            result.push(tempHeap[minIndex]);
+    
+            // Remove the smallest track from the temporary heap
+            tempHeap.splice(minIndex, 1);
+        }
+    
+        return result;
     }
 
     length() {

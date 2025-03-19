@@ -29,6 +29,7 @@ const UIUtilities = () => {
             tooltip: "",
             icon: <Icons.Minimize/>,
             onClick: function (): void {
+                window.api.minimize();
 
             }
         },
@@ -37,7 +38,7 @@ const UIUtilities = () => {
             tooltip: "",
             icon: <Icons.Fullscreen/>,
             onClick: function (): void {
-
+                window.api.maximize();
             }
         },
         {
@@ -69,25 +70,25 @@ const UIUtilities = () => {
             // ForceUpdate();
         }
     },
-    {
-        key: "Reset",
-        tooltip: "Reset",
-        icon: <Icons.Clipboard/>,
-        onClick: function (): void {
-            // SyncQueue('save');
-        }
-    },
+    // {
+    //     key: "Reset",
+    //     tooltip: "Reset",
+    //     icon: <Icons.Clipboard/>,
+    //     onClick: function (): void {
+    //         // SyncQueue('save');
+    //     }
+    // },
     ]
 
-    function handleKeyDown(e: React.KeyboardEvent<HTMLElement>) {
-        e.preventDefault();
-    }
+    // function handleKeyDown(e: React.KeyboardEvent<HTMLElement>) {
+    //     e.preventDefault();
+    // }
 
     return (
         <div className='w-[calc(50px+20%)] flex flex-col '>
             <div className="windows-buttons flex flex-row justify-end ">
                 {windowItems.map(item => (
-                    <button tabIndex={-1} className={`min-w-[30px] h-[29px] ${item.key === 'Close' ? 'hover:bg-red-500' : 'hover:bg-gray-300'}`} key={item.key} onClick={item.onClick}>
+                    <button tabIndex={-1} className={`min-w-[30px] h-[29px] ${item.key === 'Close' ? 'hover:bg-red-500' : 'clickable'}`} key={item.key} onClick={item.onClick}>
                         {item.icon}
                     </button>
                 ))}
@@ -95,7 +96,9 @@ const UIUtilities = () => {
 
             <div className="h-full border-2 m-2 border-black rounded-md">
                 <textarea 
+                    onDragStart={(e) => e.preventDefault()}
                     spellCheck="false"
+                    readOnly
                     tabIndex={-1} 
                     className="select-none h-full w-full bg-transparent text-xs resize-none" 
                     onChange={() => {}} 

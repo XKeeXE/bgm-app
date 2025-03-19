@@ -1,7 +1,7 @@
 import {  useContext, useEffect, useRef } from "react";
 import { UI } from "./types/types";
 import { BGMContext } from "../App";
-import { Darkmode, Directory, DownloadTrack, InsertFile, Language } from "./Icons";
+import { Darkmode, Directory } from "./Icons";
 
 //  : <Brightness fontSize='large' />,
 
@@ -26,32 +26,32 @@ const UISettings = () => {
             window.api.darkmode();
         }
     },
-    {
-        key: 'Language',
-        tooltip: 'Change language',
-        icon: <Language fontSize='large' />,
-        onClick: function (): void {
-            console.log('test');
-        }
-    },
-    {
-        key: "Download",
-        tooltip: "Download Track",
-        icon: <DownloadTrack fontSize="large" />,
-        onClick: function (): void {
-            console.log('clicklab;e');
+    // {
+    //     key: 'Language',
+    //     tooltip: 'Change language',
+    //     icon: <Language fontSize='large' />,
+    //     onClick: function (): void {
+    //         console.log('test');
+    //     }
+    // },
+    // {
+    //     key: "Download",
+    //     tooltip: "Download Track",
+    //     icon: <DownloadTrack fontSize="large" />,
+    //     onClick: function (): void {
+    //         console.log('clicklab;e');
     
-        }
-    },
-    {
-        key: "File",
-        tooltip: "Move file",
-        icon: <InsertFile fontSize='large' />,
-        onClick: function (): void {
-            console.log('clicklab;e');
+    //     }
+    // },
+    // {
+    //     key: "File",
+    //     tooltip: "Move file",
+    //     icon: <InsertFile fontSize='large' />,
+    //     onClick: function (): void {
+    //         console.log('clicklab;e');
     
-        }
-    },
+    //     }
+    // },
     {
         key: 'Home',
         tooltip: 'Directory',

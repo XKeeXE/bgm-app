@@ -73,8 +73,10 @@ const PlayerApp = () => {
         onPlay={() => {
             if (!playing.current) {
                 playing.current = true;
-                ipcRenderer.send('track-started', audioRef.current?.duration);
             }
+        }}
+        onCanPlay={() => {
+            ipcRenderer.send('track-started', audioRef.current?.duration);
         }}
         onTimeUpdate={() => {
             ipcRenderer.send('on-progress', audioRef.current?.currentTime);

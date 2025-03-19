@@ -5,17 +5,24 @@ const TrackProgress = () => {
     const [duration, setDuration] = useState<number>(0);
     const [currentTime, setCurrentTime] = useState<number>(0);
 
+    // const { ConsoleLog } = useContext(BGMContext);
+    
+
     useEffect(() => {
 
         window.api.onTrackStarted((duration) => {
             setDuration(duration);
-            // console.log(duration);
+            // ConsoleLog(`Length: ${CalculateTime(duration)}`);
         })
 
         window.api.onProgress((currentTime) => {
             setCurrentTime(currentTime);
         })
 
+        return () => {
+            window.api.offTrackStarted();
+            window.api.offProgress();
+        }
     }, [])
 
     /**
@@ -31,28 +38,21 @@ const TrackProgress = () => {
     //     return (minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0')); // ex: 01:34
     // } 
 
-    // const gradientStyle = {
-    //     background: `linear-gradient(to right, 
-    //         rgba(67, 200, 100, 1) ${Math.min((currentTime / duration) * 100 * 0.1, 10.0)}%, 
-    //         rgba(67, 220, 100, 1) ${Math.min((currentTime / duration) * 100 * 0.2, 30.0)}%, 
-    //         rgba(67, 255, 100, 1) ${Math.min((currentTime / duration) * 100, 90.0)}%, 
-    //         rgba(97, 255, 100, 1) 100%)`
-    // };
-
     return (
-        <input tabIndex={-1} className="w-full cursor-pointer"
+        <div className="w-full relative flex h-full">
+            <input tabIndex={-1} className="w-full background-progress absolute h-full select-none cursor-none" type="range"/>
+            <input tabIndex={-1} className="w-full slider-progress h-full cursor-pointer z-20"
             type="range"
             min={0}
             max={duration}
             step={1}
             value={currentTime}
-            // style={{ background: `linear-gradient(90deg, #4caf50 ${currentTime}%, #ddd ${currentTime}%)`}}
-            onChange={(e) => {
-                window.api.seekTrack(parseFloat(e.target.value))
-                // console.log(parseFloat(e.target.value));
-            }}
-            // onClick={(e) => setCurrentTime(parseFloat(e.target.value))}
-        />
+            style={{ 
+                '--value': `${(currentTime / duration) * 100}% `,
+                } as React.CSSProperties}
+            onChange={(e) => {window.api.seekTrack(parseFloat(e.target.value))}}
+            />
+        </div>
     );
 }
 

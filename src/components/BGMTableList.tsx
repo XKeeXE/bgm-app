@@ -29,7 +29,7 @@ const BGMTableList = (props: {
     data: track[],
 }) => {
     const { data } = props;
-    const { bgm, bgmQueue, queueTracker, currentTrack, PlayTrack, ForceUpdate, ResetQueue, ScrollToIndex } = useContext(BGMContext);
+    const { bgm, bgmQueue, queueTracker, currentTrack, PlayTrack, ForceUpdate, ResetQueue, ScrollToIndex, ConsoleLog } = useContext(BGMContext);
 
     const selectedContext = useRef<track>(nullTrack);
 
@@ -181,8 +181,7 @@ const BGMTableList = (props: {
             }
             ForceUpdate();
             ResetQueue(bgm.values());
-            console.log(`Queued: \n${selectedContext.current.title}`);
-            console.log(selectedContext.current)
+            ConsoleLog(`Queued: \n${selectedContext.current.title}`)
         }
     }, 
     {
@@ -207,8 +206,7 @@ const BGMTableList = (props: {
             }
             ForceUpdate();
             ResetQueue(bgm.values());
-            console.log(`Stacked: \n${selectedContext.current.title}`);
-            console.log(selectedContext.current)
+            ConsoleLog(`Stacked: \n${selectedContext.current.title}`)
         }
     }, 
     {
@@ -225,7 +223,7 @@ const BGMTableList = (props: {
         icon: <Icons.Clipboard/>,
         onClick: function (): void {
             const clipboardedTrack = selectedContext.current.title;
-            console.log(`Copied \n${clipboardedTrack}`);
+            ConsoleLog(`Copied \n${clipboardedTrack}`);
             navigator.clipboard.writeText(clipboardedTrack);
         }
     },
@@ -234,7 +232,7 @@ const BGMTableList = (props: {
         tooltip: '',
         icon: <Icons.Info/>,
         onClick: function (): void {
-            console.log(selectedContext);
+            ConsoleLog(`${JSON.stringify(selectedContext)}`);
         }
     }]
 
@@ -298,7 +296,7 @@ const BGMTableList = (props: {
                     {rowVirtualizer.getVirtualItems().map(virtualRow => {
                         const row = rows[virtualRow.index] as Row<track>
                         return (
-                            <tr className={`absolute cursor-pointer select-none  ${row.index === searchingID || row.index === currentTrack.id ? ' bg-blue-100 hover:border-blue-300 ' : ' hover:bg-slate-200'}`} 
+                            <tr className={`absolute cursor-pointer select-none rounded-md ${row.index === searchingID || row.index === currentTrack.id ? ' selected ' : ' clickable'}`} 
                                 data-index={virtualRow.index} //needed for dynamic row height measurement
                                 ref={node => rowVirtualizer.measureElement(node)} //measure dynamic row height
                                 key={row.id}

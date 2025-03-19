@@ -12,15 +12,11 @@ import UIUtilities from './components/UIUtilities';
 import MinHeap from './components/types/MinHeap';
 import TrackProgress from './components/TrackProgress';
 
-function EndOfQueue() {
-    console.log("WOO END OF QUEUE");
-    // TODO {END OF THE PLAYLIST}
-}
-
 export const BGMContext = createContext<{
     bgm: Map<number, track>;
     currentTrack: track;
     bgmQueue: MutableRefObject<MinHeap>,
+    playedQueue: MutableRefObject<track[]>,
     queueTracker: MutableRefObject<number>,
     focus: MutableRefObject<boolean>,
     forceUpdate: boolean,
@@ -33,7 +29,6 @@ export const BGMContext = createContext<{
     LoopTrack: (loop: boolean) => void,
     ResetQueue: (values: IterableIterator<track> | track[]) => void,
     ConsoleLog: (message: string) => void,
-    // ReadThumbnail: (url: string) => Promise<string>,
 }>({
     bgm: new Map<number, track>(), // Initialize with an empty Map
     currentTrack: {
@@ -46,6 +41,7 @@ export const BGMContext = createContext<{
             played: false
         }
     },
+    playedQueue: { } as MutableRefObject<track[]>,
     bgmQueue: {} as MutableRefObject<MinHeap>,
     queueTracker: { current: -1 } as MutableRefObject<number>,
     focus: {} as MutableRefObject<boolean>,
@@ -59,8 +55,6 @@ export const BGMContext = createContext<{
     ScrollToIndex: () => {},
     ResetQueue: () => {},
     ConsoleLog: () => {},
-
-    // ReadThumbnail: () => Promise.resolve(''),
 });
 
 function App() {
@@ -69,6 +63,7 @@ function App() {
     const loadedSettings = useRef<setting>();
     const looped = useRef<boolean>(false);
     const focus = useRef<boolean>(false);
+    const playedQueue = useRef<track[]>([]);
 
     const [forceUpdate, setForceUpdate] = useState<boolean>(false);
 
@@ -141,16 +136,21 @@ function App() {
         })
 
         window.api.onError(() => {
-           PlayNextInQueue(); 
+            ConsoleLog(`Error occurred on playing track: ${currentTrack.url}`);
+            PlayNextInQueue(); 
         })
+
+        return () => {  
+            window.api.offLoaded();
+            window.api.offTrackStarted();
+            window.api.offTrackEnded();
+            window.api.offError();
+        }
     }, []);
 
     useEffect(() => {
         if (currentTrack.url) {
             window.api.playTrack(currentTrack.url);
-            // window.api.readThumbnail(currentTrack.url).then((result: any) => {
-            //     console.log(result);
-            // });
         }
     }, [currentTrack])
 
@@ -212,6 +212,11 @@ function App() {
         }
     }
     
+    function EndOfQueue() {
+        // TODO {END OF THE PLAYLIST}
+        ConsoleLog("End of the playlist");
+    }
+    
     /**
      * Will find the next track that is still unplayed in the current queue.
     */
@@ -231,6 +236,7 @@ function App() {
         }
         console.log(track);
         track.queue.played = true;
+        playedQueue.current.push(track);
         bgm.set(track.id, track); 
         ConsoleLog(`Now playing: ${track.title}`)
         document.title = track.title;
@@ -242,6 +248,7 @@ function App() {
             bgm, 
             currentTrack, 
             bgmQueue, 
+            playedQueue,
             queueTracker, 
             focus,
             forceUpdate, 

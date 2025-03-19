@@ -24,14 +24,17 @@ declare namespace NodeJS {
 interface API {
     // General
     quit: () => void,
+    maximize: () => void,
+    minimize: () => void,
 
     loadReady: () => void,
     onLoaded: (callback: (settings: setting) => void) => void,
+    offLoaded: () => void,
     saveSettings: () => void,
 
     log: (message: string) => void,
     onLog: (callback: (message: string) => void) => void,
-
+    removeLog: () => void,
 
     // Main
     loadTracks: () => Promise<Map<number, track>>,
@@ -50,6 +53,11 @@ interface API {
     onProgress: (callback: (currentTime: number) => void) => void,
     onTrackEnded: (callback: () => void) => void,
     onError: (callback: () => void) => void,
+
+    offTrackStarted: () => void,
+    offProgress: () => void,
+    offTrackEnded: () => void,
+    offError: () => void,
     
     pausePlayer: (pause: boolean) => void,
     mutePlayer: (boolean: boolean) => void,
@@ -59,6 +67,7 @@ interface API {
     darkmode: () => Promise<boolean>,
     selectHome: () => void,
     newHome: (callback: (bgm: Map<number, track>, path: string) => void) => void,
+    removehome: () => void,
 }
 
 // Used in Renderer process, expose in `preload.ts`

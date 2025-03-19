@@ -3,8 +3,6 @@ import path from 'node:path'
 import { track } from '../src/components/types/types';
 import { promises as fs } from 'fs';
 import { loadEsm } from 'load-esm';
-import { Worker } from 'worker_threads';
-// import defaultThumbnail from '../src/assets/NoTrackThumbnail.png';
 
 // The built directory structure
 
@@ -25,7 +23,7 @@ const SETTING_FILE = 'Settings.txt'
 
 const DEFAULTS = {
     language: 'en',
-    homePath: 'E:/BGM/',
+    homePath: '',
     darkMode: nativeTheme.shouldUseDarkColors,
     viewportHeight: 620,
     viewportWidth: 860,
@@ -42,14 +40,14 @@ const VITE_DEV_SERVER_URL = process.env['VITE_DEV_SERVER_URL']
 
 function createWindow() {
     win = new BrowserWindow({
-        icon: path.join(process.env.VITE_PUBLIC, 'electron-vite.svg'),
+        icon: path.join(process.env.VITE_PUBLIC, 'bgmapp.ico'),
         center: true,
         height: savedSettings.viewportHeight,
         width: savedSettings.viewportWidth,
         minHeight: 620,
         minWidth: 860,
         // transparent: true,
-        // frame: false,
+        frame: false,
         // darkTheme: savedSettings.darkMode,
         webPreferences: {
             nodeIntegration: false,
@@ -127,6 +125,18 @@ ipcMain.on('quit', () => {
     app.exit();
     win = null
     player = null
+})
+
+ipcMain.on('maximize', () => {
+    if (win?.isMaximized()) {
+        win?.restore();
+    } else {
+        win?.maximize();
+    }
+})
+
+ipcMain.on('minimize', () => {
+    win?.minimize();
 })
 
 ipcMain.on('load-ready', () => {

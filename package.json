@@ -18,7 +18,7 @@
     "appId": "com.patch.bgmapp",
     "productName": "BGM App",
     "directories": {
-      "output": "dist"
+      "output": "./build"
     },
     "files": [
         "dist-electron/**/*",
