@@ -1,9 +1,6 @@
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
-
 import { BGMContext } from "../App";
-// import { track } from "./types/types";
-
-import * as Icons from './Icons';
+import * as Icons from './Utils/Icons';
 
 let timer = 0;
 
@@ -14,6 +11,9 @@ interface results {
     title: string
 }
 
+// const youtubeRegex = new RegExp('(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=[\w-]+(&list=[\w-]+)?|youtu\.be\/[\w-]+(\?si=[\w-]+)?)$', 'm');
+
+
 /**
  * When the user is focused on the app and presses a key that is not {alt, enter, shift, meta} will search trackSearch string by startWith() or includes().
  * @param props 
@@ -21,7 +21,7 @@ interface results {
  */
 const BGMInputSearch = (props: any) => {
     const { searching, setSearchingID} = props;
-    const { bgm, currentTrack, focus, ScrollToIndex } = useContext(BGMContext);
+    const { bgm, currentTrack, focus, ScrollToIndex, ConsoleLog } = useContext(BGMContext);
 
     const inputSearchRef = useRef<HTMLDivElement>(null); // get the input text ref
     const inputRef = useRef<HTMLInputElement>(null); // get the input text ref
@@ -106,40 +106,56 @@ const BGMInputSearch = (props: any) => {
             (keyCode === 32 && !focus.current) || // If space bar and is not focused
             (keyCode >= 112 && keyCode <= 183)) return // if restricted key return
 
-        if ((keyCode < 37 || keyCode > 40) && keyCode !== 13 ) { // Not Enter or arrow keys
-            if ((keyCode === 27 || keyCode === 13) && focus.current) { // when esc is pressed and is focused then just hide the input search (Enter hides if there are no results (BUG but FEATURE?!?!?!))
+        if (keyCode < 37 || keyCode > 40 ) { // Not arrow keys
+            if (keyCode === 27 && focus.current) { // when esc is pressed and is focused then just hide the input search (Enter hides if there are no results (BUG but FEATURE?!?!?!))
                 inputRef.current!.blur();
                 return;
             }
             inputRef.current!.focus(); // for when pressing a key to automatically insert into the input
             return;
         }
-        if (keyCode === 13 && result.current.length > 0) { // Enter key with results
-            inputRef.current!.focus();
-            SetSelectedTrack(result.current[0].id);
-            searchIndex.current = 0;
-            return;
-        }
+
+        // if (keyCode === 13 && result.current.length > 0) { // Enter key with results
+        //     inputRef.current!.focus();
+        //     SetSelectedTrack(result.current[0].id);
+        //     searchIndex.current = 0;
+        //     return;
+        // }
+        // if (keyCode === 13) { // Enter key
+        //     if (result.current.length > 0) {
+        //         inputRef.current!.focus();
+        //         SetSelectedTrack(result.current[0].id);
+        //         searchIndex.current = 0;
+        //     } else if (youtubeRegex.test(viewInput)) {
+        //         // window.api.downloadYoutube(viewInput);
+        //         ConsoleLog('yes');
+        //     }
+        //     // ConsoleLog('test');
+        //     // inputRef.current!.focus();
+        //     // SetSelectedTrack(result.current[0].id);
+        //     // searchIndex.current = 0;
+        //     return;
+        // }
         inputRef.current!.blur(); // if arrow keys then blur input search so that arrow keys do not get inserted into the input
         if (!result.current || result.current.length <= 1) return // when starting app and want to use arrow keys or if result array has 1 or 0 results then just return
         
         timer = repeat ? timer + 1 : 0; 
 
         if (timer <= 10) {
-            if (keyCode === 37 || keyCode === 38) {
+            if (keyCode === 38) {
                 if (searchIndex.current-1 < 0) searchIndex.current = result.current.length; // Go to the last element
-                updateSearchIndex(-1); // Left/Up (Search 1 up)
+                updateSearchIndex(-1); // Search 1 up
             }
-            else if (keyCode === 39 || keyCode === 40) {
+            else if (keyCode === 40) {
                 if (searchIndex.current+1 == result.current.length) searchIndex.current = -1; // Go to the first element
-                updateSearchIndex(1); // Right/Down (Search 1 down)
+                updateSearchIndex(1); // Search 1 down
             }
         } else if (timer < 30) {
-            if (keyCode === 37 || keyCode === 38) updateSearchIndex(-5); // Left/Up (Search 5 up)
-            else if (keyCode === 39 || keyCode === 40) updateSearchIndex(5); // Right/Down (Search 5 down)
+            if (keyCode === 38) updateSearchIndex(-5); // Search 5 up
+            else if (keyCode === 40) updateSearchIndex(5); // Search 5 down
         } else {
-            if (keyCode === 37 || keyCode === 38) searchIndex.current = 0; // Left/Up (Search first)
-            else if (keyCode === 39 || keyCode === 40) searchIndex.current = result.current.length - 1; // Right/Down (Search last)
+            if (keyCode === 38) searchIndex.current = 0; // Search first
+            else if (keyCode === 40) searchIndex.current = result.current.length - 1; // Search last
         }
 
         // console.log(timer);

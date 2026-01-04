@@ -21,9 +21,9 @@
       "output": "./build"
     },
     "files": [
-        "dist-electron/**/*",
-        "dist/**/*",
-        "node_modules/**/*"
+      "dist-electron/**/*",
+      "dist/**/*",
+      "node_modules/**/*"
     ],
     "asar": true,
     "win": {
@@ -35,7 +35,6 @@
     "linux": {
       "target": "AppImage"
     }
-    
   },
   "dependencies": {
     "@electron/remote": "^2.1.2",
@@ -64,7 +63,8 @@
     "react-player": "^2.13.0",
     "react-virtualized": "^9.22.5",
     "react-window": "^1.8.10",
-    "vite-tsconfig-paths": "^4.2.1"
+    "vite-tsconfig-paths": "^4.2.1",
+    "ytdl-core": "^4.11.5"
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.5.0",

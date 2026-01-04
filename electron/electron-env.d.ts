@@ -32,12 +32,13 @@ interface API {
     offLoaded: () => void,
     saveSettings: () => void,
 
-    log: (message: string) => void,
+    log: (message: React.ReactNode) => void,
     onLog: (callback: (message: string) => void) => void,
     removeLog: () => void,
 
     // Main
     loadTracks: () => Promise<Map<number, track>>,
+    downloadYoutube: (link: string) => void,
 
     playTrack: (track: string) => void,
     seekTrack: (time: number) => void,
@@ -68,6 +69,9 @@ interface API {
     selectHome: () => void,
     newHome: (callback: (bgm: Map<number, track>, path: string) => void) => void,
     removehome: () => void,
+
+    addLocalTracks: (size: number) => void;
+    newLocalTracks: (callback: (tracks: track[]) => void) => void;
 }
 
 // Used in Renderer process, expose in `preload.ts`

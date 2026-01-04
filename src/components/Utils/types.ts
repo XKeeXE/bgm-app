@@ -1,4 +1,5 @@
 export type svg = 'PR' | 'US' | 'JA'
+export type trackType = 'local' | 'youtube' | "spotify"
 
 export type track = {
     id: number
@@ -9,6 +10,7 @@ export type track = {
         pos: number,
         played: boolean
     }
+    type: trackType
 }
 
 export type UI = {

@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
-import * as Icons from './Icons';
+import * as Icons from './Utils/Icons';
 
-import { setting, UI } from "./types/types";
+import { setting, UI } from "./Utils/types";
 import { BGMContext } from "../App";
 
 const UINavbar = () => {
@@ -14,7 +14,56 @@ const UINavbar = () => {
     })
     const [volume, setVolume] = useState<number>(1);
 
+
     const [currentThumbnail, setCurrentThumbnail] = useState<string>('');
+
+    /**
+     * Javascript has problems with floating-point numbers so we have to round it to do arithmetic.
+     * @param currentVolume 
+     * @returns 
+     */
+    function AddVolume(currentVolume: number) {
+        let newVolume = Math.round(currentVolume * 100) + 5;
+
+        // volume + 0.05 < 1 ? setVolume((volume) => volume + 0.05) : setVolume(1);
+
+        if (newVolume === 5) {
+            return 0.01
+        } else if (newVolume >= 100) { // If higher than 1
+            return 1;
+        } else {
+            return newVolume / 100;
+        }
+    }
+
+    /**
+     * Javascript has problems with floating-point numbers so we have to round it to do arithmetic.
+     * @param currentVolume 
+     * @returns 
+     */
+    function RemoveVolume(currentVolume: number) {
+        let newVolume = Math.round(currentVolume * 100) - 5;
+
+        // if (volume === 0.01) {
+        //     setVolume(0);
+        // } else if (volume - 0.05 < 0.01) {
+        //     setVolume(0.01);
+        // } else {
+        //     setVolume((volume) => volume - 0.05);
+        // }
+
+        // volume - 0.05 <= 0 ? setVolume(0) : setVolume((volume) => volume - 0.05);
+
+        if (Math.round(currentVolume * 100) === 1) { // If equal to 0.01
+            return 0;
+        } 
+        if (newVolume < 1) { // If higher than 0.01
+            return 1 / 100;
+        } 
+        else { // just subtract
+            return newVolume / 100;
+        }
+    }
 
     useEffect(() => {
 
@@ -48,6 +97,7 @@ const UINavbar = () => {
     }, [player.looped])
 
     useEffect(() => {
+        // ConsoleLog(volume)
         window.api.changeVolume(volume);
     }, [volume])
 
@@ -68,10 +118,10 @@ const UINavbar = () => {
             //     Loop();
             //     break;
             case 37: // Arrow left
-
+                setVolume((volume) => RemoveVolume(volume));
                 break;
             case 39: // Arrow right
-
+                setVolume((volume) => AddVolume(volume));
                 break;
         }
     }
@@ -110,8 +160,9 @@ const UINavbar = () => {
 
     function Prev() {
         if (playedQueue.current.length === 0) return;
-        playedQueue.current.pop();
-        currentTrack.queue.played = false;
+        const playingTrack = playedQueue.current.pop();
+        playingTrack!.queue.played = false;
+        bgm.set(playingTrack!.id, playingTrack!);
         if (playedQueue.current.length === 0) {
             PlayTrack({
                     id: -1,
@@ -121,12 +172,15 @@ const UINavbar = () => {
                     queue: {
                         pos: -1,
                         played: false
-                    }
+                    },
+                    type: 'local'
                 },
             );
         } else {
             PlayTrack(bgm.get(playedQueue.current.pop()!.id)!)
+            
         }
+        ResetQueue(bgm.values());
     }
 
     function Skip() {
@@ -145,7 +199,7 @@ const UINavbar = () => {
         {
             key: "Back",
             tooltip: "",
-            icon: <Icons.Back/>,
+            icon: playedQueue.current.length !== 0 ? <Icons.Back/> : <Icons.Back htmlColor="gray"/>,
             onClick: Prev
         },
         {

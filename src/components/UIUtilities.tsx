@@ -1,5 +1,5 @@
-import { UI } from "./types/types";
-import * as Icons from './Icons';
+import { UI } from "./Utils/types";
+import * as Icons from './Utils/Icons';
 import { useContext, useEffect, useState } from "react";
 import { BGMContext } from "../App";
 
@@ -86,9 +86,9 @@ const UIUtilities = () => {
 
     return (
         <div className='w-[calc(50px+20%)] flex flex-col '>
-            <div className="windows-buttons flex flex-row justify-end ">
+            <div className="windows-buttons titlebar flex flex-row justify-end ">
                 {windowItems.map(item => (
-                    <button tabIndex={-1} className={`min-w-[30px] h-[29px] ${item.key === 'Close' ? 'hover:bg-red-500' : 'clickable'}`} key={item.key} onClick={item.onClick}>
+                    <button tabIndex={-1} className={`titlebar-buttons min-w-[30px] h-[29px] ${item.key === 'Close' ? 'hover:bg-red-500' : 'clickable'}`} key={item.key} onClick={item.onClick}>
                         {item.icon}
                     </button>
                 ))}

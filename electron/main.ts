@@ -1,8 +1,9 @@
 import { app, BrowserWindow, dialog, ipcMain, nativeTheme } from 'electron'
 import path from 'node:path'
-import { track } from '../src/components/types/types';
-import { promises as fs } from 'fs';
+import { track } from '../src/components/Utils/types';
+import fs from 'fs';
 import { loadEsm } from 'load-esm';
+import ytdl from 'ytdl-core';
 
 // The built directory structure
 
@@ -47,7 +48,8 @@ function createWindow() {
         minHeight: 620,
         minWidth: 860,
         // transparent: true,
-        frame: false,
+        titleBarStyle: 'hidden',
+        // frame: false,
         // darkTheme: savedSettings.darkMode,
         webPreferences: {
             nodeIntegration: false,
@@ -116,7 +118,7 @@ app.on('activate', () => {
 })
 
 async function SaveSettings() {
-    await fs.writeFile(SETTING_FILE, JSON.stringify(savedSettings), 'utf-8')
+    await fs.promises.writeFile(SETTING_FILE, JSON.stringify(savedSettings), 'utf-8')
 }
 
 // --- Main ---
@@ -151,7 +153,7 @@ ipcMain.on('save-settings', () => {
     SaveSettings();   
 })
 
-ipcMain.on('log', (_e, message: string) => {
+ipcMain.on('log', (_e, message: React.ReactNode) => {
     win?.webContents.send('on-log', message)
 })
 // UI Settings
@@ -183,6 +185,48 @@ ipcMain.on('select-home', (e: Electron.IpcMainEvent) => {
     })
 })
 
+ipcMain.on('add-local-tracks', (e: Electron.IpcMainEvent, size: number) => {
+    dialog.showOpenDialog(win as BrowserWindow, {
+        properties: ['multiSelections'],
+        filters: [
+            {
+                name: 'Audio Files',
+                extensions: FORMATS.map(format => format.replace('.', ''))
+            }
+        ]
+    }).then(async results => {
+        if (!results.canceled) {
+            const tracks = results.filePaths.map((filePath, index) => ({
+                id: size + index,
+                url: filePath,
+                title: GetTrackTitle(filePath.split('\\').pop() || filePath.split('/').pop() || ''),
+                duration: undefined,
+                queue: {
+                    pos: size + index,
+                    played: false
+                }
+            }
+        ));
+            e.reply('new-local-tracks', tracks)  
+        }
+    }).catch(err => {
+        console.log(err);
+    })
+})
+
+ipcMain.on('download-youtube', (_e: Electron.IpcMainEvent, link: string) => {
+    const file = ytdl(link);
+    console.log('Downloading: ' + link);
+    file.pipe(fs.createWriteStream('audio.mp3'))
+
+    file.on('error', (err) => {
+        console.log(err)
+    })
+    file.on('end', () => {
+        console.log('done');
+    })
+})
+
 // *-----------------Main----------------------*
 
 /**
@@ -192,15 +236,15 @@ ipcMain.on('select-home', (e: Electron.IpcMainEvent) => {
 */
 function GetTrackTitle(track: string): string {
     for (let index = 0; index < FORMATS.length; index++) {
-        if (track.includes(FORMATS[index], track.length-FORMATS[index].length)) {
-            return track.replace(FORMATS[index], '');
+        if (track.endsWith(FORMATS[index])) {
+            return track.slice(0, -FORMATS[index].length);
         }
     }
     return track;
 }
 
 async function LoadTracks() {
-    const items = await fs.readdir(savedSettings.homePath);
+    const items = await fs.promises.readdir(savedSettings.homePath);
     const filteredTracks = items.filter((track: string) => {
         const extension = path.extname(track).toLowerCase();
         return FORMATS.includes(extension);
@@ -210,7 +254,7 @@ async function LoadTracks() {
     let count = 0;
 
     filteredTracks.forEach((track: string) => {
-        const trackData = {
+        const trackData: track = {
             id: count,
             url: path.join(savedSettings.homePath, track), // Use path.join for better compatibility
             title: GetTrackTitle(track), // Ensure this function is defined
@@ -218,7 +262,8 @@ async function LoadTracks() {
             queue: {
                 pos: count,
                 played: false
-            }
+            },
+            type: 'local'
         };
         bgmData.set(count, trackData);
         count++;
@@ -230,7 +275,6 @@ async function LoadTracks() {
 ipcMain.handle('load-tracks', async () => {
     return await LoadTracks();
 });
-
 
 ipcMain.handle('read-thumbnail', async (_e: Electron.IpcMainInvokeEvent, urls: string[] | string) => {
     // return new Promise((resolve, reject) => {
@@ -265,6 +309,7 @@ ipcMain.handle('read-thumbnail', async (_e: Electron.IpcMainInvokeEvent, urls: s
             return '';
         }
     };
+    
     if (typeof urls === 'string') {
         return await readThumbnail(urls);
     } else {
@@ -273,12 +318,12 @@ ipcMain.handle('read-thumbnail', async (_e: Electron.IpcMainInvokeEvent, urls: s
 });
 
 ipcMain.handle('load-queue', async () => {
-    const bgmData = await fs.readFile(QUEUE_FILE, 'utf8');
+    const bgmData = await fs.promises.readFile(QUEUE_FILE, 'utf8');
     return new Map(JSON.parse(bgmData).map((track: track) => [track.id, track]))
 });
 
 ipcMain.on('save-queue', async (_e: Electron.IpcMainEvent, bgm: Map<number, track>) => {
-    await fs.writeFile(QUEUE_FILE, JSON.stringify(Array.from(bgm.values())), 'utf8');
+    await fs.promises.writeFile(QUEUE_FILE, JSON.stringify(Array.from(bgm.values())), 'utf8');
 })
 
 ipcMain.on('play-track', (_e, trackPath: string) => {
@@ -332,7 +377,7 @@ ipcMain.on('on-error', () => {
 
 app.whenReady().then(async () => {
     try {
-        savedSettings = JSON.parse(await fs.readFile(SETTING_FILE, 'utf-8'))
+        savedSettings = JSON.parse(await fs.promises.readFile(SETTING_FILE, 'utf-8'))
     } catch (err) {
         console.error('Error reading settings:', err);
         savedSettings = DEFAULTS;

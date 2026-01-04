@@ -6,7 +6,6 @@ export {default as Directory} from '@mui/icons-material/FolderSpecial';
 export {default as Brightness} from '@mui/icons-material/Brightness7';
 export {default as Darkmode} from '@mui/icons-material/DarkMode';
 export {default as InsertFile} from '@mui/icons-material/NoteAdd';
-export {default as DownloadTrack} from '@mui/icons-material/SimCardDownload';
 
 // Navbar icons
 export {default as Play} from "@mui/icons-material/PlayArrow";
@@ -25,6 +24,7 @@ export {default as VolumeMute} from "@mui/icons-material/VolumeOff"
 
 // Tablelist icons
 export {default as Number } from '@mui/icons-material/Numbers';
+export {default as Type } from '@mui/icons-material/MusicVideo';
 export {default as Duration } from '@mui/icons-material/AccessTime';
 export {default as QueuePos} from '@mui/icons-material/QueueMusic';
 export {default as Played } from '@mui/icons-material/PlaylistAddCheck';
@@ -35,6 +35,11 @@ export {default as Stack } from '@mui/icons-material/LibraryAdd';
 export {default as PlayTrack } from '@mui/icons-material/PlayCircleOutline';
 export {default as Clipboard } from '@mui/icons-material/ContentPaste';
 export {default as Info } from '@mui/icons-material/Info';
+export {default as Remove } from'@mui/icons-material/PlaylistRemove';
+
+
+export {default as Local} from '@mui/icons-material/AudioFile';
+export {default as Youtube} from '@mui/icons-material/YouTube'; 
 
 // TrackRow Icons
 export {default as PlayedFalse } from '@mui/icons-material/CheckBoxOutlineBlank';

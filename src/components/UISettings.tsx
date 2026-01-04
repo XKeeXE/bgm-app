@@ -1,27 +1,40 @@
 import {  useContext, useEffect, useRef } from "react";
-import { UI } from "./types/types";
+import { UI, track } from "./Utils/types";
 import { BGMContext } from "../App";
-import { Darkmode, Directory } from "./Icons";
+import * as Icons from "./Utils/Icons";
 
 //  : <Brightness fontSize='large' />,
 
 const UISettings = () => {
 
-    const { LoadTracks } = useContext(BGMContext);
+    const { bgm, LoadTracks, ForceUpdate, ConsoleLog } = useContext(BGMContext);
+   
+    const bgmRef = useRef(bgm);
+    const settingsRef = useRef<HTMLDivElement>(null);
+
     
     useEffect(() => {
         window.api.newHome((bgm, path) => {
-            console.log(`New path: ${path}`)
+            ConsoleLog(`New path: ${path}`)
             LoadTracks(bgm);
         })
-    }, [])
 
-    const settingsRef = useRef<HTMLDivElement>(null);
+        window.api.newLocalTracks((tracks: track[]) => {
+            tracks.forEach(track => {
+                bgmRef.current.set(track.id, track);
+            });
+            LoadTracks(bgmRef.current);
+        })
+    }, [])
+    
+    useEffect(() => {
+        bgmRef.current = bgm;
+    }, [bgm])
 
     const items: UI[] = [{
         key: 'Darkmode',
         tooltip: 'Change Theme',
-        icon: <Darkmode fontSize='large'/>,
+        icon: <Icons.Darkmode fontSize='large'/>,
         onClick: function (): void {
             window.api.darkmode();
         }
@@ -34,32 +47,34 @@ const UISettings = () => {
     //         console.log('test');
     //     }
     // },
-    // {
-    //     key: "Download",
-    //     tooltip: "Download Track",
-    //     icon: <DownloadTrack fontSize="large" />,
-    //     onClick: function (): void {
-    //         console.log('clicklab;e');
+    {
+        key: "Local",
+        tooltip: "Local Tracks",
+        icon: <Icons.InsertFile fontSize='large'/>,
+        onClick: function (): void {
+            window.api.addLocalTracks(bgm.size);
+            // ConsoleLog(bgm.size);
     
-    //     }
-    // },
-    // {
-    //     key: "File",
-    //     tooltip: "Move file",
-    //     icon: <InsertFile fontSize='large' />,
-    //     onClick: function (): void {
-    //         console.log('clicklab;e');
-    
-    //     }
-    // },
+        }
+    },
     {
         key: 'Home',
         tooltip: 'Directory',
-        icon: <Directory fontSize='large' />,
+        icon: <Icons.Directory fontSize='large' />,
         onClick: function (): void {
             window.api.selectHome();
         }
-    }]
+    },
+    // {
+    //     key: "YouTube",
+    //     tooltip: "YouTube",
+    //     icon: <Icons.Youtube fontSize='large' />,
+    //     onClick: function (): void {
+    //         console.log('clicklab;e');
+    
+    //     }
+    // }
+    ]
     
     function CurrentTransform() {
         const currentTransform = getComputedStyle(settingsRef.current!).transform;
@@ -83,12 +98,10 @@ const UISettings = () => {
     }
 
     function handleShowSettings() {
-        // setIsVisible(true);
         Animation(-50, 0);
     };
 
     function handleHideSettings() {
-        // setIsVisible(false);
         Animation(CurrentTransform(), -50);        
     };
 

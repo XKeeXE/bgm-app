@@ -4,12 +4,11 @@ import UISettings from './components/UISettings';
 
 import BGMTableList from './components/BGMTableList';
 import UINavbar from './components/UINavbar';
-import { setting, track } from './components/types/types';
+import { setting, track } from './components/Utils/types';
 import BGMQueue from './components/BGMQueue';
 
-// import defaultThumbnail from './assets/NoTrackThumbnail.png';
 import UIUtilities from './components/UIUtilities';
-import MinHeap from './components/types/MinHeap';
+import MinHeap from './components/Utils/MinHeap';
 import TrackProgress from './components/TrackProgress';
 
 export const BGMContext = createContext<{
@@ -28,7 +27,7 @@ export const BGMContext = createContext<{
     ScrollToIndex: (index: number) => void,
     LoopTrack: (loop: boolean) => void,
     ResetQueue: (values: IterableIterator<track> | track[]) => void,
-    ConsoleLog: (message: string) => void,
+    ConsoleLog: (message: React.ReactNode) => void,
 }>({
     bgm: new Map<number, track>(), // Initialize with an empty Map
     currentTrack: {
@@ -39,7 +38,8 @@ export const BGMContext = createContext<{
         queue: {
             pos: -1,
             played: false
-        }
+        },
+        type: 'local'
     },
     playedQueue: { } as MutableRefObject<track[]>,
     bgmQueue: {} as MutableRefObject<MinHeap>,
@@ -57,6 +57,13 @@ export const BGMContext = createContext<{
     ConsoleLog: () => {},
 });
 
+/**
+ * Terminology:
+ * Track - A single music file
+ * Tracks - Multiple music files
+ * BGM - The available tracks to play
+ * Queue - The queue of the tracks
+ */
 function App() {
     const queueTracker = useRef<number>(-1);
     const saveQueueTimer = useRef(0); // auto save timer
@@ -75,10 +82,12 @@ function App() {
         queue: {
             pos: -1,
             played: false
-        }
+        },
+        type: 'local'
     });
+    
 
-    function ConsoleLog(message: string) {
+    function ConsoleLog(message: React.ReactNode) {
         console.log(message);
         window.general.log(message);
     }
@@ -94,11 +103,6 @@ function App() {
     // }
 
     // const [language, setLanguage] = useState<string>(GetLanguage());
-
-    // const savedSettings = useRef({
-    //     path: 'E:/BGM/',
-    //     volume: Number(localStorage.getItem('volume')) || 1
-    // });
 
     const data = useRef<track[]>([]);
     const [bgm, setBgm] = useState<Map<number, track>>(new Map());
@@ -159,7 +163,7 @@ function App() {
     }, [bgm, forceUpdate, currentTrack])
 
     function LoadTracks(bgmData: Map<number, track>) {
-        saveQueueTimer.current = 0;
+        // saveQueueTimer.current = 0;
         data.current = [...bgmData.values()];
         setBgm(bgmData);
         ResetQueue(bgmData.values());
@@ -266,7 +270,7 @@ function App() {
                 <div className='flex flex-row flex-grow '>
                     <UISettings />
                     <div className='w-full overflow-hidden ' >
-                        <div className='current-track h-[30px] select-none' draggable={false}>
+                        <div className='current-track titlebar h-[30px] select-none' draggable={false}>
                             <span className='pl-2 font-renogare line-clamp-1'>{currentTrack.title ? currentTrack.title : 'BGM App (Vite + React + TS)'}</span>
                         </div>
                         <div className="flex flex-row h-[calc(100%-30px)] ">

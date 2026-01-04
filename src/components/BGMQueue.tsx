@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { BGMContext } from "../App";
 import { Spinner } from "@nextui-org/react";
-import { track } from "./types/types";
+import { track } from "./Utils/types";
 
 interface initialDnDState {
     draggedFrom: number | null,
@@ -16,11 +16,14 @@ interface trackQueued {
     thumbnail: string,
 }
 
+// const queueLoadedEvent = new CustomEvent('');
+
 const BGMQueue = () => {
     const { bgm, bgmQueue, currentTrack, forceUpdate, ForceUpdate, ResetQueue} = useContext(BGMContext);
 
     const [tempQueue, setTempQueue] = useState<trackQueued[]>([]);
     const result = useRef<string>('None');
+    const initialized = useRef<boolean>(false);
 
     useEffect(() => {
         ReadQueue();
@@ -125,31 +128,31 @@ const BGMQueue = () => {
     }, [currentTrack])
 
     return (
-            <ul className="queue-background list-inside flex flex-col h-full ">
-                <li className="results flex flex-row justify-center rounded-tl-xl ">Results {result.current}</li>
-                {tempQueue.map((track, index) => 
-                <li data-position={index} key={track.track.title} draggable 
-                className={`queue-track relative tooltip text-xs flex flex-row items-center gap-1 pl-1 pr-1 flex-1 border-2 
-                ${dragAndDrop && dragAndDrop.draggedTo === index ? ` border-dashed rounded-lg border-[#00BFFF]` : `border-[transparent]`}`}
-
-                onDragStart={onDragStart} 
-                onDragOver={onDragOver} 
-                onDrop={onDrop} 
-                onDragLeave={(e) => {
-                    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-                        onDragLeave();
-                    }
-                }}>
-                    {track.thumbnail === '' ? 
-                    <Spinner/>
-                    : <img className="rounded-sm aspect-video" src={track.thumbnail} height={50} width={50}/>
-                    }
-                    <span className="line-clamp-2 xl:line-clamp-3">{track.track.title}</span>
-                    <span className="tooltiptext left-[108%]" style={{ 
-                        visibility: dragAndDrop.isDragging ? 'hidden' : 'visible'
-                    }}>{track.track.title}</span>
-                </li>)}
-            </ul>
+        <ul className="queue-background list-inside flex flex-col h-full ">
+            <li className="results flex flex-row justify-center rounded-tl-xl ">Results {result.current}</li>
+            {tempQueue.map((track, index) => 
+            <li data-position={index} key={track.track.title} draggable 
+            className={`queue-track relative tooltip text-xs flex flex-row items-center gap-1 pl-1 pr-1 flex-1 border-2 
+            ${dragAndDrop && dragAndDrop.draggedTo === index ? ` border-dashed rounded-lg border-[#00BFFF]` : `border-[transparent]`}`}
+            
+            onDragStart={onDragStart} 
+            onDragOver={onDragOver} 
+            onDrop={onDrop} 
+            onDragLeave={(e) => {
+                if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                    onDragLeave();
+                }
+            }}>
+                {track.thumbnail === '' ? 
+                <Spinner/>
+                : <img className="rounded-sm aspect-video" src={track.thumbnail} height={50} width={50}/>
+                }
+                <span className="line-clamp-2 xl:line-clamp-3">{track.track.title}</span>
+                <span className="tooltiptext left-[108%]" style={{ 
+                    visibility: dragAndDrop.isDragging ? 'hidden' : 'visible'
+                }}>{track.track.title}</span>
+            </li>)}
+        </ul>
     )
 }
 

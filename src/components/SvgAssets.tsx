@@ -1,5 +1,5 @@
 import { SvgIcon } from "@mui/material";
-import { svg } from "./types/types";
+import { svg } from "./Utils/types";
 
 const JapanFlag = () => {
     return (

@@ -8,9 +8,9 @@ import {
   } from '@tanstack/react-table'
 import { useVirtualizer } from '@tanstack/react-virtual'
 
-import * as Icons from './Icons';
+import * as Icons from './Utils/Icons';
 
-import { track, UI } from './types/types';
+import { track, UI } from './Utils/types';
 import { BGMContext } from '../App';
 import { ContextMenu, ContextMenuItem, ContextMenuTrigger } from 'rctx-contextmenu';
 import BGMInputSearch from './BGMInputSearch';
@@ -22,7 +22,8 @@ const nullTrack: track = {
     queue: {
         pos: -1,
         played: false
-    }
+    },
+    type: 'local'
 }
 
 const BGMTableList = (props: {
@@ -47,6 +48,17 @@ const BGMTableList = (props: {
                 </div>)
     }
 
+    function CheckType(type: string): JSX.Element {
+        switch (type) {
+            case 'local':
+                return <Icons.Local fontSize='small'/>
+            case 'Youtube':
+                return <Icons.Youtube fontSize='small'/>
+            default:
+                return <Icons.Local fontSize='small'/>
+        }
+    }
+
     const columnHelper = createColumnHelper<track>()
 
     const columns = [
@@ -55,7 +67,13 @@ const BGMTableList = (props: {
             maxSize: 80,
             enableResizing: false,
             cell: row => TableInfo(row.getValue(), 'font-bold text-center')
-            }),
+        }),
+        // columnHelper.accessor('type', {
+        //     header: () => TableInfo(<Icons.Type/>),
+        //     maxSize: 60,
+        //     enableResizing: false,
+        //     cell: row => TableInfo(CheckType(row.getValue()), 'flex justify-center')
+        // }),
         columnHelper.accessor('title', {
             header: () => TableInfo('TITLE', 'flex items-start'),
             cell: row => <span className='overflow-hidden line-clamp-1 '>{row.getValue()}</span>,
@@ -103,7 +121,6 @@ const BGMTableList = (props: {
 
     useEffect(() => {
         function handleViewportChange() {
-            // console.log(window.innerHeight);
             setViewport({width: window.innerWidth-538, height: window.innerHeight-140});
         }
         handleViewportChange();
@@ -234,7 +251,16 @@ const BGMTableList = (props: {
         onClick: function (): void {
             ConsoleLog(`${JSON.stringify(selectedContext)}`);
         }
-    }]
+    },
+    {
+        key: 'Remove',
+        tooltip: '',
+        icon: <Icons.Remove/>,
+        onClick: function (): void {
+            // First remove the track, then reorganize the tracks, then reload the queue
+            // bgm.delete(selectedContext.current.id);
+        }
+    },]
 
 	return (
     <>
@@ -291,17 +317,28 @@ const BGMTableList = (props: {
                 <tbody style={{ 
                     display: 'grid',
                     height: `${rowVirtualizer.getTotalSize()}px`, //tells scrollbar how big the table is
-                    position: 'relative', //needed for absolute positioning of rows
+                    position: 'relative', //needed for absolute positioning of rows 
+            
                 }}>
                     {rowVirtualizer.getVirtualItems().map(virtualRow => {
                         const row = rows[virtualRow.index] as Row<track>
                         return (
-                            <tr className={`absolute cursor-pointer select-none rounded-md ${row.index === searchingID || row.index === currentTrack.id ? ' selected ' : ' clickable'}`} 
-                                data-index={virtualRow.index} //needed for dynamic row height measurement
-                                ref={node => rowVirtualizer.measureElement(node)} //measure dynamic row height
+                            <tr className={`absolute cursor-pointer select-none rounded-md clickable 
+                                ${row.index === searchingID && row.index === currentTrack.id // searching + playing style
+                                ? 'playingsearching' 
+                                : (row.index === currentTrack.id // playing style 
+                                    ? 'playing' 
+                                    : (row.index === searchingID // searching style
+                                        ? 'searching'
+                                        : ''
+                                    )
+                                )}`
+                            } 
+                                data-index={virtualRow.index} // Needed for dynamic row height measurement
+                                ref={node => rowVirtualizer.measureElement(node)} // Measure dynamic row height
                                 key={row.id}
                                 style={{
-                                    transform: `translateY(${virtualRow.start}px)`, //this should always be a `style` as it changes on scroll
+                                    transform: `translateY(${virtualRow.start}px)`, // This should always be a `style` as it changes on scroll
                                 }}
                                 onClick={() => {
                                     bgmQueue.current.remove(bgm.get(row.index)!);

@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import { track } from '../src/components/types/types';
+import { track } from '../src/components/Utils/types';
 
 contextBridge.exposeInMainWorld(
     "api", {

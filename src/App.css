@@ -25,7 +25,25 @@
 
 
     .clickable:hover {background: #2F2F32 !important}
-    .selected {background: #303031 !important}
+    /* .selected {background: #303031 !important} */
+
+    .clickable {
+        /* for testing buttons*/
+    }
+
+    .playingsearching {
+        box-shadow: inset 0 0 0 2px rgb(108, 108, 110);
+    }
+
+    .playing {
+        box-shadow: inset 0 0 0 2px rgb(133, 133, 136);
+    }
+
+    .searching {
+        box-shadow: inset 0 0 0 2px rgb(80, 80, 82);
+
+    }
+
     /* .player-buttons {background: #4B4B4B !important} */
 
 
@@ -104,6 +122,14 @@
       font-family: 'Renogare';
       src: url('./assets/Renogare-Regular.otf') format('opentype');
   }
+
+.titlebar {
+    app-region: drag;
+}
+
+.titlebar-buttons {
+    app-region: no-drag;
+}
 
 button:focus {
     outline: none; /* Remove the outline */
