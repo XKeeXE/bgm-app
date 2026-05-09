@@ -1,6 +1,6 @@
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { BGMContext } from "../App";
-import * as Icons from './Utils/Icons';
+import { useCallback, useEffect, useRef, useState } from "react";
+import * as Icons from '../toolbox/utils/Icons';
+import { useStore } from "../toolbox/store";
 
 let timer = 0;
 
@@ -13,7 +13,6 @@ interface results {
 
 // const youtubeRegex = new RegExp('(https?:\/\/)?(www\.)?(youtube\.com\/watch\?v=[\w-]+(&list=[\w-]+)?|youtu\.be\/[\w-]+(\?si=[\w-]+)?)$', 'm');
 
-
 /**
  * When the user is focused on the app and presses a key that is not {alt, enter, shift, meta} will search trackSearch string by startWith() or includes().
  * @param props 
@@ -21,7 +20,9 @@ interface results {
  */
 const BGMInputSearch = (props: any) => {
     const { searching, setSearchingID} = props;
-    const { bgm, currentTrack, focus, ScrollToIndex, ConsoleLog } = useContext(BGMContext);
+    const bgm = useStore(state => state.player.bgm);
+    const currentTrack = useStore(state => state.player.currentTrack);
+    const focus = useRef<boolean>(false);
 
     const inputSearchRef = useRef<HTMLDivElement>(null); // get the input text ref
     const inputRef = useRef<HTMLInputElement>(null); // get the input text ref
@@ -60,6 +61,13 @@ const BGMInputSearch = (props: any) => {
     function SetSelectedTrack(index: number) {
         setSearchingID(index)
         ScrollToIndex(index)
+    }
+
+    function ScrollToIndex(index: number) {
+        const customEvent = new CustomEvent('handleTrackScroll', {
+            detail: { index },
+        });
+        window.dispatchEvent(customEvent);
     }
     
     const handleInputChange = (e: { target: { value: string; }; }) => {

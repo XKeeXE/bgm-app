@@ -1,8 +1,8 @@
-import { track } from "./types";
+import { Track } from "../../interfaces/store/player";
 
 // MinHeap.js
 class MinHeap {
-    heap: track[];
+    heap: Track[];
     constructor() {
         this.heap = [];
     }
@@ -12,7 +12,7 @@ class MinHeap {
         this.heap = []
     }
 
-    insert(track: track) {
+    insert(track: Track) {
         this.heap.push(track);
         this.bubbleUp();
     }
@@ -73,7 +73,7 @@ class MinHeap {
         }
     }
 
-    remove(track: track) {
+    remove(track: Track) {
         const index = this.heap.findIndex(tracks => tracks.id === track.id); // Find the index of the track to remove
         if (index === -1) return; // Track not found
 

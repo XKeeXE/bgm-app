@@ -1,7 +1,6 @@
-import { UI } from "./Utils/types";
-import * as Icons from './Utils/Icons';
-import { useContext, useEffect, useState } from "react";
-import { BGMContext } from "../App";
+import { useEffect, useState } from "react";
+import { windowItems, bgmControl } from "../configs";
+import { Icon } from "./general/buttons";
 
 const getCurrentTime = () => {
     const now = new Date();
@@ -11,9 +10,7 @@ const getCurrentTime = () => {
     return `[${hours}:${minutes}:${seconds}]`;
 };
 
-
 const UIUtilities = () => {
-    const { queueTracker, SyncQueue } = useContext(BGMContext);
 
     const [consoleLog, setConsoleLog] = useState<string>(`${getCurrentTime()} ${"Welcome to BGM!"}`);
 
@@ -23,74 +20,11 @@ const UIUtilities = () => {
         });
     }, [])
 
-    const windowItems: UI[] = [
-        {
-            key: "Minimize",
-            tooltip: "",
-            icon: <Icons.Minimize/>,
-            onClick: function (): void {
-                window.api.minimize();
-
-            }
-        },
-        {
-            key: "Fullscreen",
-            tooltip: "",
-            icon: <Icons.Fullscreen/>,
-            onClick: function (): void {
-                window.api.maximize();
-            }
-        },
-        {
-            key: "Close",
-            tooltip: "",
-            icon: <Icons.Close/>,
-            onClick: function (): void {
-                window.api.quit();
-            }
-        }
-    ]
-
-    const bgmControl: UI[] = [{
-        key: "Save",
-        tooltip: "Save",
-        icon: <Icons.SaveQueue/>,
-        onClick: function (): void {
-            SyncQueue('save');
-        }
-    },
-    
-    {
-        key: "Load",
-        tooltip: "Load",
-        icon: <Icons.LoadQueue/>,
-        onClick: function (): void {
-            queueTracker.current = -1;
-            SyncQueue('load');
-            // ForceUpdate();
-        }
-    },
-    // {
-    //     key: "Reset",
-    //     tooltip: "Reset",
-    //     icon: <Icons.Clipboard/>,
-    //     onClick: function (): void {
-    //         // SyncQueue('save');
-    //     }
-    // },
-    ]
-
-    // function handleKeyDown(e: React.KeyboardEvent<HTMLElement>) {
-    //     e.preventDefault();
-    // }
-
     return (
         <div className='w-[calc(50px+20%)] flex flex-col '>
             <div className="windows-buttons titlebar flex flex-row justify-end ">
                 {windowItems.map(item => (
-                    <button tabIndex={-1} className={`titlebar-buttons min-w-[30px] h-[29px] ${item.key === 'Close' ? 'hover:bg-red-500' : 'clickable'}`} key={item.key} onClick={item.onClick}>
-                        {item.icon}
-                    </button>
+                    <Icon key={item.key} icon={item.icon} onClick={item.onClick} className={`titlebar-buttons min-w-[30px] h-[29px] ${item.key === 'Close' ? 'hover:bg-red-500' : 'clickable'}`} />
                 ))}
             </div>
 
@@ -113,9 +47,7 @@ const UIUtilities = () => {
 
             <div className="flex flex-row gap-2 justify-evenly ">
                 {bgmControl.map(item => (
-                    <button tabIndex={-1} className="border-2 rounded-md p-1 hover:border-2 aspect-square" key={item.key} onClick={item.onClick}>
-                        {item.icon}
-                    </button>
+                    <Icon key={item.key} icon={item.icon} onClick={item.onClick} className="border-2 rounded-md p-1 hover:border-2 aspect-square" />
                 ))}
             </div>
         </div>

@@ -18,11 +18,6 @@ const TrackProgress = () => {
         window.api.onProgress((currentTime) => {
             setCurrentTime(currentTime);
         })
-
-        return () => {
-            window.api.offTrackStarted();
-            window.api.offProgress();
-        }
     }, [])
 
     /**

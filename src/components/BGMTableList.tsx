@@ -1,4 +1,6 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { usePopoverMenu } from './PopoverMenu/PopoverMenu';
+import { PopoverMenuItem } from './PopoverMenu/types';
 import {
     createColumnHelper,
     flexRender,
@@ -8,31 +10,21 @@ import {
   } from '@tanstack/react-table'
 import { useVirtualizer } from '@tanstack/react-virtual'
 
-import * as Icons from './Utils/Icons';
+import * as Icons from '../toolbox/utils/Icons';
 
-import { track, UI } from './Utils/types';
-import { BGMContext } from '../App';
-import { ContextMenu, ContextMenuItem, ContextMenuTrigger } from 'rctx-contextmenu';
 import BGMInputSearch from './BGMInputSearch';
+import { Track } from '../interfaces/store/player';
+import { useStore } from '../toolbox/store';
+import { DEFAULT_TRACK } from '../toolbox/store/player';
 
-const nullTrack: track = {
-    id: -1,
-    url: '',
-    title: '',
-    queue: {
-        pos: -1,
-        played: false
-    },
-    type: 'local'
-}
+const BGMTableList = () => {
+    const bgm = useStore((state) => state.player.bgm);
+    const data = useMemo(() => Array.from(bgm.values()), [bgm]);
+    const currentTrack = useStore((state) => state.player.currentTrack);
 
-const BGMTableList = (props: {
-    data: track[],
-}) => {
-    const { data } = props;
-    const { bgm, bgmQueue, queueTracker, currentTrack, PlayTrack, ForceUpdate, ResetQueue, ScrollToIndex, ConsoleLog } = useContext(BGMContext);
 
-    const selectedContext = useRef<track>(nullTrack);
+    const selectedContext = useRef<Track>(DEFAULT_TRACK);
+    const { showPopoverMenu } = usePopoverMenu();
 
     const [viewport, setViewport] = useState({
         width: 0,
@@ -42,24 +34,13 @@ const BGMTableList = (props: {
     const searching = useRef<boolean>(false);
     const tableDivRef = useRef<HTMLDivElement>(null)
 
-    function TableInfo(header: React.ReactNode, className?: string): JSX.Element {
+    function TableInfo(header: React.ReactNode, className?: string): React.ReactElement {
         return (<div className={className}>
                     {header}
                 </div>)
     }
 
-    function CheckType(type: string): JSX.Element {
-        switch (type) {
-            case 'local':
-                return <Icons.Local fontSize='small'/>
-            case 'Youtube':
-                return <Icons.Youtube fontSize='small'/>
-            default:
-                return <Icons.Local fontSize='small'/>
-        }
-    }
-
-    const columnHelper = createColumnHelper<track>()
+    const columnHelper = createColumnHelper<Track>()
 
     const columns = [
         columnHelper.accessor('id', {
@@ -151,115 +132,68 @@ const BGMTableList = (props: {
     }, [])
 
     useEffect(() => {
-        ScrollToIndex(currentTrack.id)
+        ScrollToIndex(currentTrack.id);
     }, [currentTrack])
 
-    const items: UI[] = [{
-        key: 'Queue',
-        tooltip: 'Add to queue',
+    function ScrollToIndex(index: number) {
+        const customEvent = new CustomEvent('handleTrackScroll', {
+            detail: { index },
+        });
+        window.dispatchEvent(customEvent);
+    }
+
+    const items: PopoverMenuItem[] = [{
+        type: 'button',
+        id: 'Queue',
+        label: 'Queue',
         icon: <Icons.Queue/>,
-        onClick: function (): void {
-            let track: track;
-            // const selectedTrack = bgm.get(selectedContext)!;
-            selectedContext.current.queue.played = false;
-            let currentPos = selectedContext.current.queue.pos; // We have to change the pos mid way so we know the exact pos
-            
-            if (queueTracker.current == -1) { // Add it to the bottom of the queue
-                for (let index = 0; index < bgm.size; index++) {
-                    track = bgm.get(index)!;
-                    if (track.queue.pos < currentPos) { // Ignore all previous that come before the selected track queue pos
-                        continue;
-                    } 
-                    if (track.queue.pos == currentPos) { // Set the selected track to the bottom of the queue
-                        selectedContext.current.queue.pos = bgm.size-1 
-                        continue;
-                    }
-                    track.queue.pos -= 1
-                }
-                ForceUpdate();
-                return;
-            }
-            queueTracker.current++;
-            // TODO loop the queuetracker to see if the item was added, if it was then just organize the pos, else do below
-            for (let index = 0; index < bgm.size; index++) {
-                track = bgm.get(index)!;
-                if (track.queue.pos > currentPos) { // Ignore all tracks that are in the front of the selected track queue pos
-                    continue;
-                } 
-                if (track.queue.pos == currentPos) { // Set the selected track to the position of the queue tracker
-                    selectedContext.current.queue.pos = queueTracker.current;
-                    continue;
-                }
-                if (queueTracker.current > track.queue.pos) { // Ignore the previous inserted tracks in the queue
-                    continue;
-                }
-                
-                track.queue.pos += 1
-            }
-            ForceUpdate();
-            ResetQueue(bgm.values());
-            ConsoleLog(`Queued: \n${selectedContext.current.title}`)
-        }
+        onClick: () => useStore.getState().player.queueTrack(selectedContext.current),
     }, 
     {
-        key: 'Stack',
-        tooltip: '',
+        type: 'button',
+        id: 'Stack',
+        label: 'Stack',
         icon: <Icons.Stack/>,
-        onClick: function (): void {
-            queueTracker.current = 0;
-            let track: track;
-            let currentPos = selectedContext.current.queue.pos; // We have to change the pos mid way so we know the exact pos
-            selectedContext.current.queue.played = false;
-            for (let index = 0; index < bgm.size; index++) {
-                track = bgm.get(index)!;
-                if (track.queue.pos == currentPos) { // Send the selected track to the front of the queue
-                    selectedContext.current.queue.pos = 0;
-                    continue;
-                }
-                if (track.queue.pos > currentPos) { // If the queue pos is higher than the selected track then skip it
-                    continue;
-                }
-                track.queue.pos += 1;
-            }
-            ForceUpdate();
-            ResetQueue(bgm.values());
-            ConsoleLog(`Stacked: \n${selectedContext.current.title}`)
-        }
+        onClick: () => useStore.getState().player.stackTrack(selectedContext.current),
     }, 
     {
-        key: 'Play',
-        tooltip: '',
+        type: 'button',
+        id: 'Play',
+        label: 'Play',
         icon: <Icons.PlayTrack/>,
-        onClick: function (): void {
-            PlayTrack(selectedContext.current);
-        }
-    }, 
+        onClick: () => {
+            useStore.getState().player.removeFromQueue(selectedContext.current);
+            useStore.getState().player.playTrack(selectedContext.current);
+        },
+    },
+    { type: 'separator' },
     {
-        key: 'Clipboard',
-        tooltip: '',
+        type: 'button',
+        id: 'Clipboard',
+        label: 'Clipboard',
         icon: <Icons.Clipboard/>,
-        onClick: function (): void {
+        onClick: () => {
             const clipboardedTrack = selectedContext.current.title;
-            ConsoleLog(`Copied \n${clipboardedTrack}`);
+            window.general.log(`Copied \n${clipboardedTrack}`);
             navigator.clipboard.writeText(clipboardedTrack);
-        }
+        },
     },
     {
-        key: 'Info',
-        tooltip: '',
+        type: 'button',
+        id: 'Info',
+        label: 'Info',
         icon: <Icons.Info/>,
-        onClick: function (): void {
-            ConsoleLog(`${JSON.stringify(selectedContext)}`);
-        }
+        onClick: () => window.general.log(`${JSON.stringify(selectedContext)}`),
     },
     {
-        key: 'Remove',
-        tooltip: '',
+        type: 'button',
+        id: 'Remove',
+        label: 'Remove',
         icon: <Icons.Remove/>,
-        onClick: function (): void {
+        onClick: () => {
             // First remove the track, then reorganize the tracks, then reload the queue
             // bgm.delete(selectedContext.current.id);
-        }
+        },
     },]
 
 	return (
@@ -272,7 +206,6 @@ const BGMTableList = (props: {
         maxHeight: `${viewport.height}px`
     }}>
         <BGMInputSearch searching={searching} setSearchingID={setSearchingID}/>
-        <ContextMenuTrigger id="track-context">
             <table className='' style={{ display: 'grid' }}>
                 <thead className=''
                 style={{
@@ -280,9 +213,7 @@ const BGMTableList = (props: {
                     top: 0,
                     zIndex: 1,
                     }}
-                onContextMenu={() => {
-                    selectedContext.current = nullTrack; // MUST FIX THIS TO NOT OPEN CONTEXT
-                }}
+                onContextMenu={(e) => e.preventDefault()}
                 >   
                 {table.getHeaderGroups().map((headerGroup) => (
                     <tr key={headerGroup.id} >
@@ -321,7 +252,7 @@ const BGMTableList = (props: {
             
                 }}>
                     {rowVirtualizer.getVirtualItems().map(virtualRow => {
-                        const row = rows[virtualRow.index] as Row<track>
+                        const row = rows[virtualRow.index] as Row<Track>
                         return (
                             <tr className={`absolute cursor-pointer select-none rounded-md clickable 
                                 ${row.index === searchingID && row.index === currentTrack.id // searching + playing style
@@ -341,11 +272,14 @@ const BGMTableList = (props: {
                                     transform: `translateY(${virtualRow.start}px)`, // This should always be a `style` as it changes on scroll
                                 }}
                                 onClick={() => {
-                                    bgmQueue.current.remove(bgm.get(row.index)!);
-                                    PlayTrack(bgm.get(row.index)!);
+                                    const track = bgm.get(row.index)!;
+                                    useStore.getState().player.removeFromQueue(track);
+                                    useStore.getState().player.playTrack(track);
                                 }}
-                                onContextMenu={() => {
+                                onContextMenu={(e) => {
+                                    e.preventDefault();
                                     selectedContext.current = bgm.get(row.index)!;
+                                    showPopoverMenu(e.clientX, e.clientY, { id: 'track-context-menu', items });
                                 }}
                                 >
                                 {row.getVisibleCells().map(cell => {
@@ -365,15 +299,7 @@ const BGMTableList = (props: {
                     })}
                 </tbody>
             </table>
-        </ContextMenuTrigger>
     </div>
-    <ContextMenu id="track-context" className="rounded-sm">
-        {items.map((item, index) => (
-            <ContextMenuItem key={item.key} onClick={item.onClick} className={`${index === 2 ? 'border-b-1' : ''} `}>
-                <span className='flex flex-row gap-2'>{item.icon}{item.key}</span>
-            </ContextMenuItem>
-        ))}
-    </ContextMenu>
     </>
 	)
 }

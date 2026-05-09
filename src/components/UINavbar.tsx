@@ -1,105 +1,28 @@
-import { useContext, useEffect, useState } from "react";
-import * as Icons from './Utils/Icons';
-
-import { setting, UI } from "./Utils/types";
-import { BGMContext } from "../App";
+import { useEffect, useState } from "react";
+import { useStore } from "../toolbox/store";
+import { trackConfig, playerConfig } from "../configs";
+import { Icon } from "./general/buttons";
 
 const UINavbar = () => {
 
-    const { bgm, currentTrack, queueTracker, playedQueue, focus, PlayTrack, PlayNextInQueue, ForceUpdate, ResetQueue, LoopTrack, ConsoleLog } = useContext(BGMContext);
-    const [player, setPlayer] = useState({
-        paused: false,
-        muted: false,
-        looped: false,
-    })
-    const [volume, setVolume] = useState<number>(1);
+    const currentTrack = useStore(state => state.player.currentTrack);
+    const volume = useStore(state => state.player.volume);
+    const playing = useStore(state => state.player.playing);
+    const loop = useStore(state => state.player.loop);
+    const mute = useStore(state => state.player.mute);
+    const playedQueueLength = useStore(state => state.player.playedQueue.length);
+    const initialized = useStore(state => state.player.initialized);
 
+    const trackControl = trackConfig(playing, loop, playedQueueLength, initialized);
+    const playerControl = playerConfig(mute);
 
     const [currentThumbnail, setCurrentThumbnail] = useState<string>('');
 
-    /**
-     * Javascript has problems with floating-point numbers so we have to round it to do arithmetic.
-     * @param currentVolume 
-     * @returns 
-     */
-    function AddVolume(currentVolume: number) {
-        let newVolume = Math.round(currentVolume * 100) + 5;
-
-        // volume + 0.05 < 1 ? setVolume((volume) => volume + 0.05) : setVolume(1);
-
-        if (newVolume === 5) {
-            return 0.01
-        } else if (newVolume >= 100) { // If higher than 1
-            return 1;
-        } else {
-            return newVolume / 100;
-        }
-    }
-
-    /**
-     * Javascript has problems with floating-point numbers so we have to round it to do arithmetic.
-     * @param currentVolume 
-     * @returns 
-     */
-    function RemoveVolume(currentVolume: number) {
-        let newVolume = Math.round(currentVolume * 100) - 5;
-
-        // if (volume === 0.01) {
-        //     setVolume(0);
-        // } else if (volume - 0.05 < 0.01) {
-        //     setVolume(0.01);
-        // } else {
-        //     setVolume((volume) => volume - 0.05);
-        // }
-
-        // volume - 0.05 <= 0 ? setVolume(0) : setVolume((volume) => volume - 0.05);
-
-        if (Math.round(currentVolume * 100) === 1) { // If equal to 0.01
-            return 0;
-        } 
-        if (newVolume < 1) { // If higher than 0.01
-            return 1 / 100;
-        } 
-        else { // just subtract
-            return newVolume / 100;
-        }
-    }
-
     useEffect(() => {
-
-        window.api.onLoaded((settings: setting) => {
-            setVolume(settings.volume);
-        })
-
         window.api.onTrackStarted(() => {
-            setPlayer(prevPlayer => ({ ...prevPlayer, paused: false }));
-        })
-
-        window.addEventListener("keydown", InputControl);
-        return () => {
-            window.removeEventListener("keydown", InputControl);
-            window.api.offLoaded();
-            window.api.offTrackStarted();
-        };
+            useStore.getState().player.setPlaying(true);
+        });
     }, [])
-
-    useEffect(() => {
-        window.api.pausePlayer(player.paused);
-        ConsoleLog(`The player is now ${!player.paused ? 'playing' : 'paused'}`); // Playing: true | false
-    }, [player.paused])
-
-    useEffect(() => {
-
-    }, [player.muted])
-
-    useEffect(() => {
-
-    }, [player.looped])
-
-    useEffect(() => {
-        // ConsoleLog(volume)
-        window.api.changeVolume(volume);
-    }, [volume])
 
     useEffect(() => {
         window.api.readThumbnail(currentTrack.url).then((thumbnail) => {
@@ -107,134 +30,9 @@ const UINavbar = () => {
         });
     }, [currentTrack])
 
-    function InputControl(e: { keyCode: number;}) {
-        if (focus.current) return;
-        const { keyCode } = e;
-        switch (keyCode) {
-            case 32: // Space
-                PlayPause();
-                break;
-            // case 76: // ?
-            //     Loop();
-            //     break;
-            case 37: // Arrow left
-                setVolume((volume) => RemoveVolume(volume));
-                break;
-            case 39: // Arrow right
-                setVolume((volume) => AddVolume(volume));
-                break;
-        }
-    }
-
     function handleKeyDown(e: React.KeyboardEvent<HTMLButtonElement>) {
         e.preventDefault();
     }
-
-    function Shuffle() {
-        queueTracker.current = -1
-        const tracksArray = Array.from(bgm.values());
-        for (let index = bgm.size - 1; index > 0; index--) {
-            const pos = Math.floor(Math.random() * (index + 1));
-            [tracksArray[index], tracksArray[pos]] = [tracksArray[pos], tracksArray[index]];
-        }
-        tracksArray.forEach((track, index) => {
-            track.queue.pos = index; // Update pos based on the new order
-            bgm.set(track.id, track); // Update the Map with the modified track
-        });
-        ResetQueue(tracksArray);
-        ConsoleLog(`Queue shuffled`);
-        ForceUpdate();
-    }
-
-    function PlayPause() {
-        setPlayer(prevPlayer => ({ ...prevPlayer, paused: !prevPlayer.paused })); // if paused play, if playing pause
-        // ScrollToIndex(currentSelectedTrack.current);
-    }
-
-    function Loop() {
-        LoopTrack(!player.looped);
-        window.api.loopPlayer(!player.looped);
-        setPlayer({...player, looped: !player.looped}); // if paused play, if playing pause
-        ConsoleLog(`Looping is now ${!player.looped}`); // Looping: true | false
-    }
-
-    function Prev() {
-        if (playedQueue.current.length === 0) return;
-        const playingTrack = playedQueue.current.pop();
-        playingTrack!.queue.played = false;
-        bgm.set(playingTrack!.id, playingTrack!);
-        if (playedQueue.current.length === 0) {
-            PlayTrack({
-                    id: -1,
-                    url: '',
-                    title: '',
-                    duration: undefined,
-                    queue: {
-                        pos: -1,
-                        played: false
-                    },
-                    type: 'local'
-                },
-            );
-        } else {
-            PlayTrack(bgm.get(playedQueue.current.pop()!.id)!)
-            
-        }
-        ResetQueue(bgm.values());
-    }
-
-    function Skip() {
-        ConsoleLog('Skipped');
-        PlayNextInQueue();
-        // console.log("Skipped");
-    }
-    
-    const trackControl: UI[] = [
-        {
-            key: "Shuffle",
-            tooltip: "",
-            icon: <Icons.Shuffle/>,
-            onClick: Shuffle
-        },
-        {
-            key: "Back",
-            tooltip: "",
-            icon: playedQueue.current.length !== 0 ? <Icons.Back/> : <Icons.Back htmlColor="gray"/>,
-            onClick: Prev
-        },
-        {
-            key: "Play/Pause",
-            tooltip: "",
-            icon: player.paused ? <Icons.Play fontSize="large"/> : <Icons.Pause fontSize="large"/>,
-            onClick: PlayPause
-        },
-        {
-            key: "Skip",
-            tooltip: "",
-            icon: <Icons.Skip/>,
-            onClick: Skip
-        },
-        {
-            key: "Loop",
-            tooltip: "",
-            icon: player.looped ? <Icons.Loop/> : <Icons.Loop htmlColor="gray"/>,
-            onClick: Loop
-        }
-    ]
-
-    function VolumeType(): JSX.Element {
-        return <Icons.VolumeUp/>
-    }
-
-    const playerControl: UI[] = [{
-        key: "Volume",
-        tooltip: "",
-        icon: player.muted ? <Icons.VolumeMute/> : VolumeType(),
-        onClick: function (): void {
-            window.api.mutePlayer(!player.muted);
-            setPlayer({...player, muted: !player.muted});
-        }
-    }]
 
     return (
         <div className='navbar col-span-4 '>
@@ -246,16 +44,12 @@ const UINavbar = () => {
                 </div>
                 <div className="basis-2/4 flex flex-row justify-center gap-2"> 
                     {trackControl.map((item, index) => (
-                        <button tabIndex={-1} key={item.key} onClick={item.onClick} onKeyDown={handleKeyDown} className={` w-[10%] max-w-[40px] aspect-square ${index === 2 ? 'border-2 rounded-full' : ''}`}>
-                            {item.icon}
-                        </button>
+                        <Icon key={item.key} icon={item.icon} onClick={item.onClick} onKeyDown={handleKeyDown} disabled={item.disabled} className={`w-[10%] max-w-[40px] aspect-square ${index === 2 ? 'border-2 rounded-full' : ''}`} />
                     ))}
                 </div>
                 <div className=" basis-1/4 flex flex-row ">
                     {playerControl.map(item => (
-                        <button tabIndex={-1} key={item.key} onClick={item.onClick} onKeyDown={handleKeyDown} className={`h-full aspect-square`}>
-                            {item.icon}
-                        </button>
+                        <Icon key={item.key} icon={item.icon} onClick={item.onClick} onKeyDown={handleKeyDown} className={`h-full aspect-square`} />
                     ))}
                     <div className="w-full rounded-full relative flex h-full">
                         <input tabIndex={-1} className="w-full background-volume absolute h-full select-none cursor-none" type="range"/>
@@ -268,7 +62,7 @@ const UINavbar = () => {
                         style={{ 
                             '--value': `${volume*100}% `,
                             } as React.CSSProperties}
-                        onChange={(e) => setVolume(parseFloat(e.target.value))}
+                        onChange={(e) => useStore.getState().player.setVolume(parseFloat(e.target.value))}
                         onMouseUp={() => {
                             window.api.saveSettings();
                         }}/>
