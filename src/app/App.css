@@ -1,7 +1,7 @@
 @media (prefers-color-scheme: dark) {
     .toolbar {background: #2e2d2d;}
     .inputSearch {background: #2e2d2d}
-    .contextmenu__item:hover {background-color: #333333 !important}
+    .context-menu__item:hover {background-color: #333333 !important}
 
     /* Darkest */
     .navbar {background: #161616 !important}
@@ -15,9 +15,8 @@
 
     /* Light */
     .results {background: #212121 !important}
-    .contextmenu {background: #212121 !important}
-
-    .queue-track {background: #212121 !important}
+    .context-menu {background: #212121 !important}
+    .context-menu__item:hover {background-color: #333333 !important}
 
     /* Lighter */
     .main {background: #252525 !important}
@@ -71,8 +70,8 @@
 @media (prefers-color-scheme: light) {
     .toolbar { background: #f0f0f0; } /* Light background for the toolbar */
     .inputSearch { background: #ffffff; } /* White background for input search */
-    .contextmenu { background: #f2f2f2 !important; } /* Light gray for context menu */
-    .contextmenu__item:hover {background-color: #ffffff !important}
+    .context-menu { background: #f2f2f2 !important; }
+    .context-menu__item:hover {background-color: #e0e0e0 !important}
 
 
     /* Lightest */

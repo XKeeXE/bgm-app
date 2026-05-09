@@ -1,7 +1,6 @@
-import { useContext, useEffect, useRef, useState } from "react";
-import { BGMContext } from "../App";
-import { Spinner } from "@nextui-org/react";
-import { track } from "./Utils/types";
+import { useEffect, useRef, useState } from "react";
+import { Track } from "../interfaces/store/player";
+import { useStore } from "../toolbox/store";
 
 interface initialDnDState {
     draggedFrom: number | null,
@@ -12,22 +11,21 @@ interface initialDnDState {
 }
 
 interface trackQueued {
-    track: track,
+    track: Track,
     thumbnail: string,
 }
 
-// const queueLoadedEvent = new CustomEvent('');
-
 const BGMQueue = () => {
-    const { bgm, bgmQueue, currentTrack, forceUpdate, ForceUpdate, ResetQueue} = useContext(BGMContext);
+    const bgm = useStore(state => state.player.bgm);
+    const bgmQueue = useStore(state => state.player.bgmQueue);
+    const currentTrack = useStore(state => state.player.currentTrack);
 
     const [tempQueue, setTempQueue] = useState<trackQueued[]>([]);
     const result = useRef<string>('None');
-    const initialized = useRef<boolean>(false);
 
     useEffect(() => {
         ReadQueue();
-    }, [bgm, currentTrack, forceUpdate])
+    }, [bgm, currentTrack, bgmQueue])
 
     const [dragAndDrop, setDragAndDrop] = useState<initialDnDState>({
         draggedFrom: null,
@@ -73,17 +71,16 @@ const BGMQueue = () => {
 
     function onDrop() {
         const queuePos: number[] = [];
-        bgmQueue.current.getNextTenTracks().forEach(track => {
-            queuePos.push(track.queue.pos) // Save the queue pos for later because we can't change it directly as it will override it
+        bgmQueue.getNextTenTracks().forEach(track => {
+            queuePos.push(track.queue.pos)
         })
 
-        for (let index = 0; index < queuePos.length; index++) {
-            dragAndDrop.updatedOrder[index].track.queue.pos = queuePos[index]; // Reassign the queue pos to the new order
-        }
+        const orderedItems = dragAndDrop.updatedOrder
+            .slice(0, queuePos.length)
+            .map((item, i) => ({ id: item.track.id, newPos: queuePos[i] }));
 
-        ResetQueue(bgm.values());
+        useStore.getState().player.reorderQueue(orderedItems);
         setTempQueue(dragAndDrop.updatedOrder);
-        ForceUpdate()
 
         setDragAndDrop({
             originalOrder: dragAndDrop.updatedOrder,
@@ -102,15 +99,15 @@ const BGMQueue = () => {
     }
 
     async function ReadQueue() {
-        const queue: trackQueued[] = []; // the array of tracks of the next 10 tracks if possible
-        for (let track of bgmQueue.current.getNextTenTracks()) {
+        const queue: trackQueued[] = [];
+        for (const track of bgmQueue.getNextTenTracks()) {
             queue.push({
                 track: {...track},
                 thumbnail: '',
             });
         }
 
-        result.current = `${bgmQueue.current.getNextTenTracks().length} / ${bgmQueue.current.length()}`
+        result.current = `${bgmQueue.getNextTenTracks().length} / ${bgmQueue.length()}`
         await window.api.readThumbnail(queue.map(track => track.track.url)).then(thumbnails => {
             const queueThumbnails = thumbnails as string[];
             queueThumbnails.forEach((thumbnail, index) => {
@@ -144,7 +141,7 @@ const BGMQueue = () => {
                 }
             }}>
                 {track.thumbnail === '' ? 
-                <Spinner/>
+                <div className="rounded-sm aspect-video bg-gray-300 animate-pulse" style={{ height: 50, width: 50 }}/>
                 : <img className="rounded-sm aspect-video" src={track.thumbnail} height={50} width={50}/>
                 }
                 <span className="line-clamp-2 xl:line-clamp-3">{track.track.title}</span>

@@ -1,80 +1,27 @@
-import {  useContext, useEffect, useRef } from "react";
-import { UI, track } from "./Utils/types";
-import { BGMContext } from "../App";
-import * as Icons from "./Utils/Icons";
+import { useEffect, useRef } from "react";
+import { useStore } from "../toolbox/store";
+import { Track } from "../interfaces/store/player";
+import { settingsItems } from "../configs";
+import { Icon } from "./general/buttons";
 
 //  : <Brightness fontSize='large' />,
 
 const UISettings = () => {
 
-    const { bgm, LoadTracks, ForceUpdate, ConsoleLog } = useContext(BGMContext);
-   
-    const bgmRef = useRef(bgm);
     const settingsRef = useRef<HTMLDivElement>(null);
 
-    
     useEffect(() => {
-        window.api.newHome((bgm, path) => {
-            ConsoleLog(`New path: ${path}`)
-            LoadTracks(bgm);
-        })
+        window.api.newHome((newBgm, path) => {
+            window.general.log(`New path: ${path}`);
+            useStore.getState().player.loadTracks(newBgm);
+        });
 
-        window.api.newLocalTracks((tracks: track[]) => {
-            tracks.forEach(track => {
-                bgmRef.current.set(track.id, track);
-            });
-            LoadTracks(bgmRef.current);
-        })
+        window.api.newLocalTracks((tracks: Track[]) => {
+            const newBgm = new Map(useStore.getState().player.bgm);
+            tracks.forEach(track => newBgm.set(track.id, track));
+            useStore.getState().player.loadTracks(newBgm);
+        });
     }, [])
-    
-    useEffect(() => {
-        bgmRef.current = bgm;
-    }, [bgm])
-
-    const items: UI[] = [{
-        key: 'Darkmode',
-        tooltip: 'Change Theme',
-        icon: <Icons.Darkmode fontSize='large'/>,
-        onClick: function (): void {
-            window.api.darkmode();
-        }
-    },
-    // {
-    //     key: 'Language',
-    //     tooltip: 'Change language',
-    //     icon: <Language fontSize='large' />,
-    //     onClick: function (): void {
-    //         console.log('test');
-    //     }
-    // },
-    {
-        key: "Local",
-        tooltip: "Local Tracks",
-        icon: <Icons.InsertFile fontSize='large'/>,
-        onClick: function (): void {
-            window.api.addLocalTracks(bgm.size);
-            // ConsoleLog(bgm.size);
-    
-        }
-    },
-    {
-        key: 'Home',
-        tooltip: 'Directory',
-        icon: <Icons.Directory fontSize='large' />,
-        onClick: function (): void {
-            window.api.selectHome();
-        }
-    },
-    // {
-    //     key: "YouTube",
-    //     tooltip: "YouTube",
-    //     icon: <Icons.Youtube fontSize='large' />,
-    //     onClick: function (): void {
-    //         console.log('clicklab;e');
-    
-    //     }
-    // }
-    ]
     
     function CurrentTransform() {
         const currentTransform = getComputedStyle(settingsRef.current!).transform;
@@ -111,10 +58,9 @@ const UISettings = () => {
         <div className="settings-background absolute min-w-[50px] min-h-screen z-50" onMouseEnter={(handleShowSettings)} onMouseLeave={(handleHideSettings)}>
             <div ref={settingsRef} className={`settings relative translate-x-[-50px] min-h-screen toolbar`}>
                 <ul className=" flex flex-col items-center">
-                    {items.map(item => (
-                        <li key={item.key} className="relative tooltip first:mt-2 mb-4 cursor-pointer rounded-full border-2 border-dashed p-[2px]" onClick={item.onClick}>
-                            <span className="tooltiptext left-[135%]">{item.tooltip}</span>
-                            {item.icon}
+                    {settingsItems.map(item => (
+                        <li key={item.key} className="first:mt-2 mb-4">
+                            <Icon icon={item.icon} tooltip={item.tooltip} onClick={item.onClick} className="cursor-pointer rounded-full border-2 border-dashed p-[2px]" />
                         </li>
                     ))}
                 </ul>

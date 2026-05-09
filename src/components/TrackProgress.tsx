@@ -1,28 +1,18 @@
 import { useEffect, useState } from "react";
+import { useStore } from "../toolbox/store";
 
 const TrackProgress = () => {
 
-    const [duration, setDuration] = useState<number>(0);
+    const duration = useStore((state) => state.player.duration);
     const [currentTime, setCurrentTime] = useState<number>(0);
 
     // const { ConsoleLog } = useContext(BGMContext);
     
 
     useEffect(() => {
-
-        window.api.onTrackStarted((duration) => {
-            setDuration(duration);
-            // ConsoleLog(`Length: ${CalculateTime(duration)}`);
-        })
-
         window.api.onProgress((currentTime) => {
             setCurrentTime(currentTime);
         })
-
-        return () => {
-            window.api.offTrackStarted();
-            window.api.offProgress();
-        }
     }, [])
 
     /**

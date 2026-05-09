@@ -1,5 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import { track } from '../src/components/Utils/types';
+import { Track } from '../src/interfaces/store/player';
+import { Setting } from '../src/toolbox/utils/types';
 
 contextBridge.exposeInMainWorld(
     "api", {
@@ -7,10 +8,30 @@ contextBridge.exposeInMainWorld(
         quit: () => {
             ipcRenderer.send('quit');
         },
+        maximize: () => {
+            ipcRenderer.send('maximize');
+        },
+        minimize: () => {
+            ipcRenderer.send('minimize');
+        },
+
+        loadReady: () => {
+            ipcRenderer.send('load-ready');
+        },
+        onLoaded: (callback: (settings: Setting) => void) => {
+            ipcRenderer.removeAllListeners('loaded');
+            ipcRenderer.on('loaded', (_e, settings: Setting) => callback(settings));
+        },
+        saveSettings: () => {
+            ipcRenderer.send('save-settings');
+        },
 
         // Main
         loadTracks: () => {
             return ipcRenderer.invoke('load-tracks');
+        },
+        downloadYoutube: (link: string) => {
+            ipcRenderer.send('download-youtube', link);
         },
 
         playTrack: (trackPath: string) => {
@@ -20,64 +41,82 @@ contextBridge.exposeInMainWorld(
             ipcRenderer.send('seek-track', time);
         },
 
-        saveQueue: (bgm: Map<number, track>) => {
-            ipcRenderer.send('save-queue', bgm)
+        saveQueue: (bgm: Map<number, Track>) => {
+            ipcRenderer.send('save-queue', bgm);
         },
         loadQueue: () => {
-            return ipcRenderer.invoke('load-queue'); 
+            return ipcRenderer.invoke('load-queue');
         },
-        readThumbnails: () => {
-            return ipcRenderer.invoke('read-thumbnail');
+        readThumbnail: (url: string[] | string) => {
+            return ipcRenderer.invoke('read-thumbnail', url);
         },
 
         changeVolume: (volume: number) => {
             ipcRenderer.send('volume-player', volume);
         },
 
-
-        // Player
-        onTrackStarted: (callback: any) => {
-            ipcRenderer.on('started', (_e, duration: number) => {
-                callback(duration);
-            });
+        // Player events (from player window back to main renderer)
+        onTrackStarted: (callback: (duration: number) => void) => {
+            ipcRenderer.removeAllListeners('started');
+            ipcRenderer.on('started', (_e, duration: number) => callback(duration));
         },
-        onProgress: (callback: any) => {
-            ipcRenderer.on('playback', (_e, currentTime: number) => {
-                callback(currentTime);
-            });
+        onProgress: (callback: (currentTime: number) => void) => {
+            ipcRenderer.removeAllListeners('playback');
+            ipcRenderer.on('playback', (_e, currentTime: number) => callback(currentTime));
         },
-        onTrackEnded: (callback: any) => {
-            ipcRenderer.on('ended', () => {
-                callback();
-            });
+        onTrackEnded: (callback: () => void) => {
+            ipcRenderer.removeAllListeners('ended');
+            ipcRenderer.on('ended', () => callback());
+        },
+        onError: (callback: () => void) => {
+            ipcRenderer.removeAllListeners('error');
+            ipcRenderer.on('error', () => callback());
         },
 
-
-        pausePlayer: (pause: boolean) => {
-            ipcRenderer.send('pause-player', pause);
+        playPlayer: (playing: boolean) => {
+            ipcRenderer.send('play-player', playing);
+        },
+        resetPlayer: () => {
+            ipcRenderer.send('reset-player');
         },
         mutePlayer: (mute: boolean) => {
             ipcRenderer.send('mute-player', mute);
         },
         loopPlayer: (loop: boolean) => {
             ipcRenderer.send('loop-player', loop);
-
         },
-        
 
         // Settings
         darkmode: () => {
-            return ipcRenderer.invoke('darkmode');
+            ipcRenderer.send('darkmode');
         },
         selectHome: () => {
             ipcRenderer.send('select-home');
-        }, 
-        newHome: (callback: any) => {
-            ipcRenderer.on('new-home', (_e, bgm: Map<number, track>, path: string) => {
-                callback(bgm, path);
-            });
-        }
-        
+        },
+        newHome: (callback: (bgm: Map<number, Track>, path: string) => void) => {
+            ipcRenderer.removeAllListeners('new-home');
+            ipcRenderer.on('new-home', (_e, bgm: Map<number, Track>, path: string) => callback(bgm, path));
+        },
+
+        addLocalTracks: (size: number) => {
+            ipcRenderer.send('add-local-tracks', size);
+        },
+        newLocalTracks: (callback: (tracks: Track[]) => void) => {
+            ipcRenderer.removeAllListeners('new-local-tracks');
+            ipcRenderer.on('new-local-tracks', (_e, tracks: Track[]) => callback(tracks));
+        },
+    }
+);
+
+contextBridge.exposeInMainWorld(
+    "general", {
+        log: (message: string) => {
+            ipcRenderer.send('log', message);
+        },
+        onLog: (callback: (message: string) => void) => {
+            ipcRenderer.removeAllListeners('on-log');
+            ipcRenderer.on('on-log', (_e, message: string) => callback(message));
+        },
     }
 );
 
