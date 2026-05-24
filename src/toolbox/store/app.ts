@@ -23,5 +23,17 @@ export const appSlice = lens<IStore["app"], IStore>((set) => {
         state.darkMode = darkMode;
       });
     },
+
+    selectedIds: new Set<number>(),
+    setSelectedIds: (ids) => {
+      set((state) => {
+        state.selectedIds = ids;
+      });
+    },
+    clearSelectedIds: () => {
+      set((state) => {
+        state.selectedIds = new Set<number>();
+      });
+    },
   };
 });

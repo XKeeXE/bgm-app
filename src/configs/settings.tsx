@@ -1,6 +1,6 @@
-import * as Icons from '../../toolbox/utils/Icons';
-import { UI } from '../../toolbox/utils/types';
-import { useStore } from '../../toolbox/store';
+import * as Icons from '../toolbox/utils/Icons';
+import { UI } from '../toolbox/utils/types';
+import { useStore } from '../toolbox/store';
 
 export const settingConfig: UI[] = [
     { key: 'Darkmode', tooltip: 'Change Theme',  icon: <Icons.Darkmode fontSize='large'/>,    onClick: () => window.api.darkmode() },

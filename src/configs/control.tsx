@@ -1,6 +1,6 @@
-import * as Icons from '../../toolbox/utils/Icons';
-import { UI } from '../../toolbox/utils/types';
-import { useStore } from '../../toolbox/store';
+import * as Icons from '../toolbox/utils/Icons';
+import { UI } from '../toolbox/utils/types';
+import { useStore } from '../toolbox/store';
 
 export const trackConfig = (playing: boolean, loop: boolean, playedQueueLength: number, initialized: boolean): UI[] => {
     const hasPrev = playedQueueLength >= 2;

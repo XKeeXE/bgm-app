@@ -19,7 +19,6 @@ Supports local audio files and YouTube sources, with a clean UI designed for eff
 - Queue and stack tracks for ordered or LIFO playback
 - `initialized` state gates playback controls — Back resets the player when no history exists
 - Full player reset: clears current track, played history, and reloads the queue from scratch
-- Context menu (PopoverMenu) on tracks: Queue, Stack, Play, Copy URL, Info, Remove
 - Volume control via slider or keyboard (`←` / `→` arrow keys), Space to play/pause
 - Keyboard shortcuts via `react-hotkeys-hook`, mounted at the App root
 - IPC bridge for all player commands: play, pause, seek, volume, mute, loop, reset

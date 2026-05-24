@@ -7,9 +7,11 @@
 - QOL, bug fixes, code organization, folder organization.
 
 ## Phase 2
+- Multi-select right-click tracks at BGMTableList to queue, tag, stack, play (play is essentially play the first multi-selected track and stack the rest)
 - Playlist integration, essentially allowing grouping of multiple tracks and having multiple playlists
 - UI improvements
 - Tags for tracks, integrated from local files, or added by the user.
+- Better Serialization
 
 ## Phase 2.5
 - Nested Playlists support

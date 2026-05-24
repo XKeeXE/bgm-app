@@ -1,6 +1,6 @@
-import * as Icons from '../../toolbox/utils/Icons';
-import { UI } from '../../toolbox/utils/types';
-import { useStore } from '../../toolbox/store';
+import * as Icons from '../toolbox/utils/Icons';
+import { UI } from '../toolbox/utils/types';
+import { useStore } from '../toolbox/store';
 
 export const windowConfig: UI[] = [
     { key: "Minimize",  tooltip: "", icon: <Icons.Minimize/>,  onClick: () => window.api.minimize() },

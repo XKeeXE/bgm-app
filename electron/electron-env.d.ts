@@ -55,8 +55,8 @@ interface API {
 
     playPlayer: (playing: boolean) => void,
     resetPlayer: () => void,
-    mutePlayer: (boolean: boolean) => void,
-    loopPlayer: (boolean: boolean) => void,
+    mutePlayer: (mute: boolean) => void,
+    loopPlayer: (loop: boolean) => void,
 
     // Settings
     darkmode: () => void,

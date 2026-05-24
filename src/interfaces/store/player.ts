@@ -47,7 +47,9 @@ interface IPlayer {
 
   removeFromQueue: (track: Track) => void;
   queueTrack: (track: Track) => void;
+  queueTracks: (tracks: Track[]) => void;
   stackTrack: (track: Track) => void;
+  stackTracks: (tracks: Track[]) => void;
   shuffleQueue: () => void;
   reorderQueue: (orderedItems: Array<{ id: number; newPos: number }>) => void;
 

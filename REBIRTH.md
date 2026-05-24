@@ -113,15 +113,16 @@ Defined in `electron/preload.ts`, exposed to the App renderer. Key methods:
 | `onTrackEnded(cb)` | Player → App | Fires when audio ends naturally |
 | `onError(cb)` | Player → App | Fires on audio playback error |
 | `changeVolume(n)` | App → Player | Updates `gainNode.gain.value` in Player window |
-| `pausePlayer(bool)` | App → Player | Pauses or resumes audio |
+| `playPlayer(bool)` | App → Player | Pauses or resumes audio (renamed from `pausePlayer`) |
+| `resetPlayer()` | App → Player | Resets the audio element (clears src, stops playback) |
+| `onProgress(cb)` | Player → App | Fires periodically during playback with current time |
 
 ### `window.general` — Dev/Logging API (contextBridge)
 
 | Method | Description |
 |---|---|
 | `log(message)` | Sends a log message to the console panel in `UIUtilities` |
-| `onLog(callback)` | Subscribes to log messages |
-| `removeLog()` | Removes the log listener |
+| `onLog(callback)` | Subscribes to log messages. Automatically calls `removeAllListeners` before registering — no manual cleanup needed. |
 
 ---
 
@@ -161,12 +162,15 @@ Located at `src/toolbox/store/player.ts`, interface at `src/interfaces/store/pla
 
 | Field | Type | Description |
 |---|---|---|
+| `initialized` | `boolean` | Whether a real track has been played this session. Starts `false`. Drives back-button state. |
+| `playing` | `boolean` | Whether audio is currently playing. Starts `false`. |
+| `loop` | `boolean` | Whether the current track should loop (renamed from `looped`). |
+| `mute` | `boolean` | Whether audio is muted. |
+| `volume` | `number` | Current volume (0–2, where 1 = 100%, 2 = 200% via gain node). |
 | `bgm` | `Map<number, Track>` | All available tracks, keyed by `Track.id`. |
 | `currentTrack` | `Track` | The track currently playing. Defaults to `DEFAULT_TRACK` (id: -1). |
 | `bgmQueue` | `MinHeap` | The ordered play queue. Tracks are extracted in ascending `queue.pos` order. |
 | `playedQueue` | `Track[]` | History of played tracks in the current session. Used by `playPrevious()`. |
-| `volume` | `number` | Current volume (0–2, where 1 = 100%, 2 = 200% via gain node). |
-| `looped` | `boolean` | Whether the current track should loop. |
 
 Key actions:
 
@@ -183,6 +187,9 @@ Key actions:
 | `resetQueue(tracks)` | Rebuilds `bgmQueue` MinHeap from scratch, skipping already-played tracks. |
 | `syncQueue('save')` | Serializes `bgm` via `window.api.saveQueue()`. |
 | `syncQueue('load')` | Loads queue from file, calls `loadTracks`, then `playNextInQueue`. |
+| `setInitialized(val)` | Sets the `initialized` flag. Called internally by `playTrack` when a real track is pushed. |
+| `setPlaying()` | Toggles `playing` and relays to the Player window via `window.api.playPlayer`. |
+| `resetPlayer()` | Resets `currentTrack` to `DEFAULT_TRACK`, clears `playedQueue`, sets `initialized` to `false`, and resets audio in the Player window. |
 
 ---
 
@@ -296,7 +303,23 @@ src/
     UISettings.tsx     ← Settings panel (darkmode, home folder, add local tracks)
     UIUtilities.tsx    ← Window controls + console log panel
     general/
-      IconButton.tsx   ← Reusable icon button primitive
+      buttons/
+        Icon.tsx       ← Reusable icon button with optional tooltip support
+        index.ts       ← Re-exports Icon
+    PopoverMenu/
+      PopoverMenu.tsx  ← Core system: Zustand store + usePopoverMenu hook + PopoverMenuRenderer
+      types.ts         ← PopoverMenuConfig, PopoverMenuItem (ButtonItem | SeparatorItem | DropdownItem)
+      components/
+        Menu.tsx       ← Menu container (dark-themed via Tailwind dark: variants)
+        Button.tsx     ← Button item (dark-themed)
+        Seperator.tsx  ← Separator item (dark-themed)
+
+  configs/
+    control/
+      index.tsx        ← trackConfig() + playerConfig() — button definitions consumed by UINavbar
+
+  hooks/
+    useKeyboardShortcuts.tsx ← All keyboard shortcuts via react-hotkeys-hook
 
   interfaces/
     store/
@@ -313,6 +336,7 @@ src/
       Icons.ts         ← Re-exports from @mui/icons-material
       MinHeap.ts       ← Min-heap data structure ordered by Track.queue.pos
       types.ts         ← UI, Setting, svg types
+      volume.ts        ← Volume arithmetic utilities (addVolume, removeVolume) with float-safe rounding
 
 index.html             ← App window HTML entry
 player.html            ← Player window HTML entry
@@ -322,7 +346,7 @@ player.html            ← Player window HTML entry
 
 ## React Compiler
 
-The React Compiler (`babel-plugin-react-compiler`) is the next planned addition. It performs **automatic memoization** at compile time — the equivalent of wrapping every component in `React.memo` and every value/callback in `useMemo`/`useCallback`, but without writing any of that manually.
+The React Compiler (`babel-plugin-react-compiler`) is installed and configured. It performs **automatic memoization** at compile time — the equivalent of wrapping every component in `React.memo` and every value/callback in `useMemo`/`useCallback`, but without writing any of that manually.
 
 ### Why it matters here
 
@@ -334,9 +358,11 @@ The compiler would eliminate these re-renders automatically by analyzing the com
 
 ### Requirements
 
-- React 19+ (or React 18 with the `react-compiler-runtime` shim)
-- `babel-plugin-react-compiler` installed
-- Configured in `vite.config.ts` under `@vitejs/plugin-react`'s `babel.plugins`
+All requirements are met:
+
+- React 19+ ✓
+- `babel-plugin-react-compiler` installed ✓
+- Configured in `vite.config.ts` under `@vitejs/plugin-react`'s `babel.plugins` ✓
 
 ### Constraints for this codebase
 
@@ -380,13 +406,32 @@ The one area to audit before enabling the compiler: ensure no component directly
 - Fixed `Array.from` selector infinite loop in `BGMTableList`
 - Fixed frozen-object mutation in `playTrack`
 
-### Phase 2 — QOL + External Sources (Planned)
+### Phase 1.5 — QOL Rework ✅
+- Upgraded to React 19, removed NextUI, cleaned up dead packages
+- Replaced `rctx-contextmenu` + `useContextMenu` with a Zustand-backed `PopoverMenu` system (portal-mounted, dark-themed via `tailwind darkMode: "media"`)
+- Replaced `IconButton` primitive with `Icon` component (`general/buttons/Icon.tsx`) supporting optional tooltip
+- Centralized all keyboard shortcuts in `useKeyboardShortcuts` hook via `react-hotkeys-hook`
+- Added volume arithmetic utilities (`toolbox/utils/volume.ts`) with float-safe rounding
+- Added `playing`, `loop`, `mute`, `initialized` fields to player store; renamed `looped → loop`, `pausePlayer → playPlayer`
+- Added `resetPlayer` action + full IPC chain (`App → Main → Player window reset event`)
+- Back button state machine: disabled (not initialized) → gray-back (initialized, no prev) → white-back (has prev) → gray-X (initialized, no prev, shows close)
+- Centralized UINavbar button definitions into `configs/control/index.tsx`
+- Fixed IPC listener stacking: all `ipcRenderer.on*` methods call `removeAllListeners` first
+- Fixed `playing: true` initial state (was accidentally `true`)
+- Fixed `removeVolume(0)` returning 0.01 instead of 0
+- Fixed `playPrevious` double-pop aligned with original implementation
+- Fixed `DEFAULT_TRACK` being pushed to `playedQueue` via `track.id === -1` guard in `playTrack`
+- Fixed `resetting` ref in `player.tsx` preventing `onError`/`onEnded` from firing during audio reset
+- Fixed Vite preload input key (`preload:` was `main_window:`) — preload was never being rebuilt on save
+- Removed `window.general.removeLog()` — `onLog` now self-cleans
+- Installed and configured React Compiler (`babel-plugin-react-compiler`)
+
+### Phase 2 — External Sources (Planned)
 - Support external audio files beyond the home folder (drag-drop, URL import)
 - YouTube/streaming source support (`downloadYoutube` IPC already exists)
 - Support multiple playlists (grouping tracks — see open questions below)
-- Fix known bugs: `bgmRef` frozen Map mutation in `UISettings`, `playPrevious` double-pop, console log auto-scroll
+- Fix known bugs: `bgmRef` frozen Map mutation in `UISettings`, console log auto-scroll
 - Install and configure `vite-plugin-svgr` for flag SVG components
-- Install and configure React Compiler
 
 ### Phase 3 — Multilocalization (Planned)
 - Wire `app.language` store field to UI

@@ -10,7 +10,7 @@ import UIUtilities from '../components/UIUtilities';
 import TrackProgress from '../components/TrackProgress';
 import { useStore } from '../toolbox/store';
 import { Setting } from '../toolbox/utils/types';
-import PopoverMenuRenderer from '../components/PopoverMenu/PopoverMenu';
+import { PopoverRenderer } from '@patch-kit/popover';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 
 function App() {
@@ -44,12 +44,7 @@ function App() {
         });
 
         window.api.onTrackEnded(() => {
-            const loop = useStore.getState().player.loop;
-            if (!loop) {
-                useStore.getState().player.playNextInQueue();
-            } else {
-                window.api.loopPlayer(loop);
-            }
+            useStore.getState().player.playNextInQueue();
         });
 
         window.api.onError(() => {
@@ -96,7 +91,7 @@ function App() {
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <>
         <App />
-        <PopoverMenuRenderer />
+        <PopoverRenderer />
     </>
 )
 

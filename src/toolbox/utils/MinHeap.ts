@@ -1,12 +1,12 @@
+import { immerable } from "immer";
 import { Track } from "../../interfaces/store/player";
 
-// MinHeap.js
 class MinHeap {
+    [immerable] = true;
     heap: Track[];
     constructor() {
         this.heap = [];
     }
-
 
     clear() {
         this.heap = []

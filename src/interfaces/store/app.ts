@@ -9,6 +9,10 @@ interface IApp {
 
   darkMode: boolean;
   setDarkMode: (darkMode: boolean) => void;
+
+  selectedIds: Set<number>;
+  setSelectedIds: (ids: Set<number>) => void;
+  clearSelectedIds: () => void;
 }
 
 export default IApp;

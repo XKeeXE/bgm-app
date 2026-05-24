@@ -1,5 +1,6 @@
 import IStore from "../../interfaces/store";
 import { lens } from "@dhmk/zustand-lens";
+import { current } from "immer";
 import { Track } from "../../interfaces/store/player";
 import MinHeap from "../utils/MinHeap";
 
@@ -115,18 +116,12 @@ export const playerSlice = lens<IStore["player"], IStore>((set, get) => {
     },
 
     playNextInQueue: () => {
-      // MinHeap is a custom class; Immer doesn't track internal mutations.
-      // Mutate directly then force Zustand to acknowledge the change.
-      const minHeap = get().bgmQueue;
-      const nextTrack = minHeap.extractMin();
-      if (nextTrack) {
-        set((state) => {
-          state.bgmQueue = minHeap;
-        });
-        get().playTrack(nextTrack);
-      } else {
-        window.general.log("End of the playlist");
-      }
+      let nextTrack: Track | null = null;
+      set((state) => {
+        const extracted = state.bgmQueue.extractMin();
+        if (extracted) nextTrack = current(extracted);
+      });
+      nextTrack ? get().playTrack(nextTrack) : window.general.log("End of the playlist");
     },
 
     playPrevious: () => {
@@ -151,21 +146,25 @@ export const playerSlice = lens<IStore["player"], IStore>((set, get) => {
     },
 
     removeFromQueue: (track) => {
-      const heap = get().bgmQueue;
-      heap.remove(track);
       set((state) => {
-        state.bgmQueue = heap;
+        state.bgmQueue.remove(track);
       });
     },
 
     queueTrack: (track) => {
       set((state) => {
         const currentPos = track.queue.pos;
+        const maxUnplayedPos = Math.max(
+          -1,
+          ...Array.from(state.bgm.values())
+            .filter((t) => !t.queue.played && t.id !== track.id)
+            .map((t) => t.queue.pos)
+        );
         state.bgm.forEach((t) => {
           if (t.id === track.id) {
             t.queue.played = false;
-            t.queue.pos = state.bgm.size - 1;
-          } else if (t.queue.pos > currentPos) {
+            t.queue.pos = maxUnplayedPos + 1;
+          } else if (!t.queue.played && t.queue.pos > currentPos) {
             t.queue.pos -= 1;
           }
         });
@@ -181,13 +180,51 @@ export const playerSlice = lens<IStore["player"], IStore>((set, get) => {
           if (t.id === track.id) {
             t.queue.played = false;
             t.queue.pos = 0;
-          } else if (t.queue.pos < currentPos) {
+          } else if (!t.queue.played && t.queue.pos < currentPos) {
             t.queue.pos += 1;
           }
         });
       });
       get().resetQueue(get().bgm.values());
       window.general.log(`Stacked: ${track.title}`);
+    },
+
+    queueTracks: (tracks) => {
+      set((state) => {
+        const selectedIds = new Set(tracks.map((t) => t.id));
+        const rest = Array.from(state.bgm.values())
+          .filter((t) => !selectedIds.has(t.id) && !t.queue.played)
+          .sort((a, b) => a.queue.pos - b.queue.pos);
+        rest.forEach((t, i) => { t.queue.pos = i; });
+        tracks.forEach((track, i) => {
+          const draft = state.bgm.get(track.id);
+          if (draft) {
+            draft.queue.played = false;
+            draft.queue.pos = rest.length + i;
+          }
+        });
+      });
+      get().resetQueue(get().bgm.values());
+      window.general.log(`Queued ${tracks.length} tracks`);
+    },
+
+    stackTracks: (tracks) => {
+      set((state) => {
+        const selectedIds = new Set(tracks.map((t) => t.id));
+        const rest = Array.from(state.bgm.values())
+          .filter((t) => !selectedIds.has(t.id) && !t.queue.played)
+          .sort((a, b) => a.queue.pos - b.queue.pos);
+        tracks.forEach((track, i) => {
+          const draft = state.bgm.get(track.id);
+          if (draft) {
+            draft.queue.played = false;
+            draft.queue.pos = i;
+          }
+        });
+        rest.forEach((t, i) => { t.queue.pos = tracks.length + i; });
+      });
+      get().resetQueue(get().bgm.values());
+      window.general.log(`Stacked ${tracks.length} tracks`);
     },
 
     shuffleQueue: () => {

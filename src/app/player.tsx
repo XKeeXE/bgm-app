@@ -74,6 +74,10 @@ function Player() {
     ipcRenderer.on("seek", (_e, time) => {
       audioRef.current!.currentTime = time;
     });
+
+    ipcRenderer.on("loop", (_e, value) => {
+        loop.current = value;
+    });
   }, []);
 
   return (
@@ -91,8 +95,12 @@ function Player() {
         ipcRenderer.send("on-progress", audioRef.current?.currentTime);
       }}
       onEnded={() => {
-        if (!loop.current && !resetting.current) {
-          ipcRenderer.send("track-ended");
+        if (resetting.current) return;
+        if (loop.current) {
+            audioRef.current!.currentTime = 0;
+            audioRef.current!.play();
+        } else {
+            ipcRenderer.send("track-ended");
         }
       }}
       onError={() => {
